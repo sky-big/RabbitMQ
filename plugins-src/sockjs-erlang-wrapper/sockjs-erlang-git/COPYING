@@ -1,0 +1,10 @@
+All code is released under the MIT license (see LICENSE-MIT-SockJS)
+with the exception of following files:
+
+ * src/mochijson2_fork.erl and src/mochinum_fork.erl, which are forked
+   from Mochiweb project (https://github.com/mochi/mochiweb) and
+   covered by LICENSE-MIT-Mochiweb.
+
+ * rebar, which is a compiled binary from Rebar project
+   (https://github.com/basho/rebar) and covered by LICENSE-APL2-Rebar.
+

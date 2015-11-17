@@ -1,0 +1,78 @@
+diff --git a/src/webmachine.app.src b/src/webmachine.app.src
+index eb949a2..2c46c3f 100644
+--- a/src/webmachine.app.src
++++ b/src/webmachine.app.src
+@@ -7,7 +7,6 @@
+   {registered, []},
+   {applications, [kernel,
+                   stdlib,
+-                  crypto,
+                   mochiweb]},
+   {mod, {webmachine_app, []}},
+   {env, []}
+diff --git a/src/webmachine.erl b/src/webmachine.erl
+index 47f1ce2..2e5be1b 100644
+--- a/src/webmachine.erl
++++ b/src/webmachine.erl
+@@ -28,7 +28,6 @@
+ %% @doc Start the webmachine server.
+ start() ->
+     webmachine_deps:ensure(),
+-    application:start(crypto),
+     application:start(webmachine).
+ 
+ %% @spec stop() -> ok
+diff --git a/src/webmachine_decision_core.erl b/src/webmachine_decision_core.erl
+index 194c48d..3379388 100644
+--- a/src/webmachine_decision_core.erl
++++ b/src/webmachine_decision_core.erl
+@@ -722,32 +722,17 @@ variances() ->
+     end,
+     Accept ++ AcceptEncoding ++ AcceptCharset ++ resource_call(variances).
+ 
+--ifndef(old_hash).
+ md5(Bin) ->
+-    crypto:hash(md5, Bin).
++    erlang:md5(Bin).
+ 
+ md5_init() ->
+-    crypto:hash_init(md5).
++    erlang:md5_init().
+ 
+ md5_update(Ctx, Bin) ->
+-    crypto:hash_update(Ctx, Bin).
++    erlang:md5_update(Ctx, Bin).
+ 
+ md5_final(Ctx) ->
+-    crypto:hash_final(Ctx).
+--else.
+-md5(Bin) ->
+-    crypto:md5(Bin).
+-
+-md5_init() ->
+-    crypto:md5_init().
+-
+-md5_update(Ctx, Bin) ->
+-    crypto:md5_update(Ctx, Bin).
+-
+-md5_final(Ctx) ->
+-    crypto:md5_final(Ctx).
+--endif.
+-
++    erlang:md5_final(Ctx).
+ 
+ compute_body_md5() ->
+     case wrcall({req_body, 52428800}) of
+diff --git a/src/webmachine_request.erl b/src/webmachine_request.erl
+index 2a5ff7a..ee459a3 100644
+--- a/src/webmachine_request.erl
++++ b/src/webmachine_request.erl
+@@ -624,7 +624,7 @@ parts_to_body(BodyList, Size, Req) when is_list(BodyList) ->
+             {CT, _} ->
+                 CT
+         end,
+-    Boundary = mochihex:to_hex(crypto:rand_bytes(8)),
++    Boundary = mochihex:to_hex(mochiweb_util:rand_bytes(8)),
+     HeaderList = [{"Content-Type",
+                    ["multipart/byteranges; ",
+                     "boundary=", Boundary]}],

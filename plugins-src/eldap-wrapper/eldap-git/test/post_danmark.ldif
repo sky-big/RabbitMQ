@@ -1,0 +1,5 @@
+dn: o=Post Danmark,c=DK
+objectclass: country
+objectclass: organization
+c: DK
+o: Post Danmark

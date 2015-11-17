@@ -1,0 +1,13 @@
+dn: mail=bill@bluetail.com, dc=bluetail, dc=com
+objectclass: posixAccount
+mail: bill@bluetail.com
+cn: Bill Valentine
+sn: Valentine
+uid: bill
+uidNumber: 400
+gidNumber: 400
+homeDirectory: /home/accounts/bill
+mailDirectory: /home/accounts/bill/INBOX
+userPassword: baltazar
+birMailAccept: accept
+birCluster: bc1

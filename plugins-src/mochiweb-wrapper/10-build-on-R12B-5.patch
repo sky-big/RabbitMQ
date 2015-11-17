@@ -1,0 +1,303 @@
+diff --git a/src/mochiglobal.erl b/src/mochiglobal.erl
+index ea645b0..6b20e41 100644
+--- a/src/mochiglobal.erl
++++ b/src/mochiglobal.erl
+@@ -6,12 +6,12 @@
+ -author("Bob Ippolito <bob@mochimedia.com>").
+ -export([get/1, get/2, put/2, delete/1]).
+ 
+--spec get(atom()) -> any() | undefined.
++%% -spec get(atom()) -> any() | undefined.
+ %% @equiv get(K, undefined)
+ get(K) ->
+     get(K, undefined).
+ 
+--spec get(atom(), T) -> any() | T.
++%% -spec get(atom(), T) -> any() | T.
+ %% @doc Get the term for K or return Default.
+ get(K, Default) ->
+     get(K, Default, key_to_module(K)).
+@@ -22,7 +22,7 @@ get(_K, Default, Mod) ->
+             Default
+     end.
+ 
+--spec put(atom(), any()) -> ok.
++%% -spec put(atom(), any()) -> ok.
+ %% @doc Store term V at K, replaces an existing term if present.
+ put(K, V) ->
+     put(K, V, key_to_module(K)).
+@@ -33,7 +33,7 @@ put(_K, V, Mod) ->
+     {module, Mod} = code:load_binary(Mod, atom_to_list(Mod) ++ ".erl", Bin),
+     ok.
+ 
+--spec delete(atom()) -> boolean().
++%% -spec delete(atom()) -> boolean().
+ %% @doc Delete term stored at K, no-op if non-existent.
+ delete(K) ->
+     delete(K, key_to_module(K)).
+@@ -42,21 +42,21 @@ delete(_K, Mod) ->
+     code:purge(Mod),
+     code:delete(Mod).
+ 
+--spec key_to_module(atom()) -> atom().
++%% -spec key_to_module(atom()) -> atom().
+ key_to_module(K) ->
+     list_to_atom("mochiglobal:" ++ atom_to_list(K)).
+ 
+--spec compile(atom(), any()) -> binary().
++%% -spec compile(atom(), any()) -> binary().
+ compile(Module, T) ->
+     {ok, Module, Bin} = compile:forms(forms(Module, T),
+                                       [verbose, report_errors]),
+     Bin.
+ 
+--spec forms(atom(), any()) -> [erl_syntax:syntaxTree()].
++%% -spec forms(atom(), any()) -> [erl_syntax:syntaxTree()].
+ forms(Module, T) ->
+     [erl_syntax:revert(X) || X <- term_to_abstract(Module, term, T)].
+ 
+--spec term_to_abstract(atom(), atom(), any()) -> [erl_syntax:syntaxTree()].
++%% -spec term_to_abstract(atom(), atom(), any()) -> [erl_syntax:syntaxTree()].
+ term_to_abstract(Module, Getter, T) ->
+     [%% -module(Module).
+      erl_syntax:attribute(
+diff --git a/src/mochiutf8.erl b/src/mochiutf8.erl
+index 28f28c1..c9d2751 100644
+--- a/src/mochiutf8.erl
++++ b/src/mochiutf8.erl
+@@ -11,11 +11,11 @@
+ 
+ %% External API
+ 
+--type unichar_low() :: 0..16#d7ff.
+--type unichar_high() :: 16#e000..16#10ffff.
+--type unichar() :: unichar_low() | unichar_high().
++%% -type unichar_low() :: 0..16#d7ff.
++%% -type unichar_high() :: 16#e000..16#10ffff.
++%% -type unichar() :: unichar_low() | unichar_high().
+ 
+--spec codepoint_to_bytes(unichar()) -> binary().
++%% -spec codepoint_to_bytes(unichar()) -> binary().
+ %% @doc Convert a unicode codepoint to UTF-8 bytes.
+ codepoint_to_bytes(C) when (C >= 16#00 andalso C =< 16#7f) ->
+     %% U+0000 - U+007F - 7 bits
+@@ -40,12 +40,12 @@ codepoint_to_bytes(C) when (C >= 16#010000 andalso C =< 16#10FFFF) ->
+       2#10:2, B1:6,
+       2#10:2, B0:6>>.
+ 
+--spec codepoints_to_bytes([unichar()]) -> binary().
++%% -spec codepoints_to_bytes([unichar()]) -> binary().
+ %% @doc Convert a list of codepoints to a UTF-8 binary.
+ codepoints_to_bytes(L) ->
+     <<<<(codepoint_to_bytes(C))/binary>> || C <- L>>.
+ 
+--spec read_codepoint(binary()) -> {unichar(), binary(), binary()}.
++%% -spec read_codepoint(binary()) -> {unichar(), binary(), binary()}.
+ read_codepoint(Bin = <<2#0:1, C:7, Rest/binary>>) ->
+     %% U+0000 - U+007F - 7 bits
+     <<B:1/binary, _/binary>> = Bin,
+@@ -82,32 +82,32 @@ read_codepoint(Bin = <<2#11110:5, B3:3,
+             {C, B, Rest}
+     end.
+ 
+--spec codepoint_foldl(fun((unichar(), _) -> _), _, binary()) -> _.
++%% -spec codepoint_foldl(fun((unichar(), _) -> _), _, binary()) -> _.
+ codepoint_foldl(F, Acc, <<>>) when is_function(F, 2) ->
+     Acc;
+ codepoint_foldl(F, Acc, Bin) ->
+     {C, _, Rest} = read_codepoint(Bin),
+     codepoint_foldl(F, F(C, Acc), Rest).
+ 
+--spec bytes_foldl(fun((binary(), _) -> _), _, binary()) -> _.
++%% -spec bytes_foldl(fun((binary(), _) -> _), _, binary()) -> _.
+ bytes_foldl(F, Acc, <<>>) when is_function(F, 2) ->
+     Acc;
+ bytes_foldl(F, Acc, Bin) ->
+     {_, B, Rest} = read_codepoint(Bin),
+     bytes_foldl(F, F(B, Acc), Rest).
+ 
+--spec bytes_to_codepoints(binary()) -> [unichar()].
++%% -spec bytes_to_codepoints(binary()) -> [unichar()].
+ bytes_to_codepoints(B) ->
+     lists:reverse(codepoint_foldl(fun (C, Acc) -> [C | Acc] end, [], B)).
+ 
+--spec len(binary()) -> non_neg_integer().
++%% -spec len(binary()) -> non_neg_integer().
+ len(<<>>) ->
+     0;
+ len(B) ->
+     {_, _, Rest} = read_codepoint(B),
+     1 + len(Rest).
+ 
+--spec valid_utf8_bytes(B::binary()) -> binary().
++%% -spec valid_utf8_bytes(B::binary()) -> binary().
+ %% @doc Return only the bytes in B that represent valid UTF-8. Uses
+ %%      the following recursive algorithm: skip one byte if B does not
+ %%      follow UTF-8 syntax (a 1-4 byte encoding of some number),
+@@ -118,7 +118,7 @@ valid_utf8_bytes(B) when is_binary(B) ->
+ 
+ %% Internal API
+ 
+--spec binary_skip_bytes(binary(), [non_neg_integer()]) -> binary().
++%% -spec binary_skip_bytes(binary(), [non_neg_integer()]) -> binary().
+ %% @doc Return B, but skipping the 0-based indexes in L.
+ binary_skip_bytes(B, []) ->
+     B;
+@@ -126,7 +126,7 @@ binary_skip_bytes(B, L) ->
+     binary_skip_bytes(B, L, 0, []).
+ 
+ %% @private
+--spec binary_skip_bytes(binary(), [non_neg_integer()], non_neg_integer(), iolist()) -> binary().
++%% -spec binary_skip_bytes(binary(), [non_neg_integer()], non_neg_integer(), iolist()) -> binary().
+ binary_skip_bytes(B, [], _N, Acc) ->
+     iolist_to_binary(lists:reverse([B | Acc]));
+ binary_skip_bytes(<<_, RestB/binary>>, [N | RestL], N, Acc) ->
+@@ -134,13 +134,13 @@ binary_skip_bytes(<<_, RestB/binary>>, [N | RestL], N, Acc) ->
+ binary_skip_bytes(<<C, RestB/binary>>, L, N, Acc) ->
+     binary_skip_bytes(RestB, L, 1 + N, [C | Acc]).
+ 
+--spec invalid_utf8_indexes(binary()) -> [non_neg_integer()].
++%% -spec invalid_utf8_indexes(binary()) -> [non_neg_integer()].
+ %% @doc Return the 0-based indexes in B that are not valid UTF-8.
+ invalid_utf8_indexes(B) ->
+     invalid_utf8_indexes(B, 0, []).
+ 
+ %% @private.
+--spec invalid_utf8_indexes(binary(), non_neg_integer(), [non_neg_integer()]) -> [non_neg_integer()].
++%% -spec invalid_utf8_indexes(binary(), non_neg_integer(), [non_neg_integer()]) -> [non_neg_integer()].
+ invalid_utf8_indexes(<<C, Rest/binary>>, N, Acc) when C < 16#80 ->
+     %% U+0000 - U+007F - 7 bits
+     invalid_utf8_indexes(Rest, 1 + N, Acc);
+diff --git a/src/mochiweb_charref.erl b/src/mochiweb_charref.erl
+index 193c7c7..665d0f9 100644
+--- a/src/mochiweb_charref.erl
++++ b/src/mochiweb_charref.erl
+@@ -11,7 +11,7 @@
+ %%      codepoint, or return undefined on failure.
+ %%      The input should not include an ampersand or semicolon.
+ %%      charref("#38") = 38, charref("#x26") = 38, charref("amp") = 38.
+--spec charref(binary() | string()) -> integer() | [integer()] | undefined.
++%% -spec charref(binary() | string()) -> integer() | [integer()] | undefined.
+ charref(B) when is_binary(B) ->
+     charref(binary_to_list(B));
+ charref([$#, C | L]) when C =:= $x orelse C =:= $X ->
+diff --git a/src/mochiweb_http.erl b/src/mochiweb_http.erl
+index 931ecd0..ae6410f 100644
+--- a/src/mochiweb_http.erl
++++ b/src/mochiweb_http.erl
+@@ -121,12 +121,12 @@ call_body({M, F}, Req) ->
+ call_body(Body, Req) ->
+     Body(Req).
+ 
+--spec handle_invalid_request(term()) -> no_return().
++%% -spec handle_invalid_request(term()) -> no_return().
+ handle_invalid_request(Socket) ->
+     handle_invalid_request(Socket, {'GET', {abs_path, "/"}, {0,9}}, []),
+     exit(normal).
+ 
+--spec handle_invalid_request(term(), term(), term()) -> no_return().
++%% -spec handle_invalid_request(term(), term(), term()) -> no_return().
+ handle_invalid_request(Socket, Request, RevHeaders) ->
+     Req = new_request(Socket, Request, RevHeaders),
+     Req:respond({400, [], []}),
+diff --git a/src/mochiweb_session.erl b/src/mochiweb_session.erl
+index ac5d66b..ddf7c46 100644
+--- a/src/mochiweb_session.erl
++++ b/src/mochiweb_session.erl
+@@ -21,11 +21,11 @@
+ 
+ %% @doc Generates a secure encrypted binary convining all the parameters. The
+ %% expiration time must be a 32-bit integer.
+--spec generate_session_data(
+-        ExpirationTime :: expiration_time(),
+-        Data :: iolist(),
+-        FSessionKey :: key_fun(),
+-        ServerKey :: iolist()) -> binary().
++%% -spec generate_session_data(
++%%        ExpirationTime :: expiration_time(),
++%%        Data :: iolist(),
++%%        FSessionKey :: key_fun(),
++%%        ServerKey :: iolist()) -> binary().
+ generate_session_data(ExpirationTime, Data, FSessionKey, ServerKey)
+   when is_integer(ExpirationTime), is_function(FSessionKey)->
+     BData = ensure_binary(Data),
+@@ -39,11 +39,11 @@ generate_session_data(ExpirationTime, Data, FSessionKey, ServerKey)
+ %% @doc Convenience wrapper for generate_session_data that returns a
+ %% mochiweb cookie with "id" as the key, a max_age of 20000 seconds,
+ %% and the current local time as local time.
+--spec generate_session_cookie(
+-        ExpirationTime :: expiration_time(),
+-        Data :: iolist(),
+-        FSessionKey :: key_fun(),
+-        ServerKey :: iolist()) -> header().
++%% -spec generate_session_cookie(
++%%        ExpirationTime :: expiration_time(),
++%%        Data :: iolist(),
++%%        FSessionKey :: key_fun(),
++%%        ServerKey :: iolist()) -> header().
+ generate_session_cookie(ExpirationTime, Data, FSessionKey, ServerKey)
+   when is_integer(ExpirationTime), is_function(FSessionKey)->
+     CookieData = generate_session_data(ExpirationTime, Data,
+@@ -55,13 +55,13 @@ generate_session_cookie(ExpirationTime, Data, FSessionKey, ServerKey)
+                                 calendar:universal_time())}]).
+ 
+ %% TODO: This return type is messy to express in the type system.
+--spec check_session_cookie(
+-        ECookie :: binary(),
+-        ExpirationTime :: string(),
+-        FSessionKey :: key_fun(),
+-        ServerKey :: iolist()) ->
+-    {Success :: boolean(),
+-     ExpTimeAndData :: [integer() | binary()]}.
++%% -spec check_session_cookie(
++    %%     ECookie :: binary(),
++    %%     ExpirationTime :: string(),
++    %%     FSessionKey :: key_fun(),
++    %%     ServerKey :: iolist()) ->
++    %% {Success :: boolean(),
++    %%  ExpTimeAndData :: [integer() | binary()]}.
+ check_session_cookie(ECookie, ExpirationTime, FSessionKey, ServerKey)
+   when is_binary(ECookie), is_integer(ExpirationTime),
+        is_function(FSessionKey) ->
+@@ -83,7 +83,7 @@ check_session_cookie(_ECookie, _ExpirationTime, _FSessionKey, _ServerKey) ->
+     {false, []}.
+ 
+ %% 'Constant' time =:= operator for binary, to mitigate timing attacks.
+--spec eq(binary(), binary()) -> boolean().
++%% -spec eq(binary(), binary()) -> boolean().
+ eq(A, B) when is_binary(A) andalso is_binary(B) ->
+     eq(A, B, 0).
+ 
+@@ -94,27 +94,27 @@ eq(<<>>, <<>>, 0) ->
+ eq(_As, _Bs, _Acc) ->
+     false.
+ 
+--spec ensure_binary(iolist()) -> binary().
++%% -spec ensure_binary(iolist()) -> binary().
+ ensure_binary(B) when is_binary(B) ->
+     B;
+ ensure_binary(L) when is_list(L) ->
+     iolist_to_binary(L).
+ 
+--spec encrypt_data(binary(), binary()) -> binary().
++%% -spec encrypt_data(binary(), binary()) -> binary().
+ encrypt_data(Data, Key) ->
+     IV = crypto:rand_bytes(16),
+     Crypt = crypto:aes_cfb_128_encrypt(Key, IV, Data),
+     <<IV/binary, Crypt/binary>>.
+ 
+--spec decrypt_data(binary(), binary()) -> binary().
++%% -spec decrypt_data(binary(), binary()) -> binary().
+ decrypt_data(<<IV:16/binary, Crypt/binary>>, Key) ->
+     crypto:aes_cfb_128_decrypt(Key, IV, Crypt).
+ 
+--spec gen_key(iolist(), iolist()) -> binary().
++%% -spec gen_key(iolist(), iolist()) -> binary().
+ gen_key(ExpirationTime, ServerKey)->
+     crypto:md5_mac(ServerKey, [ExpirationTime]).
+ 
+--spec gen_hmac(iolist(), binary(), iolist(), binary()) -> binary().
++%% -spec gen_hmac(iolist(), binary(), iolist(), binary()) -> binary().
+ gen_hmac(ExpirationTime, Data, SessionKey, Key) ->
+     crypto:sha_mac(Key, [ExpirationTime, Data, SessionKey]).
+ 

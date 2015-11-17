@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<title>RabbitMQ Visualiser</title>
+<meta http-equiv="content-type" content="text/html; charset=ISO-8859-1">
+
+<link href="../css/main.css" rel="stylesheet" type="text/css"/>
+
+<script type="text/javascript" src="js/glMatrix-min.js"></script>
+<script type="text/javascript" src="js/octtree.js"></script>
+<script type="text/javascript" src="js/physics.js"></script>
+<script type="text/javascript" src="js/model.js"></script>
+<script type="text/javascript" src="js/main.js"></script>
+<style type="text/css">
+#side{
+position: absolute;
+top: 0;
+bottom: 0;
+left: 0;
+width: 16%;
+height: 100%;
+overflow: auto;
+}
+
+#main{
+position: fixed;
+top: 10%;
+left: 16%;
+right: 0;
+bottom: 0;
+overflow: auto;
+margin: 0;
+padding: 0;
+border: 0;
+}
+
+.inner{
+margin: 10px;
+}
+
+.hidden{
+width: 100%;
+clear: both;
+}
+
+.show_button{
+float: right;
+}
+
+body{
+margin: 0;
+padding: 0;
+border: 0;
+overflow: hidden;
+height: 100%;
+max-height: 100%;
+}
+
+#details{
+height: 10%;
+position: fixed;
+top: 0px;
+right: 0px;
+left: 16%;
+overflow: auto;
+}
+
+table td { padding : 1px 10px 1px 4px; margin : 0; border: none; line-height: 14px; text-align: left; }
+table th { padding : 1px 4px 1px 10px; margin : 0; border: none; line-height: 14px; text-align: right; }
+
+#helpButton{
+position: fixed;
+top: 4px;
+right: 4px;
+}
+
+#help{
+position: fixed;
+top: 10%;
+right: 10%;
+bottom: 10%;
+left: 10%;
+display: none;
+background: white;
+width: 80%;
+border: 1px solid black;
+-webkit-border-radius: 8px;
+-moz-border-radius: 8px;
+border-radius: 8px;
+padding: 10px;
+overflow: auto;
+}
+#side .inner #logo { width: 204px; height: 37px; margin-bottom: 20px; background: url(../img/rabbitmqlogo.png); }
+</style>
+</head>
+<body onload="visualisationStart();" onresize="resizeCanvas();" onfocus="enableRendering();" onblur="disableRendering();">
+    <div id="side">
+        <div class="inner">
+            <div><a href="../"><div id="logo"></div></a></div>
+
+            <div>Vhost: <select id="vhosts" class="show_button" size="1" onchange="vhostChanged();"></select></div>
+
+            <div class="hidden">Exchanges
+                <div style="float: right;">
+                    <input type="checkbox" value="Display" checked onclick="toggleRendering('hidden_exchanges', 'show_exchanges', 'exchange');"/>Display</div>
+            <select id="hidden_exchanges" multiple="true" size="8" class="hidden"></select>
+            <button id="show_exchanges" class="show_button" onclick="showExchanges();">Show</button>
+            </div>
+
+            <div class="hidden">Queues
+                <div style="float: right;">
+                    <input type="checkbox" value="Display" checked onclick="toggleRendering('hidden_queues', 'show_queues', 'queue');"/>Display</div>
+            <select id="hidden_queues" multiple="true" size="8" class="hidden"></select>
+            <button id="show_queues" class="show_button" onclick="showQueues();">Show</button>
+            </div>
+
+            <div class="hidden">Channels
+                <div style="float: right;">
+                    <input type="checkbox" value="Display" checked onclick="toggleRendering('hidden_channels', 'show_channels', 'channel');"/>Display</div>
+            <select id="hidden_channels" multiple="true" size="8" class="hidden"></select>
+            <button id="show_channels" class="show_button" onclick="showChannels();">Show</button>
+            </div>
+
+            <!-- <div class="hidden">Connections
+                <div style="float: right;">
+                    <input type="checkbox" value="Display" onclick="toggleConnections();"/>Display</div>
+            <select id="hidden_connections" multiple="true" size="8" class="hidden"></select>
+            <button class="show_button" onclick="showConnections();">Show</button>
+            </div> -->
+        </div>
+    </div>
+    <div id="main" onscroll="canvasScroll();">
+        <canvas id="topology_canvas"></canvas>
+    </div>
+    <div id="details"></div>
+    <div id="helpButton" onclick="displayHelp();">Help</div>
+    <div id="help" onclick="hideHelp();">
+      <h1 style="text-align: center;">RabbitMQ Visualiser</h1>
+
+      <p style="text-align: center;">Click to hide.</p>
+
+      <p>
+        The left of the canvas displays exchanges, the right displays
+        queues, and the top displays channels. All of these items can
+        be dragged around the canvas. They repel one another, and snap
+        back into their predefined areas should they be released within
+        the boundaries of those areas.
+      </p>
+
+      <p>
+        Shift-clicking on an item hides it - it will be added to the
+        relevant select box on the left.
+      </p>
+
+      <p>
+        Hovering over an item shows at the top of the screen various
+        details about the item. Double-clicking on the item will take
+        you to the specific page in the Management Plugin concerning
+        that item.
+      </p>
+
+      <p>
+        When hovering over an item, incoming links and/or traffic are
+        shown in green, whilst outgoing links and/or traffic are shown
+        in blue. Bindings are always displayed, but the consumers of a
+        queue, and likewise the publishers to an exchange, are only
+        drawn in when hovering over the exchange, queue or channel in
+        question.
+      </p>
+
+      <p>
+        By default, up to 10 exchanges, 10 queues and 10 channels are
+        displayed. Additional resources are available from the left
+        hand-side select boxes, and can be brought into the display by
+        selecting them and clicking on the relevant 'Show' button.
+      </p>
+
+      <p>
+        The 'Display' check-boxes turn off and on entire resource
+        classes, and resets positioning.
+      </p>
+
+      <p style="text-align: center;">Click to hide.</p>
+    </div>
+</body>
+</html>

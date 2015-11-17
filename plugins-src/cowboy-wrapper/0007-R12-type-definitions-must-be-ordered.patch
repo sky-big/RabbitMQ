@@ -1,0 +1,37 @@
+From 547731d5490b36f1239a99e6c4acc1964e724a6e Mon Sep 17 00:00:00 2001
+From: Marek Majkowski <majek04@gmail.com>
+Date: Thu, 26 Jan 2012 12:54:49 +0000
+Subject: [PATCH 7/7] R12 - type definitions must be ordered
+
+---
+ src/cowboy_multipart.erl |   10 +++++-----
+ 1 files changed, 5 insertions(+), 5 deletions(-)
+
+diff --git a/src/cowboy_multipart.erl b/src/cowboy_multipart.erl
+index c9b5b6c..0bd123a 100644
+--- a/src/cowboy_multipart.erl
++++ b/src/cowboy_multipart.erl
+@@ -15,15 +15,15 @@
+ %% @doc Multipart parser.
+ -module(cowboy_multipart).
+ 
+--type part_parser() :: parser(more(part_result())).
++-type part_parser() :: any().
+ -type parser(T) :: fun((binary()) -> T).
+ -type more(T) :: T | {more, parser(T)}.
+--type part_result() :: headers() | eof.
+--type headers() :: {headers, http_headers(), body_cont()}.
++-type part_result() :: any().
++-type headers() :: any().
+ -type http_headers() :: [{atom() | binary(), binary()}].
+--type body_cont() :: cont(more(body_result())).
++-type body_cont() :: any().
+ -type cont(T) :: fun(() -> T).
+--type body_result() :: {body, binary(), body_cont()} | end_of_part().
++-type body_result() :: any().
+ -type end_of_part() :: {end_of_part, cont(more(part_result()))}.
+ -type disposition() :: {binary(), [{binary(), binary()}]}.
+ 
+-- 
+1.7.0.4
+

@@ -1,0 +1,14 @@
+diff -Naur eldap.orig/ebin/eldap.app eldap/ebin/eldap.app
+--- eldap.orig/ebin/eldap.app	1970-01-01 01:00:00.000000000 +0100
++++ eldap/ebin/eldap.app	2011-01-20 12:47:04.377399296 +0000
+@@ -0,0 +1,10 @@
++{application, eldap,
++ [{description, "LDAP Client Library"},
++  {vsn, "0.01"},
++  {modules, [
++    eldap,
++    'ELDAPv3'
++  ]},
++  {registered, []},
++  {applications, [kernel, stdlib]}
++ ]}.

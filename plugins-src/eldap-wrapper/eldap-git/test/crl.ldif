@@ -1,0 +1,5 @@
+dn: cn=Administrative CA,o=Post Danmark,c=DK
+objectclass: cRLDistributionPoint
+cn: Administrative CA
+certificateRevocationList;binary:< file:/home/tobbe/erlang/eldap/server1.crl
+

@@ -1,0 +1,30 @@
+0.3.4
+=====
+
+ * #41 - fix a traceback when websocket is too slow or too
+   busy to prompty process incoming and outgoing data
+ * #37 - make porting to new cowboy a tiny bit easier
+   (allow 'method' to be a binary)
+
+
+0.3.3
+=====
+
+ * sockjs/sockjs-protocol#56 Fix for iOS 6 caching POSTs
+
+
+0.3.0
+=====
+
+ * Fixed {odd_info, heartbeat_triggered} exception (Isaev Ivan)
+ * Changes to pass sockjs-protocol-0.3
+ * Fixed sockname badmatch (Egobrain)
+ * Updated README
+ * Introduced parametrized module API (to get multiplexer working).
+ * Introduced Multiplexer example.
+ * Fixed invalid catch in sockjs_json:decode (Isaev Ivan)
+ * Bumped Cowboy version.
+ * Specs were moved around to make R13 happy
+ * Dropped milsultin support.
+ 
+ 

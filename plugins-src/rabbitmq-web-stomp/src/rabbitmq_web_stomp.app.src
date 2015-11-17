@@ -1,0 +1,11 @@
+{application, rabbitmq_web_stomp,
+ [
+  {description, "Rabbit WEB-STOMP - WebSockets to Stomp adapter"},
+  {vsn, "%%VSN%%"},
+  {modules, []},
+  {registered, []},
+  {mod, {rabbit_ws_app, []}},
+  {env, [{port, 15674},
+         {ssl_config, []}]},
+  {applications, [kernel, stdlib, rabbit, rabbitmq_stomp, cowboy, sockjs]}
+ ]}.

@@ -1,0 +1,6 @@
+dn: cn=Torbjorn Tornkvist,o=Post Danmark,c=DK
+objectclass: person
+cn: Torbjorn Tornkvist
+sn: Tornkvist
+userPassword: qwe123
+

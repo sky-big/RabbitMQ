@@ -1,0 +1,11 @@
+dn: cn=Torbjorn Tornkvist, ou=people, o=Bluetail AB, dc=bluetail, dc=com
+objectclass: person
+cn: Torbjorn Tornkvist
+sn: Tornkvist
+telephoneNumber: 545 550 23
+
+dn: cn=Magnus Froberg, ou=people, o=Bluetail AB, dc=bluetail, dc=com
+objectclass: person
+cn: Magnus Froberg
+sn: Froberg
+telephoneNumber: 545 550 26

@@ -1,0 +1,18 @@
+%%-*- mode: erlang -*-
+{application, {{appid}},
+ [
+  {description, "{{appid}}"},
+  {vsn, "1"},
+  {modules, []},
+  {registered, []},
+  {applications, [
+                  kernel,
+                  stdlib,
+                  inets,
+                  crypto,
+                  mochiweb,
+                  webmachine
+                 ]},
+  {mod, { {{appid}}_app, []}},
+  {env, []}
+ ]}.

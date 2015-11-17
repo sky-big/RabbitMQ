@@ -1,0 +1,103 @@
+#!/bin/sh
+#
+# ldap	This shell script takes care of starting and stopping
+#	ldap servers (slapd and slurpd).
+#
+# chkconfig: - 39 61
+# description: LDAP stands for Lightweight Directory Access Protocol, used \
+#              for implementing the industry standard directory services.
+# processname: slapd
+# config: /etc/openldap/slapd.conf
+# pidfile: /var/run/slapd.pid
+
+# Source function library.
+. /etc/init.d/functions
+
+# Source networking configuration and check that networking is up.
+if [ -r /etc/sysconfig/network ] ; then
+	. /etc/sysconfig/network
+	[ ${NETWORKING} = "no" ] && exit 0
+fi
+
+
+slapd=/usr/sbin/slapd
+slurpd=/usr/sbin/slurpd
+[ -x ${slapd} ] || exit 0
+[ -x ${slurpd} ] || exit 0
+
+RETVAL=0
+
+function start() {
+        # Start daemons.
+        echo -n "Starting slapd:"
+	daemon ${slapd}
+	RETVAL=$?
+	echo
+	if [ $RETVAL -eq 0 ]; then
+            if grep -q "^replogfile" /etc/openldap/slapd.conf; then
+		echo -n "Starting slurpd:"
+                daemon ${slurpd}
+		RETVAL=$?
+		echo
+            fi
+	fi
+	[ $RETVAL -eq 0 ] && touch /var/lock/subsys/ldap
+	return $RETVAL
+}
+
+function stop() {
+        # Stop daemons.
+	echo -n "Shutting down ldap: "
+	killproc ${slapd}
+	RETVAL=$?
+	if [ $RETVAL -eq 0 ]; then
+	    if grep -q "^replogfile" /etc/openldap/slapd.conf; then
+		killproc ${slurpd}
+		RETVAL=$?
+	    fi
+	fi
+	echo
+        [ $RETVAL -eq 0 ] && rm -f /var/lock/subsys/ldap /var/run/slapd.args
+	return $RETVAL
+}
+
+# See how we were called.
+case "$1" in
+    start)
+        start
+        ;;
+    stop)
+        stop
+        ;;
+    status)
+        status ${slapd}
+        if grep -q "^replogfile" /etc/openldap/slapd.conf ; then
+            status ${slurpd}
+	fi
+	;;
+    restart)
+	stop
+	start
+	;;
+    reload)
+    	killall -HUP ${slapd}
+	RETVAL=$?
+	if [ $RETVAL -eq 0 ]; then
+	    if grep -q "^replogfile" /etc/openldap/slapd.conf; then
+		killall -HUP ${slurpd}
+		RETVAL=$?
+	    fi
+	fi
+	;;
+    condrestart)
+        if [ -f /var/lock/subsys/ldap ] ; then
+            stop
+            start
+        fi
+	;;
+    *)
+	echo "Usage: $0 start|stop|restart|status|condrestart}"
+	RETVAL=1
+esac
+
+exit $RETVAL

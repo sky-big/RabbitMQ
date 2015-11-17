@@ -1,0 +1,62 @@
+From 81106c53b80f5d0fa441b893048bbdc6c9e2c4f0 Mon Sep 17 00:00:00 2001
+From: Marek Majkowski <majek04@gmail.com>
+Date: Thu, 26 Jan 2012 12:54:31 +0000
+Subject: [PATCH 6/7] Use erlang:integer_to_list and lists:max instead of bifs
+
+---
+ src/cowboy_http_req.erl    |    2 +-
+ src/cowboy_http_static.erl |    2 +-
+ src/cowboy_multipart.erl   |    4 ++--
+ 3 files changed, 4 insertions(+), 4 deletions(-)
+
+diff --git a/src/cowboy_http_req.erl b/src/cowboy_http_req.erl
+index c884f5a..bf4ac7a 100644
+--- a/src/cowboy_http_req.erl
++++ b/src/cowboy_http_req.erl
+@@ -576,7 +576,7 @@ chunked_reply(Status, Headers, Req=#http_req{socket=Socket,
+ chunk(_Data, #http_req{socket=_Socket, transport=_Transport, method='HEAD'}) ->
+ 	ok;
+ chunk(Data, #http_req{socket=Socket, transport=Transport, resp_state=chunks}) ->
+-	Transport:send(Socket, [integer_to_list(iolist_size(Data), 16),
++	Transport:send(Socket, [erlang:integer_to_list(iolist_size(Data), 16),
+ 		<<"\r\n">>, Data, <<"\r\n">>]).
+ 
+ %% @doc Send an upgrade reply.
+diff --git a/src/cowboy_http_static.erl b/src/cowboy_http_static.erl
+index d370046..da3bd33 100644
+--- a/src/cowboy_http_static.erl
++++ b/src/cowboy_http_static.erl
+@@ -412,7 +412,7 @@ attr_etag_function(Args, Attrs) ->
+ 
+ -spec attr_etag_function([etagarg()], [fileattr()], [binary()]) -> binary().
+ attr_etag_function(_Args, [], Acc) ->
+-	list_to_binary(integer_to_list(erlang:crc32(Acc), 16));
++	list_to_binary(erlang:integer_to_list(erlang:crc32(Acc), 16));
+ attr_etag_function(Args, [H|T], Acc) ->
+ 	{_, Value} = lists:keyfind(H, 1, Args),
+ 	attr_etag_function(Args, T, [term_to_binary(Value)|Acc]).
+diff --git a/src/cowboy_multipart.erl b/src/cowboy_multipart.erl
+index b7aeb54..c9b5b6c 100644
+--- a/src/cowboy_multipart.erl
++++ b/src/cowboy_multipart.erl
+@@ -105,7 +105,7 @@ parse_boundary_eol(Bin, Pattern) ->
+ 			cowboy_http:whitespace(Rest, Fun);
+ 		nomatch ->
+ 			% CRLF not found in the given binary.
+-			RestStart = max(byte_size(Bin) - 1, 0),
++			RestStart = lists:max([byte_size(Bin) - 1, 0]),
+ 			<<_:RestStart/binary, Rest/binary>> = Bin,
+ 			more(Rest, fun (NewBin) -> parse_boundary_eol(NewBin, Pattern) end)
+ 	end.
+@@ -175,7 +175,7 @@ skip(Bin, Pattern = {P, PSize}) ->
+ 			parse_boundary_tail(Rest, Pattern);
+ 		nomatch ->
+ 			% Boundary not found, need more data.
+-			RestStart = max(byte_size(Bin) - PSize + 1, 0),
++			RestStart = lists:max([byte_size(Bin) - PSize + 1, 0]),
+ 			<<_:RestStart/binary, Rest/binary>> = Bin,
+ 			more(Rest, fun (NewBin) -> skip(NewBin, Pattern) end)
+ 	end.
+-- 
+1.7.0.4
+

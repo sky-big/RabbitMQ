@@ -1,0 +1,52 @@
+From c7aef1d044a1e83fcd6be7a83b2c763c0366d4f8 Mon Sep 17 00:00:00 2001
+From: Marek Majkowski <majek04@gmail.com>
+Date: Thu, 26 Jan 2012 12:53:36 +0000
+Subject: [PATCH 5/7] R12: drop references to Default:any() type
+
+---
+ src/cowboy_http_req.erl |    8 --------
+ 1 files changed, 0 insertions(+), 8 deletions(-)
+
+diff --git a/src/cowboy_http_req.erl b/src/cowboy_http_req.erl
+index 64e757c..c884f5a 100644
+--- a/src/cowboy_http_req.erl
++++ b/src/cowboy_http_req.erl
+@@ -147,8 +147,6 @@ qs_val(Name, Req) when is_binary(Name) ->
+ 
+ %% @doc Return the query string value for the given key, or a default if
+ %% missing.
+--spec qs_val(binary(), #http_req{}, Default)
+-	-> {binary() | true | Default, #http_req{}} when Default::any().
+ qs_val(Name, Req=#http_req{raw_qs=RawQs, qs_vals=undefined,
+ 		urldecode={URLDecFun, URLDecArg}}, Default) when is_binary(Name) ->
+ 	QsVals = parse_qs(RawQs, fun(Bin) -> URLDecFun(Bin, URLDecArg) end),
+@@ -180,8 +178,6 @@ binding(Name, Req) when is_atom(Name) ->
+ 
+ %% @doc Return the binding value for the given key obtained when matching
+ %% the host and path against the dispatch list, or a default if missing.
+--spec binding(atom(), #http_req{}, Default)
+-	-> {binary() | Default, #http_req{}} when Default::any().
+ binding(Name, Req, Default) when is_atom(Name) ->
+ 	case lists:keyfind(Name, 1, Req#http_req.bindings) of
+ 		{Name, Value} -> {Value, Req};
+@@ -200,8 +196,6 @@ header(Name, Req) when is_atom(Name) orelse is_binary(Name) ->
+ 	header(Name, Req, undefined).
+ 
+ %% @doc Return the header value for the given key, or a default if missing.
+--spec header(atom() | binary(), #http_req{}, Default)
+-	-> {binary() | Default, #http_req{}} when Default::any().
+ header(Name, Req, Default) when is_atom(Name) orelse is_binary(Name) ->
+ 	case lists:keyfind(Name, 1, Req#http_req.headers) of
+ 		{Name, Value} -> {Value, Req};
+@@ -313,8 +307,6 @@ cookie(Name, Req) when is_binary(Name) ->
+ 
+ %% @doc Return the cookie value for the given key, or a default if
+ %% missing.
+--spec cookie(binary(), #http_req{}, Default)
+-	-> {binary() | true | Default, #http_req{}} when Default::any().
+ cookie(Name, Req=#http_req{cookies=undefined}, Default) when is_binary(Name) ->
+ 	case header('Cookie', Req) of
+ 		{undefined, Req2} ->
+-- 
+1.7.0.4
+

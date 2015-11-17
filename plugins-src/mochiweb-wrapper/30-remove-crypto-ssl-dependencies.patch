@@ -1,0 +1,104 @@
+diff --git a/src/mochitemp.erl b/src/mochitemp.erl
+index dda7863..f64876d 100644
+--- a/src/mochitemp.erl
++++ b/src/mochitemp.erl
+@@ -1,7 +1,7 @@
+ %% @author Bob Ippolito <bob@mochimedia.com>
+ %% @copyright 2010 Mochi Media, Inc.
+ 
+-%% @doc Create temporary files and directories. Requires crypto to be started.
++%% @doc Create temporary files and directories.
+ 
+ -module(mochitemp).
+ -export([gettempdir/0]).
+@@ -87,7 +87,7 @@ rngchars(N) ->
+     [rngchar() | rngchars(N - 1)].
+ 
+ rngchar() ->
+-    rngchar(crypto:rand_uniform(0, tuple_size(?SAFE_CHARS))).
++    rngchar(mochiweb_util:rand_uniform(0, tuple_size(?SAFE_CHARS))).
+ 
+ rngchar(C) ->
+     element(1 + C, ?SAFE_CHARS).
+@@ -177,7 +177,6 @@ gettempdir_cwd_test() ->
+     ok.
+ 
+ rngchars_test() ->
+-    crypto:start(),
+     ?assertEqual(
+        "",
+        rngchars(0)),
+@@ -199,7 +198,6 @@ rngchar_test() ->
+     ok.
+ 
+ mkdtemp_n_failonce_test() ->
+-    crypto:start(),
+     D = mkdtemp(),
+     Path = filename:join([D, "testdir"]),
+     %% Toggle the existence of a dir so that it fails
+@@ -246,7 +244,6 @@ make_dir_fail_test() ->
+     ok.
+ 
+ mkdtemp_test() ->
+-    crypto:start(),
+     D = mkdtemp(),
+     ?assertEqual(
+        true,
+@@ -257,7 +254,6 @@ mkdtemp_test() ->
+     ok.
+ 
+ rmtempdir_test() ->
+-    crypto:start(),
+     D1 = mkdtemp(),
+     ?assertEqual(
+        true,
+diff --git a/src/mochiweb.app.src b/src/mochiweb.app.src
+index 8d75a3a..c98d8a0 100644
+--- a/src/mochiweb.app.src
++++ b/src/mochiweb.app.src
+@@ -5,5 +5,5 @@
+   {modules, []},
+   {registered, []},
+   {env, []},
+-  {applications, [kernel, stdlib, crypto, inets, ssl, xmerl,
++  {applications, [kernel, stdlib, inets, xmerl,
+                   compiler, syntax_tools]}]}.
+diff --git a/src/mochiweb_multipart.erl b/src/mochiweb_multipart.erl
+index a83a88c..a4857d6 100644
+--- a/src/mochiweb_multipart.erl
++++ b/src/mochiweb_multipart.erl
+@@ -38,7 +38,7 @@ parts_to_body([{Start, End, Body}], ContentType, Size) ->
+     {HeaderList, Body};
+ parts_to_body(BodyList, ContentType, Size) when is_list(BodyList) ->
+     parts_to_multipart_body(BodyList, ContentType, Size,
+-                            mochihex:to_hex(crypto:rand_bytes(8))).
++                            mochihex:to_hex(mochiweb_util:rand_bytes(8))).
+ 
+ %% @spec parts_to_multipart_body([bodypart()], ContentType::string(),
+ %%                               Size::integer(), Boundary::string()) ->
+diff --git a/src/mochiweb_util.erl b/src/mochiweb_util.erl
+index 4d39990..a0bc2bc 100644
+--- a/src/mochiweb_util.erl
++++ b/src/mochiweb_util.erl
+@@ -13,7 +13,7 @@
+ -export([record_to_proplist/2, record_to_proplist/3]).
+ -export([safe_relative_path/1, partition/2]).
+ -export([parse_qvalues/1, pick_accepted_encodings/3]).
+--export([make_io/1]).
++-export([make_io/1, rand_bytes/1, rand_uniform/2]).
+ 
+ -define(PERCENT, 37).  % $\%
+ -define(FULLSTOP, 46). % $\.
+@@ -581,6 +581,12 @@ make_io(Integer) when is_integer(Integer) ->
+ make_io(Io) when is_list(Io); is_binary(Io) ->
+     Io.
+ 
++rand_bytes(Count) ->
++    list_to_binary([rand_uniform(0, 16#FF + 1) || _ <- lists:seq(1, Count)]).
++
++rand_uniform(Lo, Hi) ->
++    random:uniform(Hi - Lo) + Lo - 1.
++
+ %%
+ %% Tests
+ %%

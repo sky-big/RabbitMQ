@@ -1,0 +1,13 @@
+{application, rabbitmq_shovel,
+ [{description, "Data Shovel for RabbitMQ"},
+  {vsn, "%%VSN%%"},
+  {modules, []},
+  {registered, []},
+  {env, [{defaults, [{prefetch_count,     1000},
+                     {ack_mode,           on_confirm},
+                     {publish_fields,     []},
+                     {publish_properties, []},
+                     {reconnect_delay,    5}]
+         }]},
+  {mod, {rabbit_shovel, []}},
+  {applications, [kernel, stdlib, rabbit, amqp_client]}]}.

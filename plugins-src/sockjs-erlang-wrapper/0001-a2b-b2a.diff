@@ -1,0 +1,22 @@
+diff --git a/src/sockjs_http.erl b/src/sockjs_http.erl
+index 5cdf431..837b64f 100644
+--- a/src/sockjs_http.erl
++++ b/src/sockjs_http.erl
+@@ -15,7 +15,7 @@ path({cowboy, Req})       -> {Path, Req1} = cowboy_http_req:raw_path(Req),
+ %% -spec method(req()) -> {atom(), req()}.
+ method({cowboy, Req})       -> {Method, Req1} = cowboy_http_req:method(Req),
+                                case is_binary(Method) of
+-                                   true  -> {binary_to_atom(Method, utf8), {cowboy, Req1}};
++                                   true  -> {list_to_atom(binary_to_list(Method)), {cowboy, Req1}};
+                                    false -> {Method, {cowboy, Req1}}
+                                end.
+ 
+@@ -47,7 +47,7 @@ header(K, {cowboy, Req})->
+     {H, Req2} = cowboy_http_req:header(K, Req),
+     {V, Req3} = case H of
+                     undefined ->
+-                        cowboy_http_req:header(atom_to_binary(K, utf8), Req2);
++                        cowboy_http_req:header(list_to_binary(atom_to_list(K)), Req2);
+                     _ -> {H, Req2}
+                 end,
+     case V of

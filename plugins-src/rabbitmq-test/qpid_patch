@@ -1,0 +1,142 @@
+Index: tests_0-8/basic.py
+===================================================================
+--- tests_0-8/basic.py	(revision 906960)
++++ tests_0-8/basic.py	(working copy)
+@@ -98,7 +98,7 @@
+             channel.basic_consume(queue="")
+             self.fail("Expected failure when consuming from unspecified queue")
+         except Closed, e:
+-            self.assertConnectionException(530, e.args[0])
++            self.assertChannelException(404, e.args[0])
+ 
+     def test_consume_unique_consumers(self):
+         """
+Index: tests_0-8/exchange.py
+===================================================================
+--- tests_0-8/exchange.py	(revision 906960)
++++ tests_0-8/exchange.py	(working copy)
+@@ -138,8 +138,6 @@
+         # Test automatic binding by queue name.
+         self.queue_declare(queue="d")
+         self.assertPublishConsume(queue="d", routing_key="d")
+-        # Test explicit bind to default queue
+-        self.verifyDirectExchange("")
+ 
+ 
+ # TODO aconway 2006-09-27: Fill in empty tests:
+@@ -318,7 +316,7 @@
+             self.channel.exchange_declare(exchange="test_different_declared_type_exchange", type="topic")
+             self.fail("Expected 530 for redeclaration of exchange with different type.")
+         except Closed, e:
+-            self.assertConnectionException(530, e.args[0])
++            self.assertChannelException(406, e.args[0])
+         #cleanup    
+         other = self.connect()
+         c2 = other.channel(1)
+Index: tests_0-8/queue.py
+===================================================================
+--- tests_0-8/queue.py	(revision 906960)
++++ tests_0-8/queue.py	(working copy)
+@@ -37,14 +37,10 @@
+         channel.basic_publish(exchange="test-exchange", routing_key="key", content=Content("two"))
+         channel.basic_publish(exchange="test-exchange", routing_key="key", content=Content("three"))
+ 
+-        #check that the queue now reports 3 messages:
+-        reply = channel.queue_declare(queue="test-queue")
+-        self.assertEqual(3, reply.message_count)
+-
+         #now do the purge, then test that three messages are purged and the count drops to 0
+         reply = channel.queue_purge(queue="test-queue");
+         self.assertEqual(3, reply.message_count)        
+-        reply = channel.queue_declare(queue="test-queue")
++        reply = channel.queue_declare(queue="test-queue", exclusive=True)
+         self.assertEqual(0, reply.message_count)
+ 
+         #send a further message and consume it, ensuring that the other messages are really gone
+@@ -71,7 +67,7 @@
+             channel.queue_purge()
+             self.fail("Expected failure when purging unspecified queue")
+         except Closed, e:
+-            self.assertConnectionException(530, e.args[0])
++            self.assertChannelException(404, e.args[0])
+ 
+         #cleanup    
+         other = self.connect()
+@@ -174,11 +170,7 @@
+         #check attempted deletion of non-existant queue is handled correctly:    
+         channel = self.client.channel(2)
+         channel.channel_open()
+-        try:
+-            channel.queue_delete(queue="i-dont-exist", if_empty="True")
+-            self.fail("Expected delete of non-existant queue to fail")
+-        except Closed, e:
+-            self.assertChannelException(404, e.args[0])
++        channel.queue_delete(queue="i-dont-exist", if_empty="True")
+ 
+         
+ 
+Index: qpid/codec.py
+===================================================================
+--- qpid/codec.py	(revision 906960)
++++ qpid/codec.py	(working copy)
+@@ -76,6 +76,7 @@
+     if not self.types:
+       self.typecode(ord('S'), "longstr")
+       self.typecode(ord('I'), "long")
++      self.typecode(ord('t'), "bool")
+ 
+   def typecode(self, code, type):
+     self.types[code] = type
+@@ -206,6 +207,22 @@
+     """
+     return self.unpack("!B")
+ 
++  def encode_bool(self, b):
++    """
++    encodes bool (8 bits) data 't' in network byte order
++    """
++
++    if ((b is not True) and (b is not False)):
++        raise ValueError('Valid range of bool is True or False')
++
++    self.pack("!B", int(b))
++
++  def decode_bool(self):
++    """
++    decodes a bool (8 bits) encoded in network byte order
++    """
++    return bool(self.unpack("!B"))
++
+   def encode_short(self, o):
+     """
+     encodes short (16 bits) data 'o' in network byte order
+Index: qpid/testlib.py
+===================================================================
+--- qpid/testlib.py	(revision 906960)
++++ qpid/testlib.py	(working copy)
+@@ -67,8 +67,7 @@
+ 
+         if not self.client.closed:
+             self.client.channel(0).connection_close(reply_code=200)
+-        else:
+-            self.client.close()
++        self.client.close()
+ 
+     def connect(self, host=None, port=None, user=None, password=None, tune_params=None):
+         """Create a new connction, return the Client object"""
+Index: qpid_config.py
+===================================================================
+--- qpid_config.py	(revision 906960)
++++ qpid_config.py	(working copy)
+@@ -19,7 +19,8 @@
+ 
+ import os
+ 
+-AMQP_SPEC_DIR=os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "specs")
++AMQP_SPEC_DIR=os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "../rabbitmq-docs/specs")
+ amqp_spec = os.path.join(AMQP_SPEC_DIR, "amqp.0-10-qpid-errata.xml")
+-amqp_spec_0_8 = os.path.join(AMQP_SPEC_DIR, "amqp.0-8.xml")
+-amqp_spec_0_9 = os.path.join(AMQP_SPEC_DIR, "amqp.0-9.xml")
++amqp_spec_0_8 = os.path.join(AMQP_SPEC_DIR, "amqp0-8.xml")
++amqp_spec_0_9 = os.path.join(AMQP_SPEC_DIR, "amqp0-9.xml")
++amqp_spec = 'file://'+os.path.join(AMQP_SPEC_DIR, 'amqp.0-10.xml')

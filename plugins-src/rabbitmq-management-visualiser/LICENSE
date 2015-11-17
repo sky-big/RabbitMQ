@@ -1,0 +1,8 @@
+This package, the RabbitMQ Visualiser is licensed under the MPL. For
+the MPL, please see LICENSE-MPL-RabbitMQ.
+
+This package makes use of the following third party libraries:
+glMatrix - http://code.google.com/p/glmatrix/ - BSD 2-clause license, see LICENSE-BSD-glMatrix
+
+If you have any questions regarding licensing, please contact us at
+info@rabbitmq.com.

@@ -1,0 +1,96 @@
+%%% $Id$
+
+%%% --------------------------------------------------------------------
+%%% Init setup
+%%% --------------------------------------------------------------------
+
+I set up the OpenLDAP (2.0.6) server using the following
+/usr/local/etc/openldap/slapd.conf file:
+
+  include         /usr/local/etc/openldap/schema/core.schema
+  pidfile         /var/run/slapd.pid
+  argsfile        /var/run/slapd.args
+  database        ldbm
+  suffix          "dc=bluetail, dc=com"
+  rootdn          "dc=bluetail, dc=com"
+  rootpw          hejsan
+  directory       /usr/local/var/openldap-ldbm
+  index   objectClass     eq
+
+
+%%% I started it on the console with some debug output:
+
+  /usr/local/libexec/slapd -d 255 -f /usr/local/etc/openldap/slapd.conf
+
+%%% Then I defined the following data in: bluetail.ldif
+
+ dn: dc=bluetail, dc=com
+ objectclass: organization
+ objectclass: dcObject
+ dc: bluetail
+ o: Bluetail AB
+
+%%% and in: tobbe.ldif
+
+ dn: cn=Torbjorn Tornkvist, dc=bluetail, dc=com
+ objectclass: person
+ cn: Torbjorn Tornkvist
+ sn: Tornkvist
+
+%%% I load the data with:
+
+ ldapadd -D "dc=bluetail, dc=com" -w hejsan < bluetail.ldif
+ ldapadd -D "dc=bluetail, dc=com" -w hejsan < people.ldif
+
+%%%% To search from a Unix shell:
+
+ ldapsearch -L -b "dc=bluetail, dc=com" -w hejsan "(objectclass=*)"
+ ldapsearch -L -b "dc=bluetail, dc=com" -w hejsan "cn=Torbjorn Tornkvist"
+ ldapsearch -L -b "dc=bluetail, dc=com" -w hejsan "cn=Torb*kvist"
+
+%%% --------------------------------------------------------------------
+%%% Example with certificateRevocationList
+%%% --------------------------------------------------------------------
+
+%%% Using two ldif files:
+
+%%% post_danmark.ldif 
+
+dn: o=Post Danmark, c=DK
+objectclass: country
+objectclass: organization
+c: DK
+o: Post Danmark
+
+%%% crl.ldif
+
+dn: cn=Administrative CA, o=Post Danmark, c=DK
+objectclass: cRLDistributionPoint
+cn: Administrative CA
+certificateRevocationList;binary:< file:/home/tobbe/erlang/eldap/server1.crl
+
+%%% Note the definition of the CRL file !!
+
+%%% To add the difinitions
+
+ldapadd -D "o=Post Danmark, c=DK" -w hejsan < post_danmark.ldif
+ldapadd -D "o=Post Danmark, c=DK" -w hejsan < crl.ldif
+
+%%% And to retreive the CRL
+
+ldapsearch -L -b "o=Post Danmark, c=DK" -w hejsan "(objectclass=*)"
+ldapsearch -L -b "o=Post Danmark, c=DK" -w hejsan "(cn=Administrative CA)" \
+           certificateRevocationList
+
+### Put the retrieved binary in a file (tmp) with
+### the following header and footer
+
+-----BEGIN X509 CRL-----
+ <...binary....>
+-----END X509 CRL-----
+
+### To verify it with openssl
+
+ openssl crl -inform PEM -in tmp -text
+
+ldapsearch -L -D "cn=Torbjorn Tornkvist,o=Post Danmark,c=DK" -b "o=Post Danmark, c=DK" -w qwe123 "(cn=Torbjorn Tornkvist)" cn

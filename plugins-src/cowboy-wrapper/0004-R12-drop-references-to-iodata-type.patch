@@ -1,0 +1,50 @@
+From dfb750f491208a8e30cab0fa701dd866d60734b8 Mon Sep 17 00:00:00 2001
+From: Marek Majkowski <majek04@gmail.com>
+Date: Thu, 26 Jan 2012 12:53:08 +0000
+Subject: [PATCH 4/7] R12: drop references to iodata() type
+
+---
+ src/cowboy_http_req.erl |    6 ------
+ 1 files changed, 0 insertions(+), 6 deletions(-)
+
+diff --git a/src/cowboy_http_req.erl b/src/cowboy_http_req.erl
+index d729d6c..64e757c 100644
+--- a/src/cowboy_http_req.erl
++++ b/src/cowboy_http_req.erl
+@@ -478,8 +478,6 @@ set_resp_cookie(Name, Value, Options, Req) ->
+ 	set_resp_header(HeaderName, HeaderValue, Req).
+ 
+ %% @doc Add a header to the response.
+--spec set_resp_header(cowboy_http:header(), iodata(), #http_req{})
+-	-> {ok, #http_req{}}.
+ set_resp_header(Name, Value, Req=#http_req{resp_headers=RespHeaders}) ->
+ 	NameBin = header_to_binary(Name),
+ 	{ok, Req#http_req{resp_headers=[{NameBin, Value}|RespHeaders]}}.
+@@ -489,7 +487,6 @@ set_resp_header(Name, Value, Req=#http_req{resp_headers=RespHeaders}) ->
+ %% The body set here is ignored if the response is later sent using
+ %% anything other than reply/2 or reply/3. The response body is expected
+ %% to be a binary or an iolist.
+--spec set_resp_body(iodata(), #http_req{}) -> {ok, #http_req{}}.
+ set_resp_body(Body, Req) ->
+ 	{ok, Req#http_req{resp_body=Body}}.
+ 
+@@ -537,8 +534,6 @@ reply(Status, Headers, Req=#http_req{resp_body=Body}) ->
+ 	reply(Status, Headers, Body, Req).
+ 
+ %% @doc Send a reply to the client.
+--spec reply(cowboy_http:status(), cowboy_http:headers(), iodata(), #http_req{})
+-	-> {ok, #http_req{}}.
+ reply(Status, Headers, Body, Req=#http_req{socket=Socket,
+ 		transport=Transport, connection=Connection, pid=ReqPid,
+ 		method=Method, resp_state=waiting, resp_headers=RespHeaders}) ->
+@@ -586,7 +581,6 @@ chunked_reply(Status, Headers, Req=#http_req{socket=Socket,
+ %% @doc Send a chunk of data.
+ %%
+ %% A chunked reply must have been initiated before calling this function.
+--spec chunk(iodata(), #http_req{}) -> ok | {error, atom()}.
+ chunk(_Data, #http_req{socket=_Socket, transport=_Transport, method='HEAD'}) ->
+ 	ok;
+ chunk(Data, #http_req{socket=Socket, transport=Transport, resp_state=chunks}) ->
+-- 
+1.7.0.4
+

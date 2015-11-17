@@ -1,0 +1,9 @@
+tests_0-8.basic.BasicTests.test_ack
+tests_0-8.basic.BasicTests.test_consume_no_local
+tests_0-8.basic.BasicTests.test_qos_prefetch_count
+tests_0-8.basic.BasicTests.test_qos_prefetch_size
+tests_0-8.broker.BrokerTests.test_basic_delivery_immediate
+tests_0-8.broker.BrokerTests.test_channel_flow
+tests_0-8.tx.TxTests.test_auto_rollback
+tests_0-8.tx.TxTests.test_rollback
+tests_0-9.query.*

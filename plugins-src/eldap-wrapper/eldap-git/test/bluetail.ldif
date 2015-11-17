@@ -1,0 +1,18 @@
+dn: dc=bluetail, dc=com
+objectclass: dcObject
+dc: bluetail
+
+dn: o=Bluetail AB, dc=bluetail, dc=com
+objectclass: organization
+o: Bluetail AB
+street: St.Eriksgatan 44
+postalCode: 112 34
+
+dn: ou=people, o=Bluetail AB, dc=bluetail, dc=com
+objectclass: organizationalUnit
+ou: people
+description: People working at Bluetail
+
+
+
+

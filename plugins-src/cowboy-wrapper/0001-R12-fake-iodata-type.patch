@@ -1,0 +1,40 @@
+From c2303fb756eeb8bd92dc04764970a43f59940208 Mon Sep 17 00:00:00 2001
+From: Marek Majkowski <majek04@gmail.com>
+Date: Thu, 26 Jan 2012 12:48:41 +0000
+Subject: [PATCH 1/7] R12 - Fake iodata() type
+
+---
+ include/http.hrl    |    2 +-
+ src/cowboy_http.erl |    3 ++-
+ 2 files changed, 3 insertions(+), 2 deletions(-)
+
+diff --git a/include/http.hrl b/include/http.hrl
+index c66f2b0..c98f873 100644
+--- a/include/http.hrl
++++ b/include/http.hrl
+@@ -47,7 +47,7 @@
+ 	%% Response.
+ 	resp_state = waiting   :: locked | waiting | chunks | done,
+ 	resp_headers = []      :: cowboy_http:headers(),
+-	resp_body  = <<>>      :: iodata() | {non_neg_integer(),
++	resp_body  = <<>>      :: cowboy_http:fake_iodata() | {non_neg_integer(),
+ 								fun(() -> {sent, non_neg_integer()})},
+ 
+ 	%% Functions.
+diff --git a/src/cowboy_http.erl b/src/cowboy_http.erl
+index 32b0ca9..95a7334 100644
+--- a/src/cowboy_http.erl
++++ b/src/cowboy_http.erl
+@@ -46,7 +46,8 @@
+ 	| 'Expires' | 'Last-Modified' | 'Accept-Ranges' | 'Set-Cookie'
+ 	| 'Set-Cookie2' | 'X-Forwarded-For' | 'Cookie' | 'Keep-Alive'
+ 	| 'Proxy-Connection' | binary().
+--type headers() :: [{header(), iodata()}].
++-type fake_iodata() :: iolist() | binary().
++-type headers() :: [{header(), fake_iodata()}].
+ -type status() :: non_neg_integer() | binary().
+ 
+ -export_type([method/0, uri/0, version/0, header/0, headers/0, status/0]).
+-- 
+1.7.0.4
+

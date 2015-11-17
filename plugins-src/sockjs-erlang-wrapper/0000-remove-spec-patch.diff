@@ -1,0 +1,816 @@
+diff --git a/src/mochijson2_fork.erl b/src/mochijson2_fork.erl
+index 355f068..a088d9d 100644
+--- a/src/mochijson2_fork.erl
++++ b/src/mochijson2_fork.erl
+@@ -91,17 +91,17 @@
+ -define(IS_WHITESPACE(C),
+         (C =:= $\s orelse C =:= $\t orelse C =:= $\r orelse C =:= $\n)).
+ 
+--type(decoder_option() :: any()).
+--type(handler_option() :: any()).
+-
+--type(json_string() :: atom | binary()).
+--type(json_number() :: integer() | float()).
+--type(json_array() :: [json_term()]).
+--type(json_object() :: {struct, [{json_string(), json_term()}]}).
+--type(json_eep18_object() :: {[{json_string(), json_term()}]}).
+--type(json_iolist() :: {json, iolist()}).
+--type(json_term() :: json_string() | json_number() | json_array() |
+-                    json_object() | json_eep18_object() | json_iolist()).
++%% -type(decoder_option() :: any()).
++%% -type(handler_option() :: any()).
++
++%% -type(json_string() :: atom | binary()).
++%% -type(json_number() :: integer() | float()).
++%% -type(json_array() :: [json_term()]).
++%% -type(json_object() :: {struct, [{json_string(), json_term()}]}).
++%% -type(json_eep18_object() :: {[{json_string(), json_term()}]}).
++%% -type(json_iolist() :: {json, iolist()}).
++%% -type(json_term() :: json_string() | json_number() | json_array() |
++%%                    json_object() | json_eep18_object() | json_iolist()).
+ 
+ -record(encoder, {handler=null,
+                   utf8=false}).
+@@ -112,27 +112,27 @@
+                   column=1,
+                   state=null}).
+ 
+--type(utf8_option() :: boolean()).
+--type(encoder_option() :: handler_option() | utf8_option()).
+--spec encoder([encoder_option()]) -> function().
++%% -type(utf8_option() :: boolean()).
++%% -type(encoder_option() :: handler_option() | utf8_option()).
++%% -spec encoder([encoder_option()]) -> function().
+ %% @doc Create an encoder/1 with the given options.
+ %% Emit unicode as utf8 (default - false)
+ encoder(Options) ->
+     State = parse_encoder_options(Options, #encoder{}),
+     fun (O) -> json_encode(O, State) end.
+ 
+--spec encode(json_term()) -> iolist().
++%% -spec encode(json_term()) -> iolist().
+ %% @doc Encode the given as JSON to an iolist.
+ encode(Any) ->
+     json_encode(Any, #encoder{}).
+ 
+--spec decoder([decoder_option()]) -> function().
++%% -spec decoder([decoder_option()]) -> function().
+ %% @doc Create a decoder/1 with the given options.
+ decoder(Options) ->
+     State = parse_decoder_options(Options, #decoder{}),
+     fun (O) -> json_decode(O, State) end.
+ 
+--spec decode(iolist(), [{format, proplist | eep18 | struct}]) -> json_term().
++%% -spec decode(iolist(), [{format, proplist | eep18 | struct}]) -> json_term().
+ %% @doc Decode the given iolist to Erlang terms using the given object format
+ %%      for decoding, where proplist returns JSON objects as [{binary(), json_term()}]
+ %%      proplists, eep18 returns JSON objects as {[binary(), json_term()]}, and struct
+@@ -140,7 +140,7 @@ decoder(Options) ->
+ decode(S, Options) ->
+     json_decode(S, parse_decoder_options(Options, #decoder{})).
+ 
+--spec decode(iolist()) -> json_term().
++%% -spec decode(iolist()) -> json_term().
+ %% @doc Decode the given iolist to Erlang terms.
+ decode(S) ->
+     json_decode(S, #decoder{}).
+diff --git a/src/sockjs.erl b/src/sockjs.erl
+index 68163ca..98b1173 100644
+--- a/src/sockjs.erl
++++ b/src/sockjs.erl
+@@ -2,23 +2,23 @@
+ 
+ -export([send/2, close/1, close/3, info/1]).
+ 
+--type(conn() :: {sockjs_session, any()}).
++%% -type(conn() :: {sockjs_session, any()}).
+ 
+ %% Send data over a connection.
+--spec send(iodata(), conn()) -> ok.
++%% -spec send(iodata(), conn()) -> ok.
+ send(Data, Conn = {sockjs_session, _}) ->
+     sockjs_session:send(Data, Conn).
+ 
+ %% Initiate a close of a connection.
+--spec close(conn()) -> ok.
++%% -spec close(conn()) -> ok.
+ close(Conn) ->
+     close(1000, "Normal closure", Conn).
+ 
+--spec close(non_neg_integer(), string(), conn()) -> ok.
++%% -spec close(non_neg_integer(), string(), conn()) -> ok.
+ close(Code, Reason, Conn = {sockjs_session, _}) ->
+     sockjs_session:close(Code, Reason, Conn).
+ 
+--spec info(conn()) -> [{atom(), any()}].
++%% -spec info(conn()) -> [{atom(), any()}].
+ info(Conn = {sockjs_session, _}) ->
+     sockjs_session:info(Conn).
+ 
+diff --git a/src/sockjs_action.erl b/src/sockjs_action.erl
+index 3f13beb..4310963 100644
+--- a/src/sockjs_action.erl
++++ b/src/sockjs_action.erl
+@@ -45,17 +45,17 @@
+ 
+ %% --------------------------------------------------------------------------
+ 
+--spec welcome_screen(req(), headers(), service()) -> req().
++%% -spec welcome_screen(req(), headers(), service()) -> req().
+ welcome_screen(Req, Headers, _Service) ->
+     H = [{"Content-Type", "text/plain; charset=UTF-8"}],
+     sockjs_http:reply(200, H ++ Headers,
+           "Welcome to SockJS!\n", Req).
+ 
+--spec options(req(), headers(), service()) -> req().
++%% -spec options(req(), headers(), service()) -> req().
+ options(Req, Headers, _Service) ->
+     sockjs_http:reply(204, Headers, "", Req).
+ 
+--spec iframe(req(), headers(), service()) -> req().
++%% -spec iframe(req(), headers(), service()) -> req().
+ iframe(Req, Headers, #service{sockjs_url = SockjsUrl}) ->
+     IFrame = io_lib:format(?IFRAME, [SockjsUrl]),
+     MD5 = "\"" ++ binary_to_list(base64:encode(erlang:md5(IFrame))) ++ "\"",
+@@ -68,7 +68,7 @@ iframe(Req, Headers, #service{sockjs_url = SockjsUrl}) ->
+     end.
+ 
+ 
+--spec info_test(req(), headers(), service()) -> req().
++%% -spec info_test(req(), headers(), service()) -> req().
+ info_test(Req, Headers, #service{websocket = Websocket,
+                                  cookie_needed = CookieNeeded}) ->
+     I = [{websocket, Websocket},
+@@ -81,12 +81,12 @@ info_test(Req, Headers, #service{websocket = Websocket,
+ 
+ %% --------------------------------------------------------------------------
+ 
+--spec xhr_polling(req(), headers(), service(), session()) -> req().
++%% -spec xhr_polling(req(), headers(), service(), session()) -> req().
+ xhr_polling(Req, Headers, Service, Session) ->
+     Req1 = chunk_start(Req, Headers),
+     reply_loop(Req1, Session, 1, fun fmt_xhr/1, Service).
+ 
+--spec xhr_streaming(req(), headers(), service(), session()) -> req().
++%% -spec xhr_streaming(req(), headers(), service(), session()) -> req().
+ xhr_streaming(Req, Headers, Service = #service{response_limit = ResponseLimit},
+               Session) ->
+     Req1 = chunk_start(Req, Headers),
+@@ -96,7 +96,7 @@ xhr_streaming(Req, Headers, Service = #service{response_limit = ResponseLimit},
+                  fun fmt_xhr/1),
+     reply_loop(Req2, Session, ResponseLimit, fun fmt_xhr/1, Service).
+ 
+--spec eventsource(req(), headers(), service(), session()) -> req().
++%% -spec eventsource(req(), headers(), service(), session()) -> req().
+ eventsource(Req, Headers, Service = #service{response_limit = ResponseLimit},
+             SessionId) ->
+     Req1 = chunk_start(Req, Headers, "text/event-stream; charset=UTF-8"),
+@@ -104,7 +104,7 @@ eventsource(Req, Headers, Service = #service{response_limit = ResponseLimit},
+     reply_loop(Req2, SessionId, ResponseLimit, fun fmt_eventsource/1, Service).
+ 
+ 
+--spec htmlfile(req(), headers(), service(), session()) -> req().
++%% -spec htmlfile(req(), headers(), service(), session()) -> req().
+ htmlfile(Req, Headers, Service = #service{response_limit = ResponseLimit},
+          SessionId) ->
+     S = fun (Req1, CB) ->
+@@ -119,7 +119,7 @@ htmlfile(Req, Headers, Service = #service{response_limit = ResponseLimit},
+         end,
+     verify_callback(Req, S).
+ 
+--spec jsonp(req(), headers(), service(), session()) -> req().
++%% -spec jsonp(req(), headers(), service(), session()) -> req().
+ jsonp(Req, Headers, Service, SessionId) ->
+     S = fun (Req1, CB) ->
+                 Req2 = chunk_start(Req1, Headers),
+@@ -139,7 +139,7 @@ verify_callback(Req, Success) ->
+ 
+ %% --------------------------------------------------------------------------
+ 
+--spec xhr_send(req(), headers(), service(), session()) -> req().
++%% -spec xhr_send(req(), headers(), service(), session()) -> req().
+ xhr_send(Req, Headers, _Service, Session) ->
+     {Body, Req1} = sockjs_http:body(Req),
+     case handle_recv(Req1, Body, Session) of
+@@ -150,7 +150,7 @@ xhr_send(Req, Headers, _Service, Session) ->
+             sockjs_http:reply(204, H ++ Headers, "", Req1)
+     end.
+ 
+--spec jsonp_send(req(), headers(), service(), session()) -> req().
++%% -spec jsonp_send(req(), headers(), service(), session()) -> req().
+ jsonp_send(Req, Headers, _Service, Session) ->
+     {Body, Req1} = sockjs_http:body_qs(Req),
+     case handle_recv(Req1, Body, Session) of
+@@ -236,21 +236,21 @@ chunk_end(Req) -> sockjs_http:chunk_end(Req).
+ chunk_end(Req, Body, Fmt) -> Req1 = chunk(Req, Body, Fmt),
+                              chunk_end(Req1).
+ 
+--spec fmt_xhr(iodata()) -> iodata().
++%% -spec fmt_xhr(iodata()) -> iodata().
+ fmt_xhr(Body) -> [Body, "\n"].
+ 
+--spec fmt_eventsource(iodata()) -> iodata().
++%% -spec fmt_eventsource(iodata()) -> iodata().
+ fmt_eventsource(Body) ->
+     Escaped = sockjs_util:url_escape(binary_to_list(iolist_to_binary(Body)),
+                                      "%\r\n\0"), %% $% must be first!
+     [<<"data: ">>, Escaped, <<"\r\n\r\n">>].
+ 
+--spec fmt_htmlfile(iodata()) -> iodata().
++%% -spec fmt_htmlfile(iodata()) -> iodata().
+ fmt_htmlfile(Body) ->
+     Double = sockjs_json:encode(iolist_to_binary(Body)),
+     [<<"<script>\np(">>, Double, <<");\n</script>\r\n">>].
+ 
+--spec fmt_jsonp(iodata(), iodata()) -> iodata().
++%% -spec fmt_jsonp(iodata(), iodata()) -> iodata().
+ fmt_jsonp(Body, Callback) ->
+     %% Yes, JSONed twice, there isn't a a better way, we must pass
+     %% a string back, and the script, will be evaled() by the
+@@ -259,7 +259,7 @@ fmt_jsonp(Body, Callback) ->
+ 
+ %% --------------------------------------------------------------------------
+ 
+--spec websocket(req(), headers(), service()) -> req().
++%% -spec websocket(req(), headers(), service()) -> req().
+ websocket(Req, Headers, Service) ->
+     {_Any, Req1, {R1, R2}} = sockjs_handler:is_valid_ws(Service, Req),
+     case {R1, R2} of
+@@ -274,6 +274,6 @@ websocket(Req, Headers, Service) ->
+                               "This WebSocket request can't be handled.", Req1)
+     end.
+ 
+--spec rawwebsocket(req(), headers(), service()) -> req().
++%% -spec rawwebsocket(req(), headers(), service()) -> req().
+ rawwebsocket(Req, Headers, Service) ->
+     websocket(Req, Headers, Service).
+diff --git a/src/sockjs_app.erl b/src/sockjs_app.erl
+index 1b8e77c..54aceb6 100644
+--- a/src/sockjs_app.erl
++++ b/src/sockjs_app.erl
+@@ -4,11 +4,11 @@
+ 
+ -export([start/2, stop/1]).
+ 
+--spec start(_, _) -> {ok, pid()}.
++%% -spec start(_, _) -> {ok, pid()}.
+ start(_StartType, _StartArgs) ->
+     sockjs_session:init(),
+     sockjs_session_sup:start_link().
+ 
+--spec stop(_) -> ok.
++%% -spec stop(_) -> ok.
+ stop(_State) ->
+     ok.
+diff --git a/src/sockjs_filters.erl b/src/sockjs_filters.erl
+index 15aa8e3..fba43cc 100644
+--- a/src/sockjs_filters.erl
++++ b/src/sockjs_filters.erl
+@@ -9,7 +9,7 @@
+ 
+ %% --------------------------------------------------------------------------
+ 
+--spec cache_for(req(), headers()) -> {headers(), req()}.
++%% -spec cache_for(req(), headers()) -> {headers(), req()}.
+ cache_for(Req, Headers) ->
+     Expires = calendar:gregorian_seconds_to_datetime(
+                 calendar:datetime_to_gregorian_seconds(
+@@ -18,7 +18,7 @@ cache_for(Req, Headers) ->
+          {"Expires",       httpd_util:rfc1123_date(Expires)}],
+     {H ++ Headers, Req}.
+ 
+--spec h_sid(req(), headers()) -> {headers(), req()}.
++%% -spec h_sid(req(), headers()) -> {headers(), req()}.
+ h_sid(Req, Headers) ->
+     %% Some load balancers do sticky sessions, but only if there is
+     %% a JSESSIONID cookie. If this cookie isn't yet set, we shall
+@@ -31,12 +31,12 @@ h_sid(Req, Headers) ->
+     end,
+     {H ++ Headers, Req2}.
+ 
+--spec h_no_cache(req(), headers()) -> {headers(), req()}.
++%% -spec h_no_cache(req(), headers()) -> {headers(), req()}.
+ h_no_cache(Req, Headers) ->
+     H = [{"Cache-Control", "no-store, no-cache, must-revalidate, max-age=0"}],
+     {H ++ Headers, Req}.
+ 
+--spec xhr_cors(req(), headers()) -> {headers(), req()}.
++%% -spec xhr_cors(req(), headers()) -> {headers(), req()}.
+ xhr_cors(Req, Headers) ->
+     {OriginH, Req1} = sockjs_http:header('Origin', Req),
+      Origin = case OriginH of
+@@ -54,15 +54,15 @@ xhr_cors(Req, Headers) ->
+          {"Access-Control-Allow-Credentials", "true"}],
+     {H ++ AllowHeaders ++ Headers, Req2}.
+ 
+--spec xhr_options_post(req(), headers()) -> {headers(), req()}.
++%% -spec xhr_options_post(req(), headers()) -> {headers(), req()}.
+ xhr_options_post(Req, Headers) ->
+     xhr_options(Req, Headers, ["OPTIONS", "POST"]).
+ 
+--spec xhr_options_get(req(), headers()) -> {headers(), req()}.
++%% -spec xhr_options_get(req(), headers()) -> {headers(), req()}.
+ xhr_options_get(Req, Headers) ->
+     xhr_options(Req, Headers, ["OPTIONS", "GET"]).
+ 
+--spec xhr_options(req(), headers(), list(string())) -> {headers(), req()}.
++%% -spec xhr_options(req(), headers(), list(string())) -> {headers(), req()}.
+ xhr_options(Req, Headers, Methods) ->
+     H = [{"Access-Control-Allow-Methods", string:join(Methods, ", ")},
+          {"Access-Control-Max-Age", integer_to_list(?YEAR)}],
+diff --git a/src/sockjs_handler.erl b/src/sockjs_handler.erl
+index ebb3982..b706453 100644
+--- a/src/sockjs_handler.erl
++++ b/src/sockjs_handler.erl
+@@ -11,7 +11,7 @@
+ 
+ %% --------------------------------------------------------------------------
+ 
+--spec init_state(binary(), callback(), any(), list(tuple())) -> service().
++%% -spec init_state(binary(), callback(), any(), list(tuple())) -> service().
+ init_state(Prefix, Callback, State, Options) ->
+     #service{prefix = binary_to_list(Prefix),
+              callback = Callback,
+@@ -34,7 +34,7 @@ init_state(Prefix, Callback, State, Options) ->
+ 
+ %% --------------------------------------------------------------------------
+ 
+--spec is_valid_ws(service(), req()) -> {boolean(), req(), tuple()}.
++%% -spec is_valid_ws(service(), req()) -> {boolean(), req(), tuple()}.
+ is_valid_ws(Service, Req) ->
+     case get_action(Service, Req) of
+         {{match, WS}, Req1} when WS =:= websocket orelse
+@@ -44,7 +44,7 @@ is_valid_ws(Service, Req) ->
+             {false, Req1, {}}
+     end.
+ 
+--spec valid_ws_request(service(), req()) -> {boolean(), req(), tuple()}.
++%% -spec valid_ws_request(service(), req()) -> {boolean(), req(), tuple()}.
+ valid_ws_request(_Service, Req) ->
+     {R1, Req1} = valid_ws_upgrade(Req),
+     {R2, Req2} = valid_ws_connection(Req1),
+@@ -73,7 +73,7 @@ valid_ws_connection(Req) ->
+             {lists:member("upgrade", Vs), Req2}
+     end.
+ 
+--spec get_action(service(), req()) -> {nomatch | {match, atom()}, req()}.
++%% -spec get_action(service(), req()) -> {nomatch | {match, atom()}, req()}.
+ get_action(Service, Req) ->
+     {Dispatch, Req1} = dispatch_req(Service, Req),
+     case Dispatch of
+@@ -93,20 +93,20 @@ strip_prefix(LongPath, Prefix) ->
+     end.
+ 
+ 
+--type(dispatch_result() ::
+-        nomatch |
+-        {match, {send | recv | none , atom(),
+-                 server(), session(), list(atom())}} |
+-        {bad_method, list(atom())}).
++%% -type(dispatch_result() ::
++%%        nomatch |
++%%        {match, {send | recv | none , atom(),
++%%                 server(), session(), list(atom())}} |
++%%        {bad_method, list(atom())}).
+ 
+--spec dispatch_req(service(), req()) -> {dispatch_result(), req()}.
++%% -spec dispatch_req(service(), req()) -> {dispatch_result(), req()}.
+ dispatch_req(#service{prefix = Prefix}, Req) ->
+     {Method, Req1} = sockjs_http:method(Req),
+     {LongPath, Req2} = sockjs_http:path(Req1),
+     {ok, PathRemainder} = strip_prefix(LongPath, Prefix),
+     {dispatch(Method, PathRemainder), Req2}.
+ 
+--spec dispatch(atom(), nonempty_string()) -> dispatch_result().
++%% -spec dispatch(atom(), nonempty_string()) -> dispatch_result().
+ dispatch(Method, Path) ->
+     lists:foldl(
+       fun ({Match, MethodFilters}, nomatch) ->
+@@ -163,7 +163,7 @@ re(Path, S) ->
+ 
+ %% --------------------------------------------------------------------------
+ 
+--spec handle_req(service(), req()) -> req().
++%% -spec handle_req(service(), req()) -> req().
+ handle_req(Service = #service{logger = Logger}, Req) ->
+     Req0 = Logger(Service, Req, http),
+ 
+@@ -202,14 +202,14 @@ handle({match, {Type, Action, _Server, Session, Filters}}, Service, Req) ->
+ 
+ %% --------------------------------------------------------------------------
+ 
+--spec default_logger(service(), req(), websocket | http) -> req().
++%% -spec default_logger(service(), req(), websocket | http) -> req().
+ default_logger(_Service, Req, _Type) ->
+     {LongPath, Req1} = sockjs_http:path(Req),
+     {Method, Req2}   = sockjs_http:method(Req1),
+     io:format("~s ~s~n", [Method, LongPath]),
+     Req2.
+ 
+--spec extract_info(req()) -> {info(), req()}.
++%% -spec extract_info(req()) -> {info(), req()}.
+ extract_info(Req) ->
+     {Peer, Req0}    = sockjs_http:peername(Req),
+     {Sock, Req1}    = sockjs_http:sockname(Req0),
+diff --git a/src/sockjs_http.erl b/src/sockjs_http.erl
+index 9754119..5cdf431 100644
+--- a/src/sockjs_http.erl
++++ b/src/sockjs_http.erl
+@@ -8,22 +8,22 @@
+ 
+ %% --------------------------------------------------------------------------
+ 
+--spec path(req()) -> {string(), req()}.
++%% -spec path(req()) -> {string(), req()}.
+ path({cowboy, Req})       -> {Path, Req1} = cowboy_http_req:raw_path(Req),
+                              {binary_to_list(Path), {cowboy, Req1}}.
+ 
+--spec method(req()) -> {atom(), req()}.
++%% -spec method(req()) -> {atom(), req()}.
+ method({cowboy, Req})       -> {Method, Req1} = cowboy_http_req:method(Req),
+                                case is_binary(Method) of
+                                    true  -> {binary_to_atom(Method, utf8), {cowboy, Req1}};
+                                    false -> {Method, {cowboy, Req1}}
+                                end.
+ 
+--spec body(req()) -> {binary(), req()}.
++%% -spec body(req()) -> {binary(), req()}.
+ body({cowboy, Req})       -> {ok, Body, Req1} = cowboy_http_req:body(Req),
+                              {Body, {cowboy, Req1}}.
+ 
+--spec body_qs(req()) -> {binary(), req()}.
++%% -spec body_qs(req()) -> {binary(), req()}.
+ body_qs(Req) ->
+     {H, Req1} =  header('Content-Type', Req),
+     case H of
+@@ -42,7 +42,7 @@ body_qs2({cowboy, Req}) ->
+             {V, {cowboy, Req1}}
+     end.
+ 
+--spec header(atom(), req()) -> {nonempty_string() | undefined, req()}.
++%% -spec header(atom(), req()) -> {nonempty_string() | undefined, req()}.
+ header(K, {cowboy, Req})->
+     {H, Req2} = cowboy_http_req:header(K, Req),
+     {V, Req3} = case H of
+@@ -55,7 +55,7 @@ header(K, {cowboy, Req})->
+         _         -> {binary_to_list(V), {cowboy, Req3}}
+     end.
+ 
+--spec jsessionid(req()) -> {nonempty_string() | undefined, req()}.
++%% -spec jsessionid(req()) -> {nonempty_string() | undefined, req()}.
+ jsessionid({cowboy, Req}) ->
+     {C, Req2} = cowboy_http_req:cookie(<<"JSESSIONID">>, Req),
+     case C of
+@@ -65,7 +65,7 @@ jsessionid({cowboy, Req}) ->
+             {undefined, {cowboy, Req2}}
+     end.
+ 
+--spec callback(req()) -> {nonempty_string() | undefined, req()}.
++%% -spec callback(req()) -> {nonempty_string() | undefined, req()}.
+ callback({cowboy, Req}) ->
+     {CB, Req1} = cowboy_http_req:qs_val(<<"c">>, Req),
+     case CB of
+@@ -73,12 +73,12 @@ callback({cowboy, Req}) ->
+         _         -> {binary_to_list(CB), {cowboy, Req1}}
+     end.
+ 
+--spec peername(req()) -> {{inet:ip_address(), non_neg_integer()}, req()}.
++%% -spec peername(req()) -> {{inet:ip_address(), non_neg_integer()}, req()}.
+ peername({cowboy, Req}) ->
+     {P, Req1} = cowboy_http_req:peer(Req),
+     {P, {cowboy, Req1}}.
+ 
+--spec sockname(req()) -> {{inet:ip_address(), non_neg_integer()}, req()}.
++%% -spec sockname(req()) -> {{inet:ip_address(), non_neg_integer()}, req()}.
+ sockname({cowboy, Req} = R) ->
+     {ok, _T, S} = cowboy_http_req:transport(Req),
+     %% Cowboy has peername(), but doesn't have sockname() equivalent.
+@@ -92,18 +92,18 @@ sockname({cowboy, Req} = R) ->
+ 
+ %% --------------------------------------------------------------------------
+ 
+--spec reply(non_neg_integer(), headers(), iodata(), req()) -> req().
++%% -spec reply(non_neg_integer(), headers(), iodata(), req()) -> req().
+ reply(Code, Headers, Body, {cowboy, Req}) ->
+     Body1 = iolist_to_binary(Body),
+     {ok, Req1} = cowboy_http_req:reply(Code, enbinary(Headers), Body1, Req),
+     {cowboy, Req1}.
+ 
+--spec chunk_start(non_neg_integer(), headers(), req()) -> req().
++%% -spec chunk_start(non_neg_integer(), headers(), req()) -> req().
+ chunk_start(Code, Headers, {cowboy, Req}) ->
+     {ok, Req1} = cowboy_http_req:chunked_reply(Code, enbinary(Headers), Req),
+     {cowboy, Req1}.
+ 
+--spec chunk(iodata(), req()) -> {ok | error, req()}.
++%% -spec chunk(iodata(), req()) -> {ok | error, req()}.
+ chunk(Chunk, {cowboy, Req} = R) ->
+     case cowboy_http_req:chunk(Chunk, Req) of
+         ok          -> {ok, R};
+@@ -112,25 +112,25 @@ chunk(Chunk, {cowboy, Req} = R) ->
+                       %% should catch tco socket closure before.
+     end.
+ 
+--spec chunk_end(req()) -> req().
++%% -spec chunk_end(req()) -> req().
+ chunk_end({cowboy, _Req} = R)  -> R.
+ 
+ enbinary(L) -> [{list_to_binary(K), list_to_binary(V)} || {K, V} <- L].
+ 
+ 
+--spec hook_tcp_close(req()) -> req().
++%% -spec hook_tcp_close(req()) -> req().
+ hook_tcp_close(R = {cowboy, Req}) ->
+     {ok, T, S} = cowboy_http_req:transport(Req),
+     T:setopts(S,[{active,once}]),
+     R.
+ 
+--spec unhook_tcp_close(req()) -> req().
++%% -spec unhook_tcp_close(req()) -> req().
+ unhook_tcp_close(R = {cowboy, Req}) ->
+     {ok, T, S} = cowboy_http_req:transport(Req),
+     T:setopts(S,[{active,false}]),
+     R.
+ 
+--spec abruptly_kill(req()) -> req().
++%% -spec abruptly_kill(req()) -> req().
+ abruptly_kill(R = {cowboy, Req}) ->
+     {ok, T, S} = cowboy_http_req:transport(Req),
+     T:close(S),
+diff --git a/src/sockjs_internal.hrl b/src/sockjs_internal.hrl
+index 4f696d8..629b2fe 100644
+--- a/src/sockjs_internal.hrl
++++ b/src/sockjs_internal.hrl
+@@ -1,32 +1,32 @@
+ 
+--type(req()          :: {cowboy, any()}).
++%% -type(req()          :: {cowboy, any()}).
+ 
+--type(user_session() :: nonempty_string()).
+--type(emittable()    :: init|closed|{recv, binary()}).
+--type(callback()     :: fun((user_session(), emittable(), any()) -> ok)).
+--type(logger()       :: fun((any(), req(), websocket|http) -> req())).
++%% -type(user_session() :: nonempty_string()).
++%% -type(emittable()    :: init|closed|{recv, binary()}).
++%% -type(callback()     :: fun((user_session(), emittable(), any()) -> ok)).
++%% -type(logger()       :: fun((any(), req(), websocket|http) -> req())).
+ 
+--record(service, {prefix           :: nonempty_string(),
+-                  callback         :: callback(),
+-                  state            :: any(),
+-                  sockjs_url       :: nonempty_string(),
+-                  cookie_needed    :: boolean(),
+-                  websocket        :: boolean(),
+-                  disconnect_delay :: non_neg_integer(),
+-                  heartbeat_delay  :: non_neg_integer(),
+-                  response_limit   :: non_neg_integer(),
+-                  logger           :: logger()
++-record(service, {prefix           , %%  nonempty_string(),
++                  callback         , %%  callback()
++                  state            , %%  any()
++                  sockjs_url       , %%  nonempty_string()
++                  cookie_needed    , %%  boolean()
++                  websocket        , %%  boolean()
++                  disconnect_delay , %%  non_neg_integer()
++                  heartbeat_delay  , %%  non_neg_integer()
++                  response_limit   , %%  non_neg_integer()
++                  logger            %%  logger()
+                   }).
+ 
+--type(service() :: #service{}).
++%% -type(service() :: #service{}).
+ 
+--type(headers() :: list({nonempty_string(), nonempty_string()})).
+--type(server()  :: nonempty_string()).
+--type(session() :: nonempty_string()).
++%% -type(headers() :: list({nonempty_string(), nonempty_string()})).
++%% -type(server()  :: nonempty_string()).
++%% -type(session() :: nonempty_string()).
+ 
+--type(frame()   :: {open, nil} |
+-                   {close, {non_neg_integer(), string()}} |
+-                   {data, list(iodata())} |
+-                   {heartbeat, nil} ).
++%% -type(frame()   :: {open, nil} |
++%%                   {close, {non_neg_integer(), string()}} |
++%%                   {data, list(iodata())} |
++%%                   {heartbeat, nil} ).
+ 
+--type(info()    :: [{atom(), any()}]).
++%% -type(info()    :: [{atom(), any()}]).
+diff --git a/src/sockjs_json.erl b/src/sockjs_json.erl
+index e61f4b9..d3dae20 100644
+--- a/src/sockjs_json.erl
++++ b/src/sockjs_json.erl
+@@ -4,11 +4,11 @@
+ 
+ %% --------------------------------------------------------------------------
+ 
+--spec encode(any()) -> iodata().
++%% -spec encode(any()) -> iodata().
+ encode(Thing) ->
+     mochijson2_fork:encode(Thing).
+ 
+--spec decode(iodata()) -> {ok, any()} | {error, any()}.
++%% -spec decode(iodata()) -> {ok, any()} | {error, any()}.
+ decode(Encoded) ->
+     try mochijson2_fork:decode(Encoded) of
+         V -> {ok, V}
+diff --git a/src/sockjs_session.erl b/src/sockjs_session.erl
+index 66c5df0..7e4ae00 100644
+--- a/src/sockjs_session.erl
++++ b/src/sockjs_session.erl
+@@ -11,39 +11,39 @@
+          handle_cast/2]).
+ 
+ -include("sockjs_internal.hrl").
+--type(handle() :: {?MODULE, {pid(), info()}}).
+-
+--record(session, {id                           :: session(),
+-                  outbound_queue = queue:new() :: queue(),
+-                  response_pid                 :: pid(),
+-                  disconnect_tref              :: reference(),
+-                  disconnect_delay = 5000      :: non_neg_integer(),
+-                  heartbeat_tref               :: reference() | triggered,
+-                  heartbeat_delay = 25000      :: non_neg_integer(),
+-                  ready_state = connecting     :: connecting | open | closed,
+-                  close_msg                    :: {non_neg_integer(), string()},
++%% -type(handle() :: {?MODULE, {pid(), info()}}).
++
++-record(session, {id                           , %%  session(),
++                  outbound_queue = queue:new() , %%  queue()
++                  response_pid                 , %%  pid()
++                  disconnect_tref              , %%  reference()
++                  disconnect_delay = 5000      , %%  non_neg_integer()
++                  heartbeat_tref               , %%  reference() | triggered
++                  heartbeat_delay = 25000      , %%  non_neg_integer()
++                  ready_state = connecting     , %%  connecting | open | closed
++                  close_msg                    , %%  {non_neg_integer(), string()}
+                   callback,
+                   state,
+-                  handle                       :: handle()
++                  handle                        %%  handle()
+                  }).
+ -define(ETS, sockjs_table).
+ 
+ 
+--type(session_or_undefined() :: session() | undefined).
+--type(session_or_pid() :: session() | pid()).
++%% -type(session_or_undefined() :: session() | undefined).
++%% -type(session_or_pid() :: session() | pid()).
+ 
+ %% --------------------------------------------------------------------------
+ 
+--spec init() -> ok.
++%% -spec init() -> ok.
+ init() ->
+     _ = ets:new(?ETS, [public, named_table]),
+     ok.
+ 
+--spec start_link(session_or_undefined(), service(), info()) -> {ok, pid()}.
++%% -spec start_link(session_or_undefined(), service(), info()) -> {ok, pid()}.
+ start_link(SessionId, Service, Info) ->
+     gen_server:start_link(?MODULE, {SessionId, Service, Info}, []).
+ 
+--spec maybe_create(session_or_undefined(), service(), info()) -> pid().
++%% -spec maybe_create(session_or_undefined(), service(), info()) -> pid().
+ maybe_create(SessionId, Service, Info) ->
+     case ets:lookup(?ETS, SessionId) of
+         []          -> {ok, SPid} = sockjs_session_sup:start_child(
+@@ -53,7 +53,7 @@ maybe_create(SessionId, Service, Info) ->
+     end.
+ 
+ 
+--spec received(list(iodata()), session_or_pid()) -> ok.
++%% -spec received(list(iodata()), session_or_pid()) -> ok.
+ received(Messages, SessionPid) when is_pid(SessionPid) ->
+     case gen_server:call(SessionPid, {received, Messages}, infinity) of
+         ok    -> ok;
+@@ -63,27 +63,27 @@ received(Messages, SessionPid) when is_pid(SessionPid) ->
+ received(Messages, SessionId) ->
+     received(Messages, spid(SessionId)).
+ 
+--spec send(iodata(), handle()) -> ok.
++%% -spec send(iodata(), handle()) -> ok.
+ send(Data, {?MODULE, {SPid, _}}) ->
+     gen_server:cast(SPid, {send, Data}),
+     ok.
+ 
+--spec close(non_neg_integer(), string(), handle()) -> ok.
++%% -spec close(non_neg_integer(), string(), handle()) -> ok.
+ close(Code, Reason, {?MODULE, {SPid, _}}) ->
+     gen_server:cast(SPid, {close, Code, Reason}),
+     ok.
+ 
+--spec info(handle()) -> info().
++%% -spec info(handle()) -> info().
+ info({?MODULE, {_SPid, Info}}) ->
+     Info.
+ 
+--spec reply(session_or_pid()) ->
+-                   wait | session_in_use | {ok | close, frame()}.
++%% -spec reply(session_or_pid()) ->
++%%                   wait | session_in_use | {ok | close, frame()}.
+ reply(Session) ->
+     reply(Session, true).
+ 
+--spec reply(session_or_pid(), boolean()) ->
+-                   wait | session_in_use | {ok | close, frame()}.
++%% -spec reply(session_or_pid(), boolean()) ->
++%%                   wait | session_in_use | {ok | close, frame()}.
+ reply(SessionPid, Multiple) when is_pid(SessionPid) ->
+     gen_server:call(SessionPid, {reply, self(), Multiple}, infinity);
+ reply(SessionId, Multiple) ->
+@@ -154,7 +154,7 @@ unmark_waiting(RPid, State = #session{response_pid    = Pid,
+   when Pid =/= undefined andalso Pid =/= RPid ->
+     State.
+ 
+--spec emit(emittable(), #session{}) -> #session{}.
++%% -spec emit(emittable(), #session{}) -> #session{}.
+ emit(What, State = #session{callback = Callback,
+                             state    = UserState,
+                             handle   = Handle}) ->
+@@ -175,7 +175,7 @@ emit(What, State = #session{callback = Callback,
+ 
+ %% --------------------------------------------------------------------------
+ 
+--spec init({session_or_undefined(), service(), info()}) -> {ok, #session{}}.
++%% -spec init({session_or_undefined(), service(), info()}) -> {ok, #session{}}.
+ init({SessionId, #service{callback         = Callback,
+                           state            = UserState,
+                           disconnect_delay = DisconnectDelay,
+diff --git a/src/sockjs_session_sup.erl b/src/sockjs_session_sup.erl
+index 4197ce3..71c7ff4 100644
+--- a/src/sockjs_session_sup.erl
++++ b/src/sockjs_session_sup.erl
+@@ -7,7 +7,7 @@
+ 
+ %% --------------------------------------------------------------------------
+ 
+--spec start_link() -> ignore | {'ok', pid()} | {'error', any()}.
++%% -spec start_link() -> ignore | {'ok', pid()} | {'error', any()}.
+ start_link() ->
+      supervisor:start_link({local, ?MODULE}, ?MODULE, []).
+ 
+diff --git a/src/sockjs_util.erl b/src/sockjs_util.erl
+index be3f972..9b9969d 100644
+--- a/src/sockjs_util.erl
++++ b/src/sockjs_util.erl
+@@ -8,7 +8,7 @@
+ 
+ %% --------------------------------------------------------------------------
+ 
+--spec rand32() -> non_neg_integer().
++%% -spec rand32() -> non_neg_integer().
+ rand32() ->
+     case get(random_seeded) of
+         undefined ->
+@@ -21,7 +21,7 @@ rand32() ->
+     random:uniform(erlang:trunc(math:pow(2,32)))-1.
+ 
+ 
+--spec encode_frame(frame()) -> iodata().
++%% -spec encode_frame(frame()) -> iodata().
+ encode_frame({open, nil}) ->
+     <<"o">>;
+ encode_frame({close, {Code, Reason}}) ->
+@@ -34,7 +34,7 @@ encode_frame({heartbeat, nil}) ->
+     <<"h">>.
+ 
+ 
+--spec url_escape(string(), string()) -> iolist().
++%% -spec url_escape(string(), string()) -> iolist().
+ url_escape(Str, Chars) ->
+     [case lists:member(Char, Chars) of
+          true  -> hex(Char);
+diff --git a/src/sockjs_ws_handler.erl b/src/sockjs_ws_handler.erl
+index bcf463d..c011c89 100644
+--- a/src/sockjs_ws_handler.erl
++++ b/src/sockjs_ws_handler.erl
+@@ -6,7 +6,7 @@
+ 
+ %% --------------------------------------------------------------------------
+ 
+--spec received(websocket|rawwebsocket, pid(), binary()) -> ok | shutdown.
++%% -spec received(websocket|rawwebsocket, pid(), binary()) -> ok | shutdown.
+ %% Ignore empty
+ received(_RawWebsocket, _SessionPid, <<>>) ->
+     ok;
+@@ -30,7 +30,7 @@ session_received(Messages, SessionPid) ->
+         no_session -> shutdown
+     end.
+ 
+--spec reply(websocket|rawwebsocket, pid()) -> {close|open, binary()} | wait.
++%% -spec reply(websocket|rawwebsocket, pid()) -> {close|open, binary()} | wait.
+ reply(websocket, SessionPid) ->
+     case sockjs_session:reply(SessionPid) of
+         {W, Frame} when W =:= ok orelse W =:= close->
+@@ -52,7 +52,7 @@ reply(rawwebsocket, SessionPid) ->
+             wait
+     end.
+ 
+--spec close(websocket|rawwebsocket, pid()) -> ok.
++%% -spec close(websocket|rawwebsocket, pid()) -> ok.
+ close(_RawWebsocket, SessionPid) ->
+     SessionPid ! force_shutdown,
+     ok.

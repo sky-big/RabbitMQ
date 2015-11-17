@@ -1,0 +1,55 @@
+From 4db80ab7bacf04502ad2d29d4760e04a6d787a83 Mon Sep 17 00:00:00 2001
+From: Marek Majkowski <majek04@gmail.com>
+Date: Thu, 26 Jan 2012 12:52:23 +0000
+Subject: [PATCH 3/7] R12: drop all references to reference() type
+
+---
+ src/cowboy_http_protocol.erl  |    2 +-
+ src/cowboy_http_websocket.erl |    2 +-
+ src/cowboy_listener.erl       |    2 +-
+ 3 files changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/src/cowboy_http_protocol.erl b/src/cowboy_http_protocol.erl
+index b80745f..0183785 100644
+--- a/src/cowboy_http_protocol.erl
++++ b/src/cowboy_http_protocol.erl
+@@ -57,7 +57,7 @@
+ 	buffer = <<>> :: binary(),
+ 	hibernate = false,
+ 	loop_timeout = infinity :: timeout(),
+-	loop_timeout_ref :: undefined | reference()
++	loop_timeout_ref
+ }).
+ 
+ %% API.
+diff --git a/src/cowboy_http_websocket.erl b/src/cowboy_http_websocket.erl
+index 5f59891..5100213 100644
+--- a/src/cowboy_http_websocket.erl
++++ b/src/cowboy_http_websocket.erl
+@@ -52,7 +52,7 @@
+ 	opts :: any(),
+ 	challenge = undefined :: undefined | binary() | {binary(), binary()},
+ 	timeout = infinity :: timeout(),
+-	timeout_ref = undefined :: undefined | reference(),
++	timeout_ref = undefined,
+ 	messages = undefined :: undefined | {atom(), atom(), atom()},
+ 	hibernate = false,
+ 	eop :: undefined | tuple(), %% hixie-76 specific.
+diff --git a/src/cowboy_listener.erl b/src/cowboy_listener.erl
+index c19d079..86e87f1 100644
+--- a/src/cowboy_listener.erl
++++ b/src/cowboy_listener.erl
+@@ -23,8 +23,8 @@
+ 
+ -record(state, {
+ 	req_pools = [] :: [{atom(), non_neg_integer()}],
+-	reqs_table :: ets:tid(),
+-	queue = [] :: [{pid(), reference()}]
++	reqs_table,
++	queue = []
+ }).
+ 
+ %% API.
+-- 
+1.7.0.4
+

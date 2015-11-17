@@ -1,0 +1,24 @@
+dn: dc=example,dc=com
+objectClass: top
+objectClass: dcObject
+objectclass: organization
+o: example.com
+dc: example
+description: Example
+
+dn: ou=people,dc=example,dc=com
+objectClass: organizationalUnit
+ou: people
+
+dn: cn=Simon MacMullen,ou=people,dc=example,dc=com
+objectClass: person
+cn: Simon MacMullen
+sn: MacMullen
+userPassword: password
+description: can-declare-queues
+
+dn: cn=Mike Bridgen,ou=people,dc=example,dc=com
+objectClass: person
+cn: Mike Bridgen
+sn: Bridgen
+userPassword: password

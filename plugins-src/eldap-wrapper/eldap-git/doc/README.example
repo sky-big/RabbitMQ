@@ -1,0 +1,44 @@
+1> {_,S} = eldap:open(["192.168.128.47"], []).
+{ok,<0.30.0>}
+2> eldap:simple_bind(S,"cn=Torbjorn Tornkvist,cn=Users,dc=bluetail,dc=com","qwe123").
+ok
+3> Base = {base, "dc=bluetail,dc=com"}.
+{base,"dc=bluetail,dc=com"}
+4> Scope = {scope, eldap:wholeSubtree()}.
+{scope,wholeSubtree}
+5> Filter = {filter, eldap:equalityMatch("sAMAccountName", "tobbe")}.
+{filter,{equalityMatch,{'AttributeValueAssertion',"sAMAccountName","tobbe"}}}
+6> Search = [Base, Scope, Filter].
+[{base,"dc=bluetail,dc=com"},
+ {scope,wholeSubtree},
+ {filter,{equalityMatch,{'AttributeValueAssertion',"sAMAccountName","tobbe"}}}]
+7> eldap:search(S, Search).
+{ok,{eldap_search_result,[{eldap_entry,
+                              "CN=Torbjorn Tornkvist,CN=Users,DC=bluetail,DC=com",
+                              [{"manager",
+                                ["CN=Tord Larsson,CN=Users,DC=bluetail,DC=com"]},
+                               {"memberOf",
+                                ["CN=TestGroup2,CN=Users,DC=bluetail,DC=com",
+                                 "CN=TestGroup,CN=Users,DC=bluetail,DC=com",
+                                 "CN=Pre-Windows 2000 Compatible Access,CN=Builtin,DC=bluetail,DC=com",
+                                 "CN=Server Operators,CN=Builtin,DC=bluetail,DC=com"]},
+                               {"accountExpires",["0"]},
+                               {"adminCount",["1"]},
+                               {"badPasswordTime",["127119104851642448"]},
+                               {"badPwdCount",["0"]},
+                               {"codePage",["0"]},
+                               {"cn",["Torbjorn Tornkvist"]},
+                               {"company",["Alteon Web Systems"]},
+                               {"countryCode",["0"]},
+                               {"department",["Bluetail"]},
+                               {"displayName",["Torbjorn Tornkvist"]},
+                               {"mail",["tobbe@bluetail.com"]},
+                               {"givenName",["Torbjorn"]},
+                               {"instanceType",["4"]},
+                               {"lastLogoff",["0"]},
+                               {"lastLogon",["127119109376267104"]},
+                               {"logonCount",[...]},
+                               {"msNPAllowDialin"|...},
+                               {...}|...]}],
+                         [["ldap://bluetail.com/CN=Configuration,DC=bluetail,DC=com"]]}}
+8> 

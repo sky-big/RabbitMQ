@@ -1,0 +1,165 @@
+From 257e64326ad786d19328d343da0ff7d29adbae4e Mon Sep 17 00:00:00 2001
+From: Marek Majkowski <majek04@gmail.com>
+Date: Thu, 26 Jan 2012 12:51:30 +0000
+Subject: [PATCH 2/7] R12 - drop all references to boolean() type
+
+---
+ src/cowboy_cookies.erl        |    8 --------
+ src/cowboy_http.erl           |    1 -
+ src/cowboy_http_protocol.erl  |    3 +--
+ src/cowboy_http_req.erl       |    2 --
+ src/cowboy_http_static.erl    |    5 -----
+ src/cowboy_http_websocket.erl |    2 +-
+ 6 files changed, 2 insertions(+), 19 deletions(-)
+
+diff --git a/src/cowboy_cookies.erl b/src/cowboy_cookies.erl
+index 6818a86..7f5ab60 100644
+--- a/src/cowboy_cookies.erl
++++ b/src/cowboy_cookies.erl
+@@ -112,7 +112,6 @@ cookie(Key, Value, Options) when is_binary(Key)
+ %% Internal.
+ 
+ %% @doc Check if a character is a white space character.
+--spec is_whitespace(char()) -> boolean().
+ is_whitespace($\s) -> true;
+ is_whitespace($\t) -> true;
+ is_whitespace($\r) -> true;
+@@ -120,7 +119,6 @@ is_whitespace($\n) -> true;
+ is_whitespace(_) -> false.
+ 
+ %% @doc Check if a character is a seperator.
+--spec is_separator(char()) -> boolean().
+ is_separator(C) when C < 32 -> true;
+ is_separator($\s) -> true;
+ is_separator($\t) -> true;
+@@ -144,7 +142,6 @@ is_separator($}) -> true;
+ is_separator(_) -> false.
+ 
+ %% @doc Check if a binary has an ASCII seperator character.
+--spec has_seperator(binary()) -> boolean().
+ has_seperator(<<>>) ->
+ 	false;
+ has_seperator(<<$/, Rest/binary>>) ->
+@@ -228,7 +225,6 @@ read_quoted(<<C, Rest/binary>>, Acc) ->
+ 	read_quoted(Rest, <<Acc/binary, C>>).
+ 
+ %% @doc Drop characters while a function returns true.
+--spec binary_dropwhile(fun((char()) -> boolean()), binary()) -> binary().
+ binary_dropwhile(_F, <<"">>) ->
+ 	<<"">>;
+ binary_dropwhile(F, String) ->
+@@ -246,8 +242,6 @@ skip_whitespace(String) ->
+ 	binary_dropwhile(fun is_whitespace/1, String).
+ 
+ %% @doc Split a binary when the current character causes F to return true.
+--spec binary_splitwith(fun((char()) -> boolean()), binary(), binary())
+-	-> {binary(), binary()}.
+ binary_splitwith(_F, Head, <<>>) ->
+ 	{Head, <<>>};
+ binary_splitwith(F, Head, Tail) ->
+@@ -260,8 +254,6 @@ binary_splitwith(F, Head, Tail) ->
+ 	end.
+ 
+ %% @doc Split a binary with a function returning true or false on each char.
+--spec binary_splitwith(fun((char()) -> boolean()), binary())
+-	-> {binary(), binary()}.
+ binary_splitwith(F, String) ->
+ 	binary_splitwith(F, <<>>, String).
+ 
+diff --git a/src/cowboy_http.erl b/src/cowboy_http.erl
+index 95a7334..d7261c8 100644
+--- a/src/cowboy_http.erl
++++ b/src/cowboy_http.erl
+@@ -755,7 +755,6 @@ urlencode(Bin, Opts) ->
+ 	Upper = proplists:get_value(upper, Opts, false),
+ 	urlencode(Bin, <<>>, Plus, Upper).
+ 
+--spec urlencode(binary(), binary(), boolean(), boolean()) -> binary().
+ urlencode(<<C, Rest/binary>>, Acc, P=Plus, U=Upper) ->
+ 	if	C >= $0, C =< $9 -> urlencode(Rest, <<Acc/binary, C>>, P, U);
+ 		C >= $A, C =< $Z -> urlencode(Rest, <<Acc/binary, C>>, P, U);
+diff --git a/src/cowboy_http_protocol.erl b/src/cowboy_http_protocol.erl
+index baee081..b80745f 100644
+--- a/src/cowboy_http_protocol.erl
++++ b/src/cowboy_http_protocol.erl
+@@ -55,7 +55,7 @@
+ 	max_line_length :: integer(),
+ 	timeout :: timeout(),
+ 	buffer = <<>> :: binary(),
+-	hibernate = false :: boolean(),
++	hibernate = false,
+ 	loop_timeout = infinity :: timeout(),
+ 	loop_timeout_ref :: undefined | reference()
+ }).
+@@ -440,7 +440,6 @@ format_header(Field) when byte_size(Field) =< 20; byte_size(Field) > 32 ->
+ format_header(Field) ->
+ 	format_header(Field, true, <<>>).
+ 
+--spec format_header(binary(), boolean(), binary()) -> binary().
+ format_header(<<>>, _Any, Acc) ->
+ 	Acc;
+ %% Replicate a bug in OTP for compatibility reasons when there's a - right
+diff --git a/src/cowboy_http_req.erl b/src/cowboy_http_req.erl
+index 92d96ad..d729d6c 100644
+--- a/src/cowboy_http_req.erl
++++ b/src/cowboy_http_req.erl
+@@ -515,13 +515,11 @@ set_resp_body_fun(StreamLen, StreamFun, Req) ->
+ 
+ 
+ %% @doc Return whether the given header has been set for the response.
+--spec has_resp_header(cowboy_http:header(), #http_req{}) -> boolean().
+ has_resp_header(Name, #http_req{resp_headers=RespHeaders}) ->
+ 	NameBin = header_to_binary(Name),
+ 	lists:keymember(NameBin, 1, RespHeaders).
+ 
+ %% @doc Return whether a body has been set for the response.
+--spec has_resp_body(#http_req{}) -> boolean().
+ has_resp_body(#http_req{resp_body={Length, _}}) ->
+ 	Length > 0;
+ has_resp_body(#http_req{resp_body=RespBody}) ->
+diff --git a/src/cowboy_http_static.erl b/src/cowboy_http_static.erl
+index 0ee996a..d370046 100644
+--- a/src/cowboy_http_static.erl
++++ b/src/cowboy_http_static.erl
+@@ -207,8 +207,6 @@ allowed_methods(Req, State) ->
+ 	{['GET', 'HEAD'], Req, State}.
+ 
+ %% @private
+--spec malformed_request(#http_req{}, #state{}) ->
+-		{boolean(), #http_req{}, #state{}}.
+ malformed_request(Req, #state{filepath=error}=State) ->
+ 	{true, Req, State};
+ malformed_request(Req, State) ->
+@@ -216,8 +214,6 @@ malformed_request(Req, State) ->
+ 
+ 
+ %% @private Check if the resource exists under the document root.
+--spec resource_exists(#http_req{}, #state{}) ->
+-		{boolean(), #http_req{}, #state{}}.
+ resource_exists(Req, #state{fileinfo={error, _}}=State) ->
+ 	{false, Req, State};
+ resource_exists(Req, #state{fileinfo={ok, Fileinfo}}=State) ->
+@@ -227,7 +223,6 @@ resource_exists(Req, #state{fileinfo={ok, Fileinfo}}=State) ->
+ %% @private
+ %% Access to a file resource is forbidden if it exists and the local node does
+ %% not have permission to read it. Directory listings are always forbidden.
+--spec forbidden(#http_req{}, #state{}) -> {boolean(), #http_req{}, #state{}}.
+ forbidden(Req, #state{fileinfo={_, #file_info{type=directory}}}=State) ->
+ 	{true, Req, State};
+ forbidden(Req, #state{fileinfo={error, eacces}}=State) ->
+diff --git a/src/cowboy_http_websocket.erl b/src/cowboy_http_websocket.erl
+index 0f0204c..5f59891 100644
+--- a/src/cowboy_http_websocket.erl
++++ b/src/cowboy_http_websocket.erl
+@@ -54,7 +54,7 @@
+ 	timeout = infinity :: timeout(),
+ 	timeout_ref = undefined :: undefined | reference(),
+ 	messages = undefined :: undefined | {atom(), atom(), atom()},
+-	hibernate = false :: boolean(),
++	hibernate = false,
+ 	eop :: undefined | tuple(), %% hixie-76 specific.
+ 	origin = undefined :: undefined | binary() %% hixie-76 specific.
+ }).
+-- 
+1.7.0.4
+
