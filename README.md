@@ -1,2 +1,4 @@
 # RabbitMQ
 RabbitMQ系统中文完全注释，主要是进行RabbitMQ源代码分析
+
+1.erlang_otp_data_struct目录下是RabbitMQ系统中使用过的Erlang OTP中的数据结构源代码中文注释
