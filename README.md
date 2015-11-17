@@ -1,9 +1,11 @@
 # RabbitMQ
-RabbitMQ系统中文完全注释，主要是进行RabbitMQ源代码分析
+RabbitMQ系统中文完全注释，主要是进行RabbitMQ源代码分析(在阅读过程中得到了网上很多资料的帮助)
 
 一.erlang_otp_data_struct目录下是RabbitMQ系统中使用过的Erlang OTP中的数据结构源代码中文注释
 
-二.src目录下的代码除去高可用队列以为其他的所有代码都已经使用中文进行过详细的中文注释
+二.help目录下是辅助帮助相关资料(包括画的启动有向图，进程树图等相关资料)
+
+三.src目录下的代码除去高可用队列以为其他的所有代码都已经使用中文进行过详细的中文注释
 
     1.rabbit_alarm启动步骤(先执行rabbit_alarm:start()函数)
          (1).启动一个rabbit_alarm_sup的supervisor2监督进程同时在该监督进程下启动一个rabbit_alarm的gen_event进程
