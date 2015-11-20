@@ -1316,7 +1316,7 @@ write_message(MsgId, Msg,
 								 sum_valid_data      = SumValid,
 								 sum_file_size       = SumFileSize,
 								 file_summary_ets    = FileSummaryEts }) ->
-	%% 定位到当前文件的最后
+	%% 拿到CurHdl句柄对应的最新偏移量
 	{ok, CurOffset} = file_handle_cache:current_virtual_offset(CurHdl),
 	%% 将消息内容添加到当前文件后面
 	{ok, TotalSize} = rabbit_msg_file:append(CurHdl, MsgId, Msg),

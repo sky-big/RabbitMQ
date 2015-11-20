@@ -44,6 +44,7 @@ handle_call(_Request, _From, State) ->
 
 
 handle_cast(accept, State) ->
+	%% 当前tcp_acceptor进程工作的时候，将当前进程Socket的数量在file_handle_cache进程中增加一
 	ok = file_handle_cache:obtain(),
 	accept(State);
 
@@ -63,8 +64,10 @@ handle_info({inet_async, LSock, Ref, {ok, Sock}},
 	
 	%% handle
 	case tune_buffer_size(Sock) of
-		ok                -> file_handle_cache:transfer(
+		ok                ->   %% 将当前进程tcp_acceptor对应的Socket数量转移到连接进程rabbit_reader进程上去
+							   file_handle_cache:transfer(
 							   apply(M, F, A ++ [Sock])),
+							   %% 然后将当前进程对应的Socket数量增加一
 							 ok = file_handle_cache:obtain();
 		{error, enotconn} -> catch port_close(Sock);
 		{error, Err}      -> {ok, {IPAddress, Port}} = inet:sockname(LSock),
