@@ -21,7 +21,7 @@
 -export([init/1]).
 -export([start_link/0]).
 
--include_lib("rabbit_common/include/rabbit.hrl").
+-include("rabbit.hrl").
 
 init([]) ->
     DB = {rabbit_mgmt_db, {rabbit_mgmt_db, start_link, []},

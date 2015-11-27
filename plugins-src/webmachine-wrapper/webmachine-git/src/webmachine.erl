@@ -35,6 +35,7 @@ start() ->
 stop() ->
     application:stop(webmachine).
 
+%% 根据Mochiweb的Request创建一个新的webmachine_request
 new_request(mochiweb, Request) ->
     Method = Request:get(method),
     Scheme = Request:get(scheme),
@@ -67,6 +68,7 @@ new_request(mochiweb, Request) ->
                            response_code=404,
                            response_length=0},
     webmachine_request:new(PeerState#wm_reqstate{log_data=LogData}).
+
 
 do_rewrite(RewriteMod, Method, Scheme, Version, Headers, RawPath) ->
     case RewriteMod:rewrite(Method, Scheme, Version, Headers, RawPath) of

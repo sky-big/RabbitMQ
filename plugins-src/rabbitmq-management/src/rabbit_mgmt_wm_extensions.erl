@@ -19,8 +19,8 @@
 -export([init/1, to_json/2, content_types_provided/2, is_authorized/2]).
 
 -include("rabbit_mgmt.hrl").
--include_lib("webmachine/include/webmachine.hrl").
--include_lib("rabbit_common/include/rabbit.hrl").
+-include("webmachine.hrl").
+-include("rabbit.hrl").
 
 %%--------------------------------------------------------------------
 init(_Config) -> {ok, #context{}}.

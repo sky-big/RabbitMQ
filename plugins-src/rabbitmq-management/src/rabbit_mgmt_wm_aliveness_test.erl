@@ -20,8 +20,8 @@
 -export([resource_exists/2]).
 
 -include("rabbit_mgmt.hrl").
--include_lib("webmachine/include/webmachine.hrl").
--include_lib("amqp_client/include/amqp_client.hrl").
+-include("webmachine.hrl").
+-include("amqp_client.hrl").
 
 -define(QUEUE, <<"aliveness-test">>).
 

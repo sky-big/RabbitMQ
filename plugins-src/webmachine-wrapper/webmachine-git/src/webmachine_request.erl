@@ -103,7 +103,7 @@
 -define(WMVSN, "1.10.0").
 -define(QUIP, "never breaks eye contact").
 -define(IDLE_TIMEOUT, infinity).
-
+%% 创建新的webmachine_request处理结构
 new(#wm_reqstate{}=ReqState) ->
     {?MODULE, ReqState}.
 

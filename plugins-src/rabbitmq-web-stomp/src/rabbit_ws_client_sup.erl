@@ -20,8 +20,8 @@
 -export([start_client/1]).
 -export([init/1]).
 
--include_lib("amqp_client/include/amqp_client.hrl").
--include_lib("rabbitmq_stomp/include/rabbit_stomp.hrl").
+-include("amqp_client.hrl").
+-include("rabbit_stomp.hrl").
 
 %% --------------------------------------------------------------------------
 

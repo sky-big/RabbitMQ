@@ -48,7 +48,7 @@
 -export([start_link/0, start_child/0]).
 -export([init/1]).
 
--include_lib("rabbit_common/include/rabbit.hrl").
+-include("rabbit.hrl").
 
 start_link() -> supervisor2:start_link({local, ?MODULE}, ?MODULE, []).
 

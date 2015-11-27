@@ -451,6 +451,7 @@ handle_cast({method, Method, Content, Flow},
 	catch
 		%% 如果出现异常退出，且退出原因是amqp_error这种RabbitMQ定义好的错误结构，则进行相关的处理
 		exit:Reason = #amqp_error{} ->
+	
 			MethodName = rabbit_misc:method_record_type(Method),
 			%% 处理rabbit_channel进程异常退出的事件，通知当前rabbit_channel上的所有队列进程，如果错误信息需要关闭rabbit_channel进程，则立刻通知rabbit_reader进程
 			handle_exception(Reason#amqp_error{method = MethodName}, State);
@@ -770,17 +771,17 @@ clear_permission_cache() -> erase(permission_cache),
 							ok.
 
 
-%% 检查资源配置的权限
+%% 检查User用户对资源Resource是否能够进行配置
 check_configure_permitted(Resource, #ch{user = User}) ->
 	check_resource_access(User, Resource, configure).
 
 
-%% 检查资源对该用户写的合法性
+%% 检查User用户对资源Resource是否能够进行写操作
 check_write_permitted(Resource, #ch{user = User}) ->
 	check_resource_access(User, Resource, write).
 
 
-%% 检查资源对该用户读的合法性
+%% 检查User用户对资源Resource能否进行读操作
 check_read_permitted(Resource, #ch{user = User}) ->
 	check_resource_access(User, Resource, read).
 
@@ -1060,7 +1061,7 @@ handle_method(#'basic.publish'{exchange    = ExchangeNameBin,
 	check_msg_size(Content),
 	%% 组装exchange的资源结构
 	ExchangeName = rabbit_misc:r(VHostPath, exchange, ExchangeNameBin),
-	%% 检查该用户对该exchange写的权限
+	%% 检查该用户在VHostPath虚拟机下对该exchange写的权限
 	check_write_permitted(ExchangeName, State),
 	%% 查找对应的exchange是否存在(如果存在则从mnesia数据库取出该数据)
 	Exchange = rabbit_exchange:lookup_or_die(ExchangeName),
@@ -1437,7 +1438,10 @@ handle_method(#'exchange.declare'{exchange    = ExchangeNameBin,
 						precondition_failed(
 						  "invalid type '~s' for arg '~s' in ~s",
 						  [Type, AeKey, rabbit_misc:rs(ExchangeName)]);
-					AName     -> check_read_permitted(ExchangeName, State),
+					%% exchange声明参数里面配置有备用的名字
+					AName     -> %% 检查当前用户对ExchangeName读取的权限
+								 check_read_permitted(ExchangeName, State),
+								 %% 检查当前用户对备用名字AName的写权限
 								 check_write_permitted(AName, State),
 								 ok
 				end,

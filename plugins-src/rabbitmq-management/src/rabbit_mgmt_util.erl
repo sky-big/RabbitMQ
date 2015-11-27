@@ -39,132 +39,142 @@
 -import(rabbit_misc, [pget/2, pget/3]).
 
 -include("rabbit_mgmt.hrl").
--include_lib("amqp_client/include/amqp_client.hrl").
+-include_lib("amqp_client.hrl").
 
--include_lib("webmachine/include/wm_reqdata.hrl").
--include_lib("webmachine/include/wm_reqstate.hrl").
+-include_lib("wm_reqdata.hrl").
+-include_lib("wm_reqstate.hrl").
 
 -define(FRAMING, rabbit_framing_amqp_0_9_1).
 
 %%--------------------------------------------------------------------
 
 is_authorized(ReqData, Context) ->
-    is_authorized(ReqData, Context, '', fun(_) -> true end).
+	is_authorized(ReqData, Context, '', fun(_) -> true end).
+
 
 is_authorized_admin(ReqData, Context) ->
-    is_authorized(ReqData, Context,
-                  <<"Not administrator user">>,
-                  fun(#user{tags = Tags}) -> is_admin(Tags) end).
+	is_authorized(ReqData, Context,
+				  <<"Not administrator user">>,
+				  fun(#user{tags = Tags}) -> is_admin(Tags) end).
+
 
 is_authorized_admin(ReqData, Context, Username, Password) ->
-    is_authorized(ReqData, Context, Username, Password,
-                  <<"Not administrator user">>,
-                  fun(#user{tags = Tags}) -> is_admin(Tags) end).
+	is_authorized(ReqData, Context, Username, Password,
+				  <<"Not administrator user">>,
+				  fun(#user{tags = Tags}) -> is_admin(Tags) end).
+
 
 is_authorized_monitor(ReqData, Context) ->
-    is_authorized(ReqData, Context,
-                  <<"Not monitor user">>,
-                  fun(#user{tags = Tags}) -> is_monitor(Tags) end).
+	is_authorized(ReqData, Context,
+				  <<"Not monitor user">>,
+				  fun(#user{tags = Tags}) -> is_monitor(Tags) end).
+
 
 is_authorized_vhost(ReqData, Context) ->
-    is_authorized(ReqData, Context,
-                  <<"User not authorised to access virtual host">>,
-                  fun(User) ->
-                          user_matches_vhost(ReqData, User)
-                  end).
+	is_authorized(ReqData, Context,
+				  <<"User not authorised to access virtual host">>,
+				  fun(User) ->
+						  user_matches_vhost(ReqData, User)
+				  end).
+
 
 user_matches_vhost(ReqData, User) ->
-    case vhost(ReqData) of
-        not_found -> true;
-        none      -> true;
-        V         -> lists:member(V, list_login_vhosts(User, peersock(ReqData)))
-    end.
+	case vhost(ReqData) of
+		not_found -> true;
+		none      -> true;
+		V         -> lists:member(V, list_login_vhosts(User, peersock(ReqData)))
+	end.
 
 %% Used for connections / channels. A normal user can only see / delete
 %% their own stuff. Monitors can see other users' and delete their
 %% own. Admins can do it all.
 is_authorized_user(ReqData, Context, Item) ->
-    is_authorized(ReqData, Context,
-                  <<"User not authorised to access object">>,
-                  fun(#user{username = Username, tags = Tags}) ->
-                          case wrq:method(ReqData) of
-                              'DELETE' -> is_admin(Tags);
-                              _        -> is_monitor(Tags)
-                          end orelse Username == pget(user, Item)
-                  end).
+	is_authorized(ReqData, Context,
+				  <<"User not authorised to access object">>,
+				  fun(#user{username = Username, tags = Tags}) ->
+						  case wrq:method(ReqData) of
+							  'DELETE' -> is_admin(Tags);
+							  _        -> is_monitor(Tags)
+						  end orelse Username == pget(user, Item)
+				  end).
 
 %% For policies / parameters. Like is_authorized_vhost but you have to
 %% be a policymaker.
 is_authorized_policies(ReqData, Context) ->
-    is_authorized(ReqData, Context,
-                  <<"User not authorised to access object">>,
-                  fun(User = #user{tags = Tags}) ->
-                          is_policymaker(Tags) andalso
-                              user_matches_vhost(ReqData, User)
-                  end).
+	is_authorized(ReqData, Context,
+				  <<"User not authorised to access object">>,
+				  fun(User = #user{tags = Tags}) ->
+						  is_policymaker(Tags) andalso
+							  user_matches_vhost(ReqData, User)
+				  end).
+
 
 is_authorized(ReqData, Context, ErrorMsg, Fun) ->
-    case rabbit_web_dispatch_util:parse_auth_header(
-           wrq:get_req_header("authorization", ReqData)) of
-        [Username, Password] ->
-            is_authorized(ReqData, Context, Username, Password, ErrorMsg, Fun);
-        _ ->
-            {?AUTH_REALM, ReqData, Context}
-    end.
+	case rabbit_web_dispatch_util:parse_auth_header(
+		   wrq:get_req_header("authorization", ReqData)) of
+		[Username, Password] ->
+			is_authorized(ReqData, Context, Username, Password, ErrorMsg, Fun);
+		_ ->
+			{?AUTH_REALM, ReqData, Context}
+	end.
+
 
 is_authorized(ReqData, Context, Username, Password, ErrorMsg, Fun) ->
-    ErrFun = fun (Msg) ->
-                     rabbit_log:warning("HTTP access denied: user '~s' - ~s~n",
-                                        [Username, Msg]),
-                     not_authorised(Msg, ReqData, Context)
-             end,
-    case rabbit_access_control:check_user_pass_login(Username, Password) of
-        {ok, User = #user{tags = Tags}} ->
-            IP = peer(ReqData),
-            case rabbit_access_control:check_user_loopback(Username, IP) of
-                ok ->
-                    case is_mgmt_user(Tags) of
-                        true ->
-                            case Fun(User) of
-                                true  -> {true, ReqData,
-                                          Context#context{user     = User,
-                                                          password = Password}};
-                                false -> ErrFun(ErrorMsg)
-                            end;
-                        false ->
-                            ErrFun(<<"Not management user">>)
-                    end;
-                not_allowed ->
-                    ErrFun(<<"User can only log in via localhost">>)
-            end;
-        {refused, _Username, Msg, Args} ->
-            rabbit_log:warning("HTTP access denied: ~s~n",
-                               [rabbit_misc:format(Msg, Args)]),
-            not_authorised(<<"Login failed">>, ReqData, Context)
-    end.
+	ErrFun = fun (Msg) ->
+					  rabbit_log:warning("HTTP access denied: user '~s' - ~s~n",
+										 [Username, Msg]),
+					  not_authorised(Msg, ReqData, Context)
+			 end,
+	case rabbit_access_control:check_user_pass_login(Username, Password) of
+		{ok, User = #user{tags = Tags}} ->
+			IP = peer(ReqData),
+			case rabbit_access_control:check_user_loopback(Username, IP) of
+				ok ->
+					case is_mgmt_user(Tags) of
+						true ->
+							case Fun(User) of
+								true  -> {true, ReqData,
+										  Context#context{user     = User,
+														  password = Password}};
+								false -> ErrFun(ErrorMsg)
+							end;
+						false ->
+							ErrFun(<<"Not management user">>)
+					end;
+				not_allowed ->
+					ErrFun(<<"User can only log in via localhost">>)
+			end;
+		{refused, _Username, Msg, Args} ->
+			rabbit_log:warning("HTTP access denied: ~s~n",
+							   [rabbit_misc:format(Msg, Args)]),
+			not_authorised(<<"Login failed">>, ReqData, Context)
+	end.
+
 
 peer(ReqData) ->
-    {ok, {IP,_Port}} = peername(peersock(ReqData)),
-    IP.
+	{ok, {IP,_Port}} = peername(peersock(ReqData)),
+	IP.
 
 %% We can't use wrq:peer/1 because that trusts X-Forwarded-For.
 peersock(ReqData) ->
-    WMState = ReqData#wm_reqdata.wm_state,
-    WMState#wm_reqstate.socket.
+	WMState = ReqData#wm_reqdata.wm_state,
+	WMState#wm_reqstate.socket.
 
 %% Like the one in rabbit_net, but we and webmachine have a different
 %% way of wrapping
 peername(Sock) when is_port(Sock) -> inet:peername(Sock);
 peername({ssl, SSL})              -> ssl:peername(SSL).
 
+
 vhost(ReqData) ->
-    case id(vhost, ReqData) of
-        none  -> none;
-        VHost -> case rabbit_vhost:exists(VHost) of
-                     true  -> VHost;
-                     false -> not_found
-                 end
-    end.
+	case id(vhost, ReqData) of
+		none  -> none;
+		VHost -> case rabbit_vhost:exists(VHost) of
+					 true  -> VHost;
+					 false -> not_found
+				 end
+	end.
+
 
 destination_type(ReqData) ->
     case id(dtype, ReqData) of
@@ -172,8 +182,10 @@ destination_type(ReqData) ->
         <<"q">> -> queue
     end.
 
+
 reply(Facts, ReqData, Context) ->
     reply0(extract_columns(Facts, ReqData), ReqData, Context).
+
 
 reply0(Facts, ReqData, Context) ->
     ReqData1 = set_resp_header("Cache-Control", "no-cache", ReqData),
@@ -187,8 +199,10 @@ reply0(Facts, ReqData, Context) ->
             internal_server_error(Error, Reason, ReqData1, Context)
     end.
 
+
 reply_list(Facts, ReqData, Context) ->
     reply_list(Facts, ["vhost", "name"], ReqData, Context).
+
 
 reply_list(Facts, DefaultSorts, ReqData, Context) ->
     reply(sort_list(
@@ -198,7 +212,9 @@ reply_list(Facts, DefaultSorts, ReqData, Context) ->
             wrq:get_qs_value("sort_reverse", ReqData)),
           ReqData, Context).
 
+
 sort_list(Facts, Sorts) -> sort_list(Facts, Sorts, undefined, false).
+
 
 sort_list(Facts, DefaultSorts, Sort, Reverse) ->
     SortList = case Sort of
@@ -213,14 +229,17 @@ sort_list(Facts, DefaultSorts, Sort, Reverse) ->
         _      -> Sorted
     end.
 
+
 sort_key(_Item, []) ->
     [];
 sort_key(Item, [Sort | Sorts]) ->
     [get_dotted_value(Sort, Item) | sort_key(Item, Sorts)].
 
+
 get_dotted_value(Key, Item) ->
     Keys = string:tokens(Key, "."),
     get_dotted_value0(Keys, Item).
+
 
 get_dotted_value0([Key], Item) ->
     %% Put "nothing" before everything else, in number terms it usually
@@ -229,18 +248,22 @@ get_dotted_value0([Key], Item) ->
 get_dotted_value0([Key | Keys], Item) ->
     get_dotted_value0(Keys, pget_bin(list_to_binary(Key), Item, [])).
 
+
 pget_bin(Key, List, Default) ->
     case lists:partition(fun ({K, _V}) -> a2b(K) =:= Key end, List) of
         {[{_K, V}], _} -> V;
         {[],        _} -> Default
     end.
 
+
 extract_columns(Item, ReqData) ->
     extract_column_items(Item, columns(ReqData)).
+
 
 extract_columns_list(Items, ReqData) ->
     Cols = columns(ReqData),
     [extract_column_items(Item, Cols) || Item <- Items].
+
 
 columns(ReqData) ->
     case wrq:get_qs_value("columns", ReqData) of
@@ -248,6 +271,7 @@ columns(ReqData) ->
         Str       -> [[list_to_binary(T) || T <- string:tokens(C, ".")]
                       || C <- string:tokens(Str, ",")]
     end.
+
 
 extract_column_items(Item, all) ->
     Item;
@@ -261,35 +285,44 @@ extract_column_items(L, Cols) when is_list(L) ->
 extract_column_items(O, _Cols) ->
     O.
 
+
 want_column(_Col, all) -> true;
 want_column(Col, Cols) -> lists:any(fun([C|_]) -> C == Col end, Cols).
+
 
 descend_columns(_K, [])                   -> [];
 descend_columns( K, [[K]        | _Rest]) -> all;
 descend_columns( K, [[K   | K2] |  Rest]) -> [K2 | descend_columns(K, Rest)];
 descend_columns( K, [[_K2 | _ ] |  Rest]) -> descend_columns(K, Rest).
 
+
 a2b(A) when is_atom(A) -> list_to_binary(atom_to_list(A));
 a2b(B)                 -> B.
+
 
 bad_request(Reason, ReqData, Context) ->
     halt_response(400, bad_request, Reason, ReqData, Context).
 
+
 not_authorised(Reason, ReqData, Context) ->
     halt_response(401, not_authorised, Reason, ReqData, Context).
+
 
 not_found(Reason, ReqData, Context) ->
     halt_response(404, not_found, Reason, ReqData, Context).
 
+
 internal_server_error(Error, Reason, ReqData, Context) ->
     rabbit_log:error("~s~n~s~n", [Error, Reason]),
     halt_response(500, Error, Reason, ReqData, Context).
+
 
 halt_response(Code, Type, Reason, ReqData, Context) ->
     Json = {struct, [{error, Type},
                      {reason, rabbit_mgmt_format:tuple(Reason)}]},
     ReqData1 = wrq:append_to_response_body(mochijson2:encode(Json), ReqData),
     {{halt, Code}, ReqData1, Context}.
+
 
 id(Key, ReqData) when Key =:= exchange;
                       Key =:= source;
@@ -301,14 +334,17 @@ id(Key, ReqData) when Key =:= exchange;
 id(Key, ReqData) ->
     id0(Key, ReqData).
 
+
 id0(Key, ReqData) ->
     case orddict:find(Key, wrq:path_info(ReqData)) of
         {ok, Id} -> list_to_binary(mochiweb_util:unquote(Id));
         error    -> none
     end.
 
+
 with_decode(Keys, ReqData, Context, Fun) ->
     with_decode(Keys, wrq:req_body(ReqData), ReqData, Context, Fun).
+
 
 with_decode(Keys, Body, ReqData, Context, Fun) ->
     case decode(Keys, Body) of
@@ -319,6 +355,7 @@ with_decode(Keys, Body, ReqData, Context, Fun) ->
                                       bad_request(Error, ReqData, Context)
                               end
     end.
+
 
 decode(Keys, Body) ->
     case decode(Body) of
@@ -331,8 +368,10 @@ decode(Keys, Body) ->
         Else     -> Else
     end.
 
+
 decode(<<"">>) ->
     {ok, []};
+
 
 decode(Body) ->
     try
@@ -346,6 +385,7 @@ get_or_missing(K, L) ->
         undefined -> {key_missing, K};
         V         -> V
     end.
+
 
 http_to_amqp(MethodName, ReqData, Context, Transformers, Extra) ->
     case vhost(ReqData) of
@@ -371,10 +411,12 @@ http_to_amqp(MethodName, ReqData, Context, Transformers, Extra) ->
             end
     end.
 
+
 props_to_method(MethodName, Props, Transformers, Extra) ->
     Props1 = [{list_to_atom(binary_to_list(K)), V} || {K, V} <- Props],
     props_to_method(
       MethodName, rabbit_mgmt_format:format(Props1 ++ Extra, Transformers)).
+
 
 props_to_method(MethodName, Props) ->
     Props1 = rabbit_mgmt_format:format(
@@ -392,12 +434,14 @@ props_to_method(MethodName, Props) ->
                     FieldNames),
     Res.
 
+
 parse_bool(<<"true">>)  -> true;
 parse_bool(<<"false">>) -> false;
 parse_bool(true)        -> true;
 parse_bool(false)       -> false;
 parse_bool(undefined)   -> undefined;
 parse_bool(V)           -> throw({error, {not_boolean, V}}).
+
 
 parse_int(I) when is_integer(I) -> I;
 parse_int(F) when is_number(F)  -> trunc(F);
@@ -407,8 +451,10 @@ parse_int(S)                    -> try
                                            throw({error, {not_integer, S}})
                                    end.
 
+
 amqp_request(VHost, ReqData, Context, Method) ->
     amqp_request(VHost, ReqData, Context, node(), Method).
+
 
 amqp_request(VHost, ReqData, Context, Node, Method) ->
     with_channel(VHost, ReqData, Context, Node,
@@ -417,8 +463,10 @@ amqp_request(VHost, ReqData, Context, Node, Method) ->
                          {true, ReqData, Context}
                  end).
 
+
 with_channel(VHost, ReqData, Context, Fun) ->
     with_channel(VHost, ReqData, Context, node(), Fun).
+
 
 with_channel(VHost, ReqData,
              Context = #context{user     = #user {username = Username},
@@ -464,9 +512,11 @@ with_channel(VHost, ReqData,
               ReqData, Context)
     end.
 
+
 bad_request_exception(Code, Reason, ReqData, Context) ->
     bad_request(list_to_binary(io_lib:format("~p ~s", [Code, Reason])),
                 ReqData, Context).
+
 
 all_or_one_vhost(ReqData, Fun) ->
     case rabbit_mgmt_util:vhost(ReqData) of
@@ -475,18 +525,22 @@ all_or_one_vhost(ReqData, Fun) ->
         VHost     -> Fun(VHost)
     end.
 
+
 filter_vhost(List, ReqData, Context) ->
     VHosts = list_login_vhosts(Context#context.user, peersock(ReqData)),
     [I || I <- List, lists:member(pget(vhost, I), VHosts)].
 
+
 filter_user(List, _ReqData, #context{user = User}) ->
     filter_user(List, User).
+
 
 filter_user(List, #user{username = Username, tags = Tags}) ->
     case is_monitor(Tags) of
         true  -> List;
         false -> [I || I <- List, pget(user, I) == Username]
     end.
+
 
 filter_conn_ch_list(List, ReqData, Context) ->
     rabbit_mgmt_format:strip_pids(
@@ -496,34 +550,40 @@ filter_conn_ch_list(List, ReqData, Context) ->
             VHost -> [I || I <- List, pget(vhost, I) =:= VHost]
         end, ReqData, Context)).
 
+
 redirect(Location, ReqData) ->
     wrq:do_redirect(true,
                     set_resp_header("Location",
                                     binary_to_list(Location), ReqData)).
 
+
 set_resp_header(K, V, ReqData) ->
     wrq:set_resp_header(K, strip_crlf(V), ReqData).
 
+
 strip_crlf(Str) -> lists:append(string:tokens(Str, "\r\n")).
+
 
 args({struct, L}) -> args(L);
 args(L)           -> rabbit_mgmt_format:to_amqp_table(L).
 
 %% Make replying to a post look like anything else...
 post_respond({true, ReqData, Context}) ->
-    {true, ReqData, Context};
+	{true, ReqData, Context};
 post_respond({{halt, Code}, ReqData, Context}) ->
-    {{halt, Code}, ReqData, Context};
+	{{halt, Code}, ReqData, Context};
 post_respond({JSON, ReqData, Context}) ->
-    {true, set_resp_header(
-             "Content-Type", "application/json",
-             wrq:append_to_response_body(JSON, ReqData)), Context}.
+	{true, set_resp_header(
+	   "Content-Type", "application/json",
+	   wrq:append_to_response_body(JSON, ReqData)), Context}.
+
 
 is_admin(T)       -> intersects(T, [administrator]).
 is_policymaker(T) -> intersects(T, [administrator, policymaker]).
 is_monitor(T)     -> intersects(T, [administrator, monitoring]).
 is_mgmt_user(T)   -> intersects(T, [administrator, monitoring, policymaker,
-                                    management]).
+									management]).
+
 
 intersects(A, B) -> lists:any(fun(I) -> lists:member(I, B) end, A).
 
@@ -536,26 +596,28 @@ intersects(A, B) -> lists:any(fun(I) -> lists:member(I, B) end, A).
 %% that they then can't touch.
 
 list_visible_vhosts(User = #user{tags = Tags}) ->
-    case is_monitor(Tags) of
-        true  -> rabbit_vhost:list();
-        false -> list_login_vhosts(User, undefined)
-    end.
+	case is_monitor(Tags) of
+		true  -> rabbit_vhost:list();
+		false -> list_login_vhosts(User, undefined)
+	end.
+
 
 list_login_vhosts(User, Sock) ->
-    [V || V <- rabbit_vhost:list(),
-          case catch rabbit_access_control:check_vhost_access(User, V, Sock) of
-              ok -> true;
-              _  -> false
-          end].
+	[V || V <- rabbit_vhost:list(),
+		  case catch rabbit_access_control:check_vhost_access(User, V, Sock) of
+			  ok -> true;
+			  _  -> false
+		  end].
 
 %% Wow, base64:decode throws lots of weird errors. Catch and convert to one
 %% that will cause a bad_request.
 b64decode_or_throw(B64) ->
-    try
-        base64:decode(B64)
-    catch error:_ ->
-            throw({error, {not_base64, B64}})
-    end.
+	try
+		base64:decode(B64)
+	catch error:_ ->
+			  throw({error, {not_base64, B64}})
+	end.
+
 
 no_range() -> {no_range, no_range, no_range, no_range}.
 
@@ -563,9 +625,9 @@ no_range() -> {no_range, no_range, no_range, no_range}.
 %% for which we've finished receiving events. Fixes the "drop at
 %% the end" problem.
 range(ReqData) -> {range("lengths",    fun floor/2, ReqData),
-                   range("msg_rates",  fun floor/2, ReqData),
-                   range("data_rates", fun floor/2, ReqData),
-                   range("node_stats", fun floor/2, ReqData)}.
+				   range("msg_rates",  fun floor/2, ReqData),
+				   range("data_rates", fun floor/2, ReqData),
+				   range("node_stats", fun floor/2, ReqData)}.
 
 %% ...but if we know only one event could have contributed towards
 %% what we are interested in, then let's take the ceiling instead and
@@ -581,38 +643,42 @@ range(ReqData) -> {range("lengths",    fun floor/2, ReqData),
 %% in the range before we get it, and thus deriving an instantaneous
 %% rate of 0.0.
 range_ceil(ReqData) -> {range("lengths",    fun ceil/2,  ReqData),
-                        range("msg_rates",  fun floor/2, ReqData),
-                        range("data_rates", fun floor/2,  ReqData),
-                        range("node_stats", fun floor/2,  ReqData)}.
+						range("msg_rates",  fun floor/2, ReqData),
+						range("data_rates", fun floor/2,  ReqData),
+						range("node_stats", fun floor/2,  ReqData)}.
+
 
 range(Prefix, Round, ReqData) ->
-    Age0 = int(Prefix ++ "_age", ReqData),
-    Incr0 = int(Prefix ++ "_incr", ReqData),
-    if
-        is_integer(Age0) andalso is_integer(Incr0) ->
-            Age = Age0 * 1000,
-            Incr = Incr0 * 1000,
-            Now = rabbit_mgmt_format:now_to_ms(os:timestamp()),
-            Last = Round(Now, Incr),
-            #range{first = (Last - Age),
-                   last  = Last,
-                   incr  = Incr};
-        true ->
-            no_range
-    end.
+	Age0 = int(Prefix ++ "_age", ReqData),
+	Incr0 = int(Prefix ++ "_incr", ReqData),
+	if
+		is_integer(Age0) andalso is_integer(Incr0) ->
+			Age = Age0 * 1000,
+			Incr = Incr0 * 1000,
+			Now = rabbit_mgmt_format:now_to_ms(os:timestamp()),
+			Last = Round(Now, Incr),
+			#range{first = (Last - Age),
+				   last  = Last,
+				   incr  = Incr};
+		true ->
+			no_range
+	end.
+
 
 floor(TS, Interval) -> (TS div Interval) * Interval.
 
+
 ceil(TS, Interval) -> case floor(TS, Interval) of
-                          TS    -> TS;
-                          Floor -> Floor + Interval
-                      end.
+						  TS    -> TS;
+						  Floor -> Floor + Interval
+					  end.
+
 
 int(Name, ReqData) ->
-    case wrq:get_qs_value(Name, ReqData) of
-        undefined -> undefined;
-        Str       -> case catch list_to_integer(Str) of
-                         {'EXIT', _} -> undefined;
-                         Integer     -> Integer
-                     end
-    end.
+	case wrq:get_qs_value(Name, ReqData) of
+		undefined -> undefined;
+		Str       -> case catch list_to_integer(Str) of
+						 {'EXIT', _} -> undefined;
+						 Integer     -> Integer
+					 end
+	end.

@@ -35,38 +35,42 @@
 -include("wm_reqdata.hrl").
 -include("wm_reqstate.hrl").
 
-
+%% 创建wm_reqdata数据结构
 create(Method,Version,RawPath,Headers) ->
 	create(Method,http,Version,RawPath,Headers).
+
 create(Method,Scheme,Version,RawPath,Headers) ->
-    create(#wm_reqdata{method=Method,scheme=Scheme,version=Version,
-                       raw_path=RawPath,req_headers=Headers,
-      wm_state=defined_on_call,
-      path="defined_in_create",
-      req_cookie=defined_in_create,
-      req_qs=defined_in_create,
-      peer="defined_in_wm_req_srv_init",
-      req_body=not_fetched_yet,
-      max_recv_body=(1024*(1024*1024)),
-      % Stolen from R13B03 inet_drv.c's TCP_MAX_PACKET_SIZE definition
-      max_recv_hunk=(64*(1024*1024)),
-      app_root="defined_in_load_dispatch_data",
-      path_info=orddict:new(),
-      path_tokens=defined_in_load_dispatch_data,
-      disp_path=defined_in_load_dispatch_data,
-      resp_redirect=false, resp_headers=mochiweb_headers:empty(),
-      resp_body = <<>>, response_code=500,
-      resp_range = follow_request,
-      notes=[]}).
+	create(#wm_reqdata{method=Method,scheme=Scheme,version=Version,
+					   raw_path=RawPath,req_headers=Headers,
+					   wm_state=defined_on_call,
+					   path="defined_in_create",
+					   req_cookie=defined_in_create,
+					   req_qs=defined_in_create,
+					   peer="defined_in_wm_req_srv_init",
+					   req_body=not_fetched_yet,
+					   max_recv_body=(1024*(1024*1024)),
+					   % Stolen from R13B03 inet_drv.c's TCP_MAX_PACKET_SIZE definition
+					   max_recv_hunk=(64*(1024*1024)),
+					   app_root="defined_in_load_dispatch_data",
+					   path_info=orddict:new(),
+					   path_tokens=defined_in_load_dispatch_data,
+					   disp_path=defined_in_load_dispatch_data,
+					   resp_redirect=false, resp_headers=mochiweb_headers:empty(),
+					   resp_body = <<>>, response_code=500,
+					   resp_range = follow_request,
+					   notes=[]}).
+
 create(RD = #wm_reqdata{raw_path=RawPath}) ->
-    {Path, _, _} = mochiweb_util:urlsplit_path(RawPath),
-    Cookie = case get_req_header("cookie", RD) of
-                 undefined -> [];
-                 Value -> mochiweb_cookies:parse_cookie(Value)
-             end,
-    {_, QueryString, _} = mochiweb_util:urlsplit_path(RawPath),
-    ReqQS = mochiweb_util:parse_qs(QueryString),
-    RD#wm_reqdata{path=Path,req_cookie=Cookie,req_qs=ReqQS}.
+	{Path, _, _} = mochiweb_util:urlsplit_path(RawPath),
+	Cookie = case get_req_header("cookie", RD) of
+				 undefined -> [];
+				 Value -> mochiweb_cookies:parse_cookie(Value)
+			 end,
+	{_, QueryString, _} = mochiweb_util:urlsplit_path(RawPath),
+	ReqQS = mochiweb_util:parse_qs(QueryString),
+	RD#wm_reqdata{path=Path,req_cookie=Cookie,req_qs=ReqQS}.
+
+
 load_dispatch_data(PathInfo, HostTokens, Port, PathTokens, AppRoot,
                    DispPath, RD) ->
     RD#wm_reqdata{path_info=PathInfo,host_tokens=HostTokens,

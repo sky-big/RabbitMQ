@@ -162,6 +162,7 @@ parse_arguments(Commands, GlobalDefs, As) ->
 
 maybe_process_opts(GDefs, As) ->
 	fun({C, Os}, no_command) ->
+			%% 此处命令需要额外的参数配置，则将全局的配置参数和命令特殊需要的参数合并组装成字典
 			process_opts(atom_to_list(C), dict:from_list(GDefs ++ Os), As);
 	   (C, no_command) ->
 			(maybe_process_opts(GDefs, As))({C, []}, no_command);
@@ -170,6 +171,9 @@ maybe_process_opts(GDefs, As) ->
 	end.
 
 
+%% C		：	表示命令名字
+%% Defs		：	表示命令必要的参数列表
+%% As0		：	表示客户端输入的必要信息
 process_opts(C, Defs, As0) ->
 	KVs0 = dict:map(fun (_, flag)        -> false;
 					   (_, {option, V}) -> V
@@ -206,8 +210,10 @@ process_opts(Defs, C, [A | As], Found, KVs, Outs) ->
 											   %% 存储命令行参数
 											   dict:store(A, V, KVs), Outs)
 							end;
-		{none, A, _}     -> process_opts(Defs, C, As, found, KVs, Outs);				%% 已经得到当前执行的命令名字
-		{none, _, found} -> process_opts(Defs, C, As, found, KVs, [A | Outs]);			%% 在得到当前执行的命令名字后其他变量称为变量参数
+		%% 已经得到当前执行的命令名字，输入的命令和当前要匹配的命令名字一样，则找到命令
+		{none, A, _}     -> process_opts(Defs, C, As, found, KVs, Outs);
+		%% 在得到当前执行的命令名字后其他变量称为变量参数，即得到命令相关信息
+		{none, _, found} -> process_opts(Defs, C, As, found, KVs, [A | Outs]);
 		{none, _, _}     -> no_command
 	end.
 

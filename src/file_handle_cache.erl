@@ -1814,7 +1814,7 @@ track_client(Pid, Clients) ->
 
 %% To increase the number of file descriptors: on Windows set ERL_MAX_PORTS
 %% environment variable, on Linux set `ulimit -n`.
-%% 得到当前操作系统上的能够打开的最大文件句柄数
+%% 得到当前RabbitMQ系统的能够打开的最大文件句柄数
 ulimit() ->
 	case proplists:get_value(max_fds, erlang:system_info(check_io)) of
 		MaxFds when is_integer(MaxFds) andalso MaxFds > 1 ->

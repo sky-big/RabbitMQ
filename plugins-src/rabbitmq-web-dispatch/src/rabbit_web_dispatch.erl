@@ -31,6 +31,7 @@ register_handler(Name, Listener, Selector, Handler, Link) ->
 
 %% Registers a dynamic handler under a fixed context path, with link
 %% to display in the global context.
+%% 向rabbit_web_dispatch_registry进程注册的接口
 register_context_handler(Name, Listener, Prefix, Handler, LinkText) ->
     register_handler(
       Name, Listener, context_selector(Prefix), Handler, {Prefix, LinkText}),
@@ -48,30 +49,31 @@ register_static_context(Name, Listener, Prefix, Module, FSPath, LinkText) ->
 
 %% A context which just redirects the request to a different port.
 register_port_redirect(Name, Listener, Prefix, RedirectPort) ->
-    register_context_handler(
-      Name, Listener, Prefix,
-      fun (Req) ->
-              Host = case Req:get_header_value("host") of
-                         undefined -> {ok, {IP, _Port}} = rabbit_net:sockname(
-                                                            Req:get(socket)),
-                                      rabbit_misc:ntoa(IP);
-                         Header    -> hd(string:tokens(Header, ":"))
-                     end,
-              URL = rabbit_misc:format(
-                      "~s://~s:~B~s",
-                      [Req:get(scheme), Host, RedirectPort, Req:get(raw_path)]),
-              Req:respond({301, [{"Location", URL}], ""})
-      end,
-      rabbit_misc:format("Redirect to port ~B", [RedirectPort])).
+	register_context_handler(
+	  Name, Listener, Prefix,
+	  fun (Req) ->
+			   Host = case Req:get_header_value("host") of
+						  undefined -> {ok, {IP, _Port}} = rabbit_net:sockname(
+															 Req:get(socket)),
+									   rabbit_misc:ntoa(IP);
+						  Header    -> hd(string:tokens(Header, ":"))
+					  end,
+			   URL = rabbit_misc:format(
+					   "~s://~s:~B~s",
+					   [Req:get(scheme), Host, RedirectPort, Req:get(raw_path)]),
+			   Req:respond({301, [{"Location", URL}], ""})
+	  end,
+	  rabbit_misc:format("Redirect to port ~B", [RedirectPort])).
+
 
 context_selector("") ->
-    fun(_Req) -> true end;
+	fun(_Req) -> true end;
 context_selector(Prefix) ->
-    Prefix1 = "/" ++ Prefix,
-    fun(Req) ->
-            Path = Req:get(raw_path),
-            (Path == Prefix1) orelse (string:str(Path, Prefix1 ++ "/") == 1)
-    end.
+	Prefix1 = "/" ++ Prefix,
+	fun(Req) ->
+			Path = Req:get(raw_path),
+			(Path == Prefix1) orelse (string:str(Path, Prefix1 ++ "/") == 1)
+	end.
 
 %% Produces a handler for use with register_handler that serves up
 %% static content from a directory specified relative to the directory

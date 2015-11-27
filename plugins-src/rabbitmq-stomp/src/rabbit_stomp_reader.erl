@@ -23,7 +23,7 @@
 
 -include("rabbit_stomp.hrl").
 -include("rabbit_stomp_frame.hrl").
--include_lib("amqp_client/include/amqp_client.hrl").
+-include("amqp_client.hrl").
 
 -record(reader_state, {socket, parse_state, processor, state,
                        conserve_resources, recv_outstanding,

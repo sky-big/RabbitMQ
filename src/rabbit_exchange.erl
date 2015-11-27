@@ -449,6 +449,7 @@ route(#exchange{name = #resource{virtual_host = VHost, name = RName} = XName,
 			[rabbit_misc:r(VHost, queue, RK) || RK <- RKsSorted,
 												not virtual_reply_queue(RK)];
 		_ ->
+			%% 获得exchange交换机的描述模块
 			Decs = rabbit_exchange_decorator:select(route, Decorators),
 			%% route1进行实际的路由，寻找对应的队列
 			lists:usort(route1(Delivery, Decs, {[X], XName, []}))
@@ -468,11 +469,14 @@ route1(Delivery, Decorators,
 	   {[X = #exchange{type = Type} | WorkList], SeenXs, QNames}) ->
 	%% 根据exchange的类型得到路由的处理模块，让该模块进行相关的路由，找到对应的队列
 	ExchangeDests  = (type_to_module(Type)):route(X, Delivery),
+	%% 获取交换机exchange描述模块提供的额外交换机
 	DecorateDests  = process_decorators(X, Decorators, Delivery),
+	%% 如果参数中配置有备用的交换机，则将该交换机拿出来
 	AlternateDests = process_alternate(X, ExchangeDests),
 	route1(Delivery, Decorators,
 		   lists:foldl(fun process_route/2, {WorkList, SeenXs, QNames},
-					   AlternateDests ++ DecorateDests  ++ ExchangeDests)).
+					   AlternateDests ++ DecorateDests  ++ ExchangeDests)
+		  ).
 
 
 %% alternate：备用
@@ -503,13 +507,13 @@ process_route(#resource{kind = exchange} = XName,
 			  {_WorkList, XName, _QNames} = Acc) ->
 	Acc;
 
-%% 交换机Exchange绑定到其他的交换机Exchange
+%% 交换机Exchange绑定到其他的交换机Exchange(此处是第一次出现新路由到的交换机exchange)
 process_route(#resource{kind = exchange} = XName,
 			  {WorkList, #resource{kind = exchange} = SeenX, QNames}) ->
 	{cons_if_present(XName, WorkList),
 	 gb_sets:from_list([SeenX, XName]), QNames};
 
-%% 交换机Exchange绑定到其他的交换机Exchange
+%% 交换机Exchange绑定到其他的交换机Exchange(此处是第一次以上出现交换机exchange，同时判断新路由出来的交换机是否已经路由过，如果路由过则忽略掉，否者添加到列表中)
 process_route(#resource{kind = exchange} = XName,
 			  {WorkList, SeenXs, QNames} = Acc) ->
 	case gb_sets:is_element(XName, SeenXs) of

@@ -21,10 +21,12 @@
 
 %% @spec start(_Type, _StartArgs) -> ServerRet
 %% @doc application start callback for rabbit_web_dispatch.
+%% rabbit_web_dispatch_app应用启动入口
 start(_Type, _StartArgs) ->
     rabbit_web_dispatch_sup:start_link().
 
 %% @spec stop(_State) -> ServerRet
 %% @doc application stop callback for rabbit_web_dispatch.
+%% rabbit_web_dispatch_app应用停止回调入口
 stop(_State) ->
     ok.

@@ -18,7 +18,7 @@
 
 -export([init/0]).
 
--include_lib("rabbitmq_stomp/include/rabbit_stomp.hrl").
+-include("rabbit_stomp.hrl").
 
 
 %% --------------------------------------------------------------------------

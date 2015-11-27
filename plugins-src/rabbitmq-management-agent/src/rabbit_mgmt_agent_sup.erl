@@ -21,11 +21,14 @@
 -export([init/1]).
 -export([start_link/0]).
 
+%% rabbit_mgmt_agent_sup监督进程启动回调初始化函数
 init([]) ->
-    ExternalStats = {rabbit_mgmt_external_stats,
-                     {rabbit_mgmt_external_stats, start_link, []},
-                     permanent, 5000, worker, [rabbit_mgmt_external_stats]},
-    {ok, {{one_for_one, 10, 10}, [ExternalStats]}}.
+	ExternalStats = {rabbit_mgmt_external_stats,
+					 {rabbit_mgmt_external_stats, start_link, []},
+					 permanent, 5000, worker, [rabbit_mgmt_external_stats]},
+	{ok, {{one_for_one, 10, 10}, [ExternalStats]}}.
 
+
+%% rabbit_mgmt_agent_sup监督进程的启动入口函数
 start_link() ->
-    supervisor:start_link({local, ?MODULE}, ?MODULE, []).
+	supervisor:start_link({local, ?MODULE}, ?MODULE, []).

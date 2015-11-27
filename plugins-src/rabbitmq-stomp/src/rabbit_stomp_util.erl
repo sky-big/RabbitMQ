@@ -24,8 +24,8 @@
 -export([negotiate_version/2]).
 -export([trim_headers/1]).
 
--include_lib("amqp_client/include/amqp_client.hrl").
--include_lib("amqp_client/include/rabbit_routing_prefixes.hrl").
+-include_lib("amqp_client.hrl").
+-include_lib("rabbit_routing_prefixes.hrl").
 -include("rabbit_stomp_frame.hrl").
 -include("rabbit_stomp_headers.hrl").
 

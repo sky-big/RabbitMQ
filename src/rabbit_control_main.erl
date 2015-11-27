@@ -25,7 +25,7 @@
 
 -define(EXTERNAL_CHECK_INTERVAL, 1000).
 
--define(GLOBAL_DEFS(Node), [?QUIET_DEF, ?NODE_DEF(Node)]).
+-define(GLOBAL_DEFS(Node), [?QUIET_DEF, ?NODE_DEF(Node)]).				%% 全局的客户端参数列表
 
 %% RabbitMQ系统支持的所有命令
 -define(COMMANDS,

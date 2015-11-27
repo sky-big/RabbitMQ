@@ -22,8 +22,8 @@
          delete_resource/2]).
 
 -include("rabbit_mgmt.hrl").
--include_lib("webmachine/include/webmachine.hrl").
--include_lib("rabbit_common/include/rabbit.hrl").
+-include("webmachine.hrl").
+-include("rabbit.hrl").
 
 %%--------------------------------------------------------------------
 init(_Config) -> {ok, #context{}}.

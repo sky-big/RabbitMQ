@@ -23,60 +23,67 @@
 -import(rabbit_misc, [pget/2]).
 
 %%----------------------------------------------------------------------------
-
+%% 返回空白的初始化信息
 blank() -> #stats{diffs = gb_trees:empty(), base = 0}.
 
+
+%% 判断数据结构是否为空白
 is_blank(#stats{diffs = Diffs, base = 0}) -> gb_trees:is_empty(Diffs);
 is_blank(#stats{}) ->                        false.
 
 %%----------------------------------------------------------------------------
 %% Event-time
 %%----------------------------------------------------------------------------
-
+%% 记录新的数据到数据结构中
 record(TS, Diff, Stats = #stats{diffs = Diffs}) ->
-    Diffs2 = case gb_trees:lookup(TS, Diffs) of
-                 {value, Total} -> gb_trees:update(TS, Diff + Total, Diffs);
-                 none           -> gb_trees:insert(TS, Diff, Diffs)
-             end,
-    Stats#stats{diffs = Diffs2}.
+	Diffs2 = case gb_trees:lookup(TS, Diffs) of
+				 {value, Total} -> gb_trees:update(TS, Diff + Total, Diffs);
+				 none           -> gb_trees:insert(TS, Diff, Diffs)
+			 end,
+	Stats#stats{diffs = Diffs2}.
 
 %%----------------------------------------------------------------------------
 %% Query-time
 %%----------------------------------------------------------------------------
-
+%% 标准化详细信息的时间变化
 format(no_range, #stats{diffs = Diffs, base = Base}, Interval) ->
-    Now = rabbit_mgmt_format:now_to_ms(os:timestamp()),
-    RangePoint = ((Now div Interval) * Interval) - Interval,
-    Count = sum_entire_tree(gb_trees:iterator(Diffs), Base),
-    {[{rate, format_rate(
-               Diffs, RangePoint, Interval, Interval)}], Count};
+	Now = rabbit_mgmt_format:now_to_ms(os:timestamp()),
+	RangePoint = ((Now div Interval) * Interval) - Interval,
+	Count = sum_entire_tree(gb_trees:iterator(Diffs), Base),
+	%% 然会速率和总的数量
+	{[{rate, format_rate(
+		 Diffs, RangePoint, Interval, Interval)}], Count};
 
+%% 标准化详细信息的时间变化
 format(Range, #stats{diffs = Diffs, base = Base}, Interval) ->
-    RangePoint = Range#range.last - Interval,
-    {Samples, Count} = extract_samples(
-                         Range, Base, gb_trees:iterator(Diffs), []),
-    Part1 = [{rate,    format_rate(
-                         Diffs, RangePoint, Range#range.incr, Interval)},
-             {samples, Samples}],
-    Length = length(Samples),
-    Part2 = case Length > 1 of
-                true  -> [{sample, S2}, {timestamp, T2}] = hd(Samples),
-                         [{sample, S1}, {timestamp, T1}] = lists:last(Samples),
-                         Total = lists:sum([pget(sample, I) || I <- Samples]),
-                         [{avg_rate, (S2 - S1) * 1000 / (T2 - T1)},
-                          {avg,      Total / Length}];
-                false -> []
-            end,
-    {Part1 ++ Part2, Count}.
+	RangePoint = Range#range.last - Interval,
+	{Samples, Count} = extract_samples(
+						 Range, Base, gb_trees:iterator(Diffs), []),
+	Part1 = [{rate,    format_rate(
+				Diffs, RangePoint, Range#range.incr, Interval)},
+			 {samples, Samples}],
+	Length = length(Samples),
+	Part2 = case Length > 1 of
+				true  -> [{sample, S2}, {timestamp, T2}] = hd(Samples),
+						 [{sample, S1}, {timestamp, T1}] = lists:last(Samples),
+						 Total = lists:sum([pget(sample, I) || I <- Samples]),
+						 [{avg_rate, (S2 - S1) * 1000 / (T2 - T1)},
+						  {avg,      Total / Length}];
+				false -> []
+			end,
+	{Part1 ++ Part2, Count}.
 
+
+%% 获得速率
 format_rate(Diffs, RangePoint, Incr, Interval) ->
-    case nth_largest(Diffs, 2) of
-        false   -> 0.0;
-        {TS, S} -> case TS - RangePoint of %% [0]
-                       D when D =< Incr andalso D >= 0 -> S * 1000 / Interval;
-                       _                               -> 0.0
-                   end
-    end.
+	%% 获得第二老的刷新数据
+	case nth_largest(Diffs, 2) of
+		false   -> 0.0;
+		{TS, S} -> case TS - RangePoint of %% [0]
+					   D when D =< Incr andalso D >= 0 -> S * 1000 / Interval;
+					   _                               -> 0.0
+				   end
+	end.
 
 %% [0] Only display the rate if it's live - i.e. ((the end of the
 %% range) - interval) corresponds to the second to last data point we

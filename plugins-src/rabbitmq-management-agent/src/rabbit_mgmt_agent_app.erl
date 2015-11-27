@@ -18,9 +18,11 @@
 
 -behaviour(application).
 -export([start/2, stop/1]).
-
+%% rabbit_mgmt_agent_app应用的启动入口函数
 start(_Type, _StartArgs) ->
-    rabbit_mgmt_agent_sup:start_link().
+	rabbit_mgmt_agent_sup:start_link().
 
+
+%% rabbit_mgmt_agent_app应用停止的回调函数
 stop(_State) ->
-    ok.
+	ok.
