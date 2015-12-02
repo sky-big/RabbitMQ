@@ -1,11 +1,25 @@
 # RabbitMQ
 RabbitMQ系统中文完全注释，主要是进行RabbitMQ源代码分析(在阅读过程中得到了网上很多资料的帮助)
+当前目录下的所有文件是Eclipse上的工程，可以将该项目直接导入到Eclipse编辑器中
 
 一.erlang_otp_data_struct目录下是RabbitMQ系统中使用过的Erlang OTP中的数据结构源代码中文注释
 
 二.help目录下是辅助帮助相关资料(包括画的启动有向图，进程树图等相关资料)
 
-三.src目录下的代码除去高可用队列以为其他的所有代码都已经使用中文进行过详细的中文注释
+三.scripts目录下是整个RabbitMQ系统包括插件源代码编译，组建集群，启动客户端节点列表的脚本目录
+
+    1.Make.bat脚本用来编译整个RabbitMQ系统包括插件的源代码(但是如果beam目录修改时间大于等于源代码文件目录则不会进行重新编译,否则进行重新编译)
+
+    2.Make_All.bat脚本则会将所有的beam文件全部删除，然后将RabbitMQ系统包括插件的所有源代码重新编译成beam文件
+
+    3.Run_Cluster.bat脚本是根据option目录下的run.options文件中的配置启动RabbitMQ系统集群
+
+    4.Stop_Cluster.bat脚本是根据option目录下的run.options文件中的配置停止当前启动的RabbitMQ系统集群
+
+    5.Run_Clients.bat脚本是根据option目录下的run.options文件中的配置启动客户端节点，用来测试连接RabbitMQ集群中的节点，
+      这些客户端测试节点会定时5秒向客户端发送消息，然后会启动消费者不断的在对应的队列消费消息。
+
+四.src目录下的代码除去高可用队列以为其他的所有代码都已经使用中文进行过详细的中文注释
 
     1.rabbit_alarm启动步骤(先执行rabbit_alarm:start()函数)
          (1).启动一个rabbit_alarm_sup的supervisor2监督进程同时在该监督进程下启动一个rabbit_alarm的gen_event进程
