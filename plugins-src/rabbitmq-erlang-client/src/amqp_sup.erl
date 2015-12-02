@@ -29,16 +29,17 @@
 %%---------------------------------------------------------------------------
 
 start_link() ->
-    supervisor2:start_link({local, amqp_sup}, ?MODULE, []).
+	supervisor2:start_link({local, amqp_sup}, ?MODULE, []).
+
 
 start_connection_sup(AmqpParams) ->
-    supervisor2:start_child(amqp_sup, [AmqpParams]).
+	supervisor2:start_child(amqp_sup, [AmqpParams]).
 
 %%---------------------------------------------------------------------------
 %% supervisor2 callbacks
 %%---------------------------------------------------------------------------
 
 init([]) ->
-    {ok, {{simple_one_for_one, 0, 1},
-          [{connection_sup, {amqp_connection_sup, start_link, []},
-           temporary, infinity, supervisor, [amqp_connection_sup]}]}}.
+	{ok, {{simple_one_for_one, 0, 1},
+		  [{connection_sup, {amqp_connection_sup, start_link, []},
+			temporary, infinity, supervisor, [amqp_connection_sup]}]}}.

@@ -16,7 +16,7 @@
 
 -module(rabbit_federation_link_util).
 
--include_lib("amqp_client/include/amqp_client.hrl").
+-include("amqp_client.hrl").
 -include("rabbit_federation.hrl").
 
 %% real

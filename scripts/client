@@ -1,0 +1,9 @@
+#!/usr/bin/env escript
+
+%%! -smp enable -pa ../ebin
+
+main([]) -> 
+	start_cluster:start_clients();
+	
+main(Args) ->
+	io:format("run main args error : ~p~n", [Args]).

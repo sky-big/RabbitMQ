@@ -21,7 +21,7 @@
 
 -include("rabbit_federation.hrl").
 -include_lib("eunit/include/eunit.hrl").
--include_lib("rabbit_common/include/rabbit.hrl").
+-include("rabbit.hrl").
 
 %% Test that we apply binding changes in the correct order even when
 %% they arrive out of order.

@@ -17,7 +17,7 @@
 -module(rabbit_federation_event).
 -behaviour(gen_event).
 
--include_lib("rabbit_common/include/rabbit.hrl").
+-include("rabbit.hrl").
 
 -export([add_handler/0, remove_handler/0]).
 

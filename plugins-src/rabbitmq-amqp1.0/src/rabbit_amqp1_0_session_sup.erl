@@ -22,7 +22,7 @@
 
 -export([init/1]).
 
--include_lib("amqp_client/include/amqp_client.hrl").
+-include_lib("amqp_client.hrl").
 
 %%----------------------------------------------------------------------------
 

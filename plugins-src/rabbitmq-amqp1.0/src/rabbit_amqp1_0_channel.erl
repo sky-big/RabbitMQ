@@ -16,7 +16,7 @@
 
 -module(rabbit_amqp1_0_channel).
 
--include_lib("amqp_client/include/amqp_client.hrl").
+-include("amqp_client.hrl").
 -include("rabbit_amqp1_0.hrl").
 
 -export([call/2, call/3, cast/2, cast/3, cast_flow/3, subscribe/3]).

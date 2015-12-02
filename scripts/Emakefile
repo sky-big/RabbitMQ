@@ -1,0 +1,74 @@
+{
+	[
+		'../plugins-src/cowboy-wrapper/cowboy-git/src/*'
+	],
+	[
+		{i, "../plugins-src/cowboy-wrapper/cowboy-git/include"},
+		{outdir, "../ebin"},
+		{d, debug},
+		debug_info,
+		nowarn_unused_vars,
+		nowarn_unused_function
+	]
+}.
+
+{
+	[
+		'../plugins-src/cowboy-wrapper/cowboy-git/src/*',
+		'../plugins-src/mochiweb-wrapper/mochiweb-git/src/*',
+		'../plugins-src/rabbitmq-amqp1.0/src/*',
+		'../plugins-src/rabbitmq-auth-mechanism-ssl/src/*',
+		'../plugins-src/rabbitmq-consistent-hash-exchange/src/*',
+		'../plugins-src/rabbitmq-erlang-client/src/*',
+		'../plugins-src/rabbitmq-federation/src/*',
+		'../plugins-src/rabbitmq-federation-management/src/*',
+		'../plugins-src/rabbitmq-management/src/*',
+		'../plugins-src/rabbitmq-management-agent/src/*',
+		'../plugins-src/rabbitmq-management-visualiser/src/*',
+		'../plugins-src/rabbitmq-mqtt/src/*',
+		'../plugins-src/rabbitmq-shovel/src/*r',
+		'../plugins-src/rabbitmq-shovel-management/*',
+		'../plugins-src/rabbitmq-stomp/src/*',
+		'../plugins-src/rabbitmq-test/src/*',
+		'../plugins-src/rabbitmq-tracing/src/*',
+		'../plugins-src/rabbitmq-web-dispatch/src/*',
+		'../plugins-src/rabbitmq-web-stomp/src/*',
+		'../plugins-src/rabbitmq-web-stomp-examples/src/*',
+		'../plugins-src/sockjs-erlang-wrapper/sockjs-erlang-git/src/*',
+		'../plugins-src/webmachine-wrapper/webmachine-git/src/*'
+	],
+	[
+		{i, "../include"},
+		{i, "../plugins-src/cowboy-wrapper/cowboy-git/include"},
+		{i, "../plugins-src/mochiweb-wrapper/mochiweb-git/include"},
+		{i, "../plugins-src/rabbitmq-amqp1.0/include"},
+		{i, "../plugins-src/rabbitmq-erlang-client/include"},
+		{i, "../plugins-src/rabbitmq-federation/include"},
+		{i, "../plugins-src/rabbitmq-management/include"},
+		{i, "../plugins-src/rabbitmq-mqtt/include"},
+		{i, "../plugins-src/rabbitmq-shovel/include"},
+		{i, "../plugins-src/rabbitmq-stomp/include"},
+		{i, "../plugins-src/sockjs-erlang-wrapper/sockjs-erlang-git/include"},
+		{i, "../plugins-src/webmachine-wrapper/webmachine-git/include"},
+		{outdir, "../ebin"},
+		{d, debug},
+		debug_info,
+		nowarn_unused_vars,
+		nowarn_unused_function
+	]
+}.
+
+{
+	[
+		'../src/*',
+		'../test/*'
+	],
+	[
+		{i, "../include"},
+		{outdir, "../ebin"},
+		{d, debug},
+		debug_info,
+		nowarn_unused_vars,
+		nowarn_unused_function
+	]
+}.

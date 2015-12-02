@@ -24,9 +24,9 @@
 
 -import(rabbit_misc, [pget/2]).
 
--include_lib("rabbitmq_management/include/rabbit_mgmt.hrl").
--include_lib("amqp_client/include/amqp_client.hrl").
--include_lib("webmachine/include/webmachine.hrl").
+-include("rabbit_mgmt.hrl").
+-include("amqp_client.hrl").
+-include("webmachine.hrl").
 
 dispatcher() -> [{["shovels"],        ?MODULE, []},
                  {["shovels", vhost], ?MODULE, []}].

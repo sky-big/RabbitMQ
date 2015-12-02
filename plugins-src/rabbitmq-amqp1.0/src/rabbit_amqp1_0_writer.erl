@@ -15,8 +15,8 @@
 %%
 
 -module(rabbit_amqp1_0_writer).
--include_lib("rabbit_common/include/rabbit.hrl").
--include_lib("rabbit_common/include/rabbit_framing.hrl").
+-include("rabbit.hrl").
+-include("rabbit_framing.hrl").
 -include("rabbit_amqp1_0.hrl").
 
 -export([start/5, start_link/5, start/6, start_link/6]).

@@ -25,7 +25,7 @@
                                [exchange, <<"x-federation-upstream">>]}},
                     {enables, recovery}]}).
 
--include_lib("rabbit_common/include/rabbit.hrl").
+-include("rabbit.hrl").
 -include("rabbit_federation.hrl").
 
 -behaviour(rabbit_exchange_type).

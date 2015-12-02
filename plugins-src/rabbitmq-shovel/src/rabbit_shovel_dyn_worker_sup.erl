@@ -21,7 +21,7 @@
 
 -import(rabbit_misc, [pget/3]).
 
--include_lib("rabbit_common/include/rabbit.hrl").
+-include("rabbit.hrl").
 -define(SUPERVISOR, ?MODULE).
 
 start_link(Name, Config) ->

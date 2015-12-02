@@ -17,8 +17,8 @@
 -module(rabbit_stomp_test_util).
 
 -include_lib("eunit/include/eunit.hrl").
--include_lib("amqp_client/include/amqp_client.hrl").
--include_lib("amqp_client/include/rabbit_routing_prefixes.hrl").
+-include("amqp_client.hrl").
+-include("rabbit_routing_prefixes.hrl").
 -include("rabbit_stomp_frame.hrl").
 
 %%--------------------------------------------------------------------

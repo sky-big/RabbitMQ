@@ -17,7 +17,7 @@
 -module(rabbit_stomp_test_frame).
 
 -include_lib("eunit/include/eunit.hrl").
--include_lib("amqp_client/include/amqp_client.hrl").
+-include("amqp_client.hrl").
 -include("rabbit_stomp_frame.hrl").
 -include("rabbit_stomp_headers.hrl").
 

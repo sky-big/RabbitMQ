@@ -16,7 +16,7 @@
 
 -module(rabbit_shovel_mgmt_test_http).
 
--include_lib("rabbitmq_management/include/rabbit_mgmt_test.hrl").
+-include("rabbit_mgmt_test.hrl").
 
 -import(rabbit_misc, [pget/2]).
 

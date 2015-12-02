@@ -20,7 +20,7 @@
 
 %% Supervises everything. There is just one of these.
 
--include_lib("rabbit_common/include/rabbit.hrl").
+-include("rabbit.hrl").
 -define(SUPERVISOR, rabbit_federation_sup).
 
 -export([start_link/0, stop/0]).

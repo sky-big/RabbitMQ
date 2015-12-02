@@ -17,7 +17,7 @@
 
 -export([await_response/1, start/5, create/5]).
 
--include_lib("amqp_client/include/amqp_client.hrl").
+-include("amqp_client.hrl").
 
 await_response(ProducerPid) ->
     error_logger:info_msg("waiting for producer pid ~p~n", [ProducerPid]),

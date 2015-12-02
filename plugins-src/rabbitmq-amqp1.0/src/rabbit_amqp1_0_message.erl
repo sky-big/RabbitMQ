@@ -23,7 +23,7 @@
 -define(MESSAGE_ANNOTATIONS_HEADER, <<"x-amqp-1.0-message-annotations">>).
 -define(FOOTER, <<"x-amqp-1.0-footer">>).
 
--include_lib("amqp_client/include/amqp_client.hrl").
+-include("amqp_client.hrl").
 -include("rabbit_amqp1_0.hrl").
 
 assemble(MsgBin) ->

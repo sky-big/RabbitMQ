@@ -16,7 +16,7 @@
 
 -module(rabbit_shovel_test).
 -export([test/0]).
--include_lib("amqp_client/include/amqp_client.hrl").
+-include("amqp_client.hrl").
 -include_lib("eunit/include/eunit.hrl").
 
 -define(EXCHANGE,    <<"test_exchange">>).

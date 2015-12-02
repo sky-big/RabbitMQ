@@ -18,7 +18,7 @@
 
 -include("rabbit_mgmt.hrl").
 -include_lib("eunit/include/eunit.hrl").
--include_lib("rabbit_common/include/rabbit.hrl").
+-include("rabbit.hrl").
 
 -import(rabbit_misc, [pget/2]).
 -import(rabbit_mgmt_test_util, [assert_list/2, assert_item/2, test_item/2]).

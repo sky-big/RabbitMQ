@@ -28,7 +28,7 @@
 
 -record(pending, {delivery_tag, frames, link_handle }).
 
--include_lib("amqp_client/include/amqp_client.hrl").
+-include("amqp_client.hrl").
 -include("rabbit_amqp1_0.hrl").
 
 -import(rabbit_amqp1_0_util, [protocol_error/3]).

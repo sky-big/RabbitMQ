@@ -20,7 +20,7 @@
 -record(context, {root,response_body=undefined,metadata=[]}).
 
 -include_lib("kernel/include/file.hrl").
--include_lib("webmachine/include/webmachine.hrl").
+-include("webmachine.hrl").
 
 init(ConfigProps) ->
     {root, Root} = proplists:lookup(root, ConfigProps),

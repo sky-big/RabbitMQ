@@ -18,7 +18,7 @@
 
 -export([update_headers/5]).
 
--include_lib("rabbit_common/include/rabbit_framing.hrl").
+-include("rabbit_framing.hrl").
 
 -define(ROUTING_HEADER, <<"x-shovelled">>).
 

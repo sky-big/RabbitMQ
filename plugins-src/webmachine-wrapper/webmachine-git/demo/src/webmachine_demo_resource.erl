@@ -7,7 +7,7 @@
 -export([init/1, to_html/2, to_text/2, content_types_provided/2,
          is_authorized/2, generate_etag/2, expires/2, last_modified/2]).
 
--include_lib("webmachine/include/webmachine.hrl").
+-includ("webmachine.hrl").
 
 init([]) -> {ok, undefined}.
     

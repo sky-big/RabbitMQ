@@ -29,41 +29,48 @@
 %%---------------------------------------------------------------------------
 
 start_link(Type, Connection, ConnName, InfraArgs, ChNumber,
-           Consumer = {_, _}) ->
-    Identity = {ConnName, ChNumber},
-    {ok, Sup} = supervisor2:start_link(?MODULE, [Consumer, Identity]),
-    [{gen_consumer, ConsumerPid, _, _}] = supervisor2:which_children(Sup),
-    {ok, ChPid} = supervisor2:start_child(
-                    Sup, {channel,
-                          {amqp_channel, start_link,
-                           [Type, Connection, ChNumber, ConsumerPid, Identity]},
-                          intrinsic, ?MAX_WAIT, worker, [amqp_channel]}),
-    Writer = start_writer(Sup, Type, InfraArgs, ConnName, ChNumber, ChPid),
-    amqp_channel:set_writer(ChPid, Writer),
-    {ok, AState} = init_command_assembler(Type),
-    {ok, Sup, {ChPid, AState}}.
+		   Consumer = {_, _}) ->
+	Identity = {ConnName, ChNumber},
+	%% 启动amqp_channel_sup监督进程(amqp_channel_sup进程启动的同时会同时启动amqp_gen_consumer进程)
+	{ok, Sup} = supervisor2:start_link(?MODULE, [Consumer, Identity]),
+	[{gen_consumer, ConsumerPid, _, _}] = supervisor2:which_children(Sup),
+	%% 启动amqp_channel进程
+	{ok, ChPid} = supervisor2:start_child(
+					Sup, {channel,
+						  {amqp_channel, start_link,
+						   [Type, Connection, ChNumber, ConsumerPid, Identity]},
+						  intrinsic, ?MAX_WAIT, worker, [amqp_channel]}),
+	%% 启动rabbit_writer进程
+	Writer = start_writer(Sup, Type, InfraArgs, ConnName, ChNumber, ChPid),
+	amqp_channel:set_writer(ChPid, Writer),
+	{ok, AState} = init_command_assembler(Type),
+	{ok, Sup, {ChPid, AState}}.
 
 %%---------------------------------------------------------------------------
 %% Internal plumbing
 %%---------------------------------------------------------------------------
 
 start_writer(_Sup, direct, [ConnPid, Node, User, VHost, Collector],
-             ConnName, ChNumber, ChPid) ->
-    {ok, RabbitCh} =
-        rpc:call(Node, rabbit_direct, start_channel,
-                 [ChNumber, ChPid, ConnPid, ConnName, ?PROTOCOL, User,
-                  VHost, ?CLIENT_CAPABILITIES, Collector]),
-    RabbitCh;
+			 ConnName, ChNumber, ChPid) ->
+	{ok, RabbitCh} =
+		rpc:call(Node, rabbit_direct, start_channel,
+				 [ChNumber, ChPid, ConnPid, ConnName, ?PROTOCOL, User,
+				  VHost, ?CLIENT_CAPABILITIES, Collector]),
+	RabbitCh;
+
+%% 在amqp_channel_sup监督进程下启动一个rabbit_writer进程
 start_writer(Sup, network, [Sock, FrameMax], ConnName, ChNumber, ChPid) ->
-    {ok, Writer} = supervisor2:start_child(
-                     Sup,
-                     {writer, {rabbit_writer, start_link,
-                               [Sock, ChNumber, FrameMax, ?PROTOCOL, ChPid,
-                                {ConnName, ChNumber}]},
-                      intrinsic, ?MAX_WAIT, worker, [rabbit_writer]}),
-    Writer.
+	{ok, Writer} = supervisor2:start_child(
+					 Sup,
+					 {writer, {rabbit_writer, start_link,
+							   [Sock, ChNumber, FrameMax, ?PROTOCOL, ChPid,
+								{ConnName, ChNumber}]},
+					  intrinsic, ?MAX_WAIT, worker, [rabbit_writer]}),
+	Writer.
+
 
 init_command_assembler(direct)  -> {ok, none};
+
 init_command_assembler(network) -> rabbit_command_assembler:init(?PROTOCOL).
 
 %%---------------------------------------------------------------------------
@@ -71,7 +78,7 @@ init_command_assembler(network) -> rabbit_command_assembler:init(?PROTOCOL).
 %%---------------------------------------------------------------------------
 
 init([{ConsumerModule, ConsumerArgs}, Identity]) ->
-    {ok, {{one_for_all, 0, 1},
-          [{gen_consumer, {amqp_gen_consumer, start_link,
-                           [ConsumerModule, ConsumerArgs, Identity]},
-           intrinsic, ?MAX_WAIT, worker, [amqp_gen_consumer]}]}}.
+	{ok, {{one_for_all, 0, 1},
+		  [{gen_consumer, {amqp_gen_consumer, start_link,
+						   [ConsumerModule, ConsumerArgs, Identity]},
+			intrinsic, ?MAX_WAIT, worker, [amqp_gen_consumer]}]}}.

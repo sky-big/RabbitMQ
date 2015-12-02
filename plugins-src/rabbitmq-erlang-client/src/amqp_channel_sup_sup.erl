@@ -29,17 +29,18 @@
 %%---------------------------------------------------------------------------
 
 start_link(Type, Connection, ConnName) ->
-    supervisor2:start_link(?MODULE, [Type, Connection, ConnName]).
+	supervisor2:start_link(?MODULE, [Type, Connection, ConnName]).
+
 
 start_channel_sup(Sup, InfraArgs, ChannelNumber, Consumer) ->
-    supervisor2:start_child(Sup, [InfraArgs, ChannelNumber, Consumer]).
+	supervisor2:start_child(Sup, [InfraArgs, ChannelNumber, Consumer]).
 
 %%---------------------------------------------------------------------------
 %% supervisor2 callbacks
 %%---------------------------------------------------------------------------
 
 init([Type, Connection, ConnName]) ->
-    {ok, {{simple_one_for_one, 0, 1},
-          [{channel_sup,
-            {amqp_channel_sup, start_link, [Type, Connection, ConnName]},
-            temporary, brutal_kill, supervisor, [amqp_channel_sup]}]}}.
+	{ok, {{simple_one_for_one, 0, 1},
+		  [{channel_sup,
+			{amqp_channel_sup, start_link, [Type, Connection, ConnName]},
+			temporary, brutal_kill, supervisor, [amqp_channel_sup]}]}}.

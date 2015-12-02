@@ -16,8 +16,8 @@
 
 -module(rabbit_amqp1_0_reader).
 
--include_lib("rabbit_common/include/rabbit.hrl").
--include_lib("rabbit_common/include/rabbit_framing.hrl").
+-include("rabbit.hrl").
+-include("rabbit_framing.hrl").
 -include_lib("kernel/include/inet.hrl").
 -include("rabbit_amqp1_0.hrl").
 

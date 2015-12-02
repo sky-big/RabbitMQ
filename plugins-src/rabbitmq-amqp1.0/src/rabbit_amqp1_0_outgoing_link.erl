@@ -18,7 +18,7 @@
 
 -export([attach/3, delivery/6, transferred/3, credit_drained/4, flow/3]).
 
--include_lib("amqp_client/include/amqp_client.hrl").
+-include("amqp_client.hrl").
 -include("rabbit_amqp1_0.hrl").
 
 -import(rabbit_amqp1_0_util, [protocol_error/3, serial_add/2]).

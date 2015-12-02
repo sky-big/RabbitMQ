@@ -19,7 +19,7 @@
 -export([parse/2,
          ensure_defaults/2]).
 
--include_lib("amqp_client/include/amqp_client.hrl").
+-include("amqp_client.hrl").
 -include("rabbit_shovel.hrl").
 
 -define(IGNORE_FIELDS, [delete_after]).

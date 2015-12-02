@@ -17,7 +17,7 @@
 -module(rabbit_shovel_parameters).
 -behaviour(rabbit_runtime_parameter).
 
--include_lib("amqp_client/include/amqp_client.hrl").
+-include("amqp_client.hrl").
 -include("rabbit_shovel.hrl").
 
 -export([validate/5, notify/4, notify_clear/3]).

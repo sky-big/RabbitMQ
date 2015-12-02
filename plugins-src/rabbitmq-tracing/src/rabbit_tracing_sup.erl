@@ -18,7 +18,7 @@
 
 -behaviour(supervisor).
 
--include_lib("rabbit_common/include/rabbit.hrl").
+-include("rabbit.hrl").
 
 -define(SUPERVISOR, ?MODULE).
 

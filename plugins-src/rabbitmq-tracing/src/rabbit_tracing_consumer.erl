@@ -18,7 +18,7 @@
 
 -behaviour(gen_server).
 
--include_lib("amqp_client/include/amqp_client.hrl").
+-include("amqp_client.hrl").
 
 -import(rabbit_misc, [pget/2, pget/3, table_lookup/2]).
 

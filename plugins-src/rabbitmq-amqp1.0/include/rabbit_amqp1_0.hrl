@@ -31,4 +31,4 @@
 -define(DESCRIBED, 0:8).
 -define(DESCRIBED_BIN, <<?DESCRIBED>>).
 
--include_lib("rabbit_amqp1_0_framing.hrl").
+-include("rabbit_amqp1_0_framing.hrl").

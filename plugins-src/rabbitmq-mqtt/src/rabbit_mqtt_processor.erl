@@ -20,7 +20,7 @@
          process_frame/2, amqp_pub/2, amqp_callback/2, send_will/1,
          close_connection/1]).
 
--include_lib("amqp_client/include/amqp_client.hrl").
+-include("amqp_client.hrl").
 -include("rabbit_mqtt_frame.hrl").
 -include("rabbit_mqtt.hrl").
 

@@ -18,7 +18,7 @@
 
 -compile(export_all).
 -include_lib("eunit/include/eunit.hrl").
--include_lib("amqp_client/include/amqp_client.hrl").
+-include("amqp_client.hrl").
 
 -import(rabbit_misc, [pget/2]).
 

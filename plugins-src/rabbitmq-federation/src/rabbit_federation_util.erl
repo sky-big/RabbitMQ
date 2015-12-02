@@ -16,7 +16,7 @@
 
 -module(rabbit_federation_util).
 
--include_lib("amqp_client/include/amqp_client.hrl").
+-include("amqp_client.hrl").
 -include("rabbit_federation.hrl").
 
 -export([should_forward/3, find_upstreams/2, already_seen/2]).

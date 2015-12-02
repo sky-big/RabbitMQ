@@ -19,7 +19,7 @@
 -compile(export_all).
 -include("rabbit_federation.hrl").
 -include_lib("eunit/include/eunit.hrl").
--include_lib("amqp_client/include/amqp_client.hrl").
+-include("amqp_client.hrl").
 
 -import(rabbit_misc, [pget/2]).
 -import(rabbit_federation_util, [name/1]).

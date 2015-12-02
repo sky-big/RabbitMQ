@@ -26,7 +26,7 @@
                                [<<"federation">>]}},
                     {enables, recovery}]}).
 
--include_lib("amqp_client/include/amqp_client.hrl").
+-include("amqp_client.hrl").
 
 -behaviour(rabbit_exchange_decorator).
 

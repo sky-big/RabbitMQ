@@ -29,22 +29,24 @@
 %%---------------------------------------------------------------------------
 
 start_link(AMQPParams) ->
-    {ok, Sup} = supervisor2:start_link(?MODULE, []),
-    {ok, TypeSup}    = supervisor2:start_child(
-                         Sup, {connection_type_sup,
-                               {amqp_connection_type_sup, start_link, []},
-                               transient, infinity, supervisor,
-                               [amqp_connection_type_sup]}),
-    {ok, Connection} = supervisor2:start_child(
-                         Sup, {connection, {amqp_gen_connection, start_link,
-                                            [TypeSup, AMQPParams]},
-                               intrinsic, brutal_kill, worker,
-                               [amqp_gen_connection]}),
-    {ok, Sup, Connection}.
+	{ok, Sup} = supervisor2:start_link(?MODULE, []),
+	%% 启动Amqp客户端连接类型的监督进程
+	{ok, TypeSup}    = supervisor2:start_child(
+						 Sup, {connection_type_sup,
+							   {amqp_connection_type_sup, start_link, []},
+							   transient, infinity, supervisor,
+							   [amqp_connection_type_sup]}),
+	%% 启动客户端连接产生的进程
+	{ok, Connection} = supervisor2:start_child(
+						 Sup, {connection, {amqp_gen_connection, start_link,
+											[TypeSup, AMQPParams]},
+							   intrinsic, brutal_kill, worker,
+							   [amqp_gen_connection]}),
+	{ok, Sup, Connection}.
 
 %%---------------------------------------------------------------------------
 %% supervisor2 callbacks
 %%---------------------------------------------------------------------------
 
 init([]) ->
-    {ok, {{one_for_all, 0, 1}, []}}.
+	{ok, {{one_for_all, 0, 1}, []}}.

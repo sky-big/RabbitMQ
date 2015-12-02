@@ -5,7 +5,7 @@
 -module({{appid}}_resource).
 -export([init/1, to_html/2]).
 
--include_lib("webmachine/include/webmachine.hrl").
+-include("webmachine.hrl").
 
 init([]) -> {ok, undefined}.
 

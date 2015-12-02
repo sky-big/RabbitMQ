@@ -25,8 +25,8 @@
 
 -import(rabbit_misc, [pget/2, pget/3]).
 
--include_lib("rabbitmq_management/include/rabbit_mgmt.hrl").
--include_lib("webmachine/include/webmachine.hrl").
+-include("rabbit_mgmt.hrl").
+-include("webmachine.hrl").
 
 %%--------------------------------------------------------------------
 init(_Config) -> {ok, #context{}}.

@@ -17,7 +17,7 @@
 -module(rabbit_federation_status).
 -behaviour(gen_server).
 
--include_lib("amqp_client/include/amqp_client.hrl").
+-include("amqp_client.hrl").
 -include("rabbit_federation.hrl").
 
 -export([start_link/0]).

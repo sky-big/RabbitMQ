@@ -18,7 +18,7 @@
 
 -include("rabbit_federation.hrl").
 -include_lib("eunit/include/eunit.hrl").
--include_lib("amqp_client/include/amqp_client.hrl").
+-include("amqp_client.hrl").
 
 -compile(export_all).
 

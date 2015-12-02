@@ -445,6 +445,7 @@ stop() ->
 %% 当前节点RabbitMQ系统停止运行(先停止当前节点上启动的所有应用，然后将该节点停止掉)
 stop_and_halt() ->
 	try
+		%% 停止当前节点上启动的所有应用
 		stop()
 	after
 		rabbit_log:info("Halting Erlang VM~n", []),
@@ -640,8 +641,6 @@ start(normal, []) ->
 			warn_if_kernel_config_dubious(),
 			%% 按照有向图启动相关应用启动进程
 			run_boot_steps(),
-			%% 测试收取rabbit_event管理器发布的事件
-			rabbit_test_event:add_handler(),
 			{ok, SupPid};
 		Error ->
 			Error

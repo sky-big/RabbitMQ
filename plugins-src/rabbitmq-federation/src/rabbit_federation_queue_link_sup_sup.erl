@@ -18,7 +18,7 @@
 
 -behaviour(supervisor2).
 
--include_lib("rabbit_common/include/rabbit.hrl").
+-include("amqp_client.hrl").
 -define(SUPERVISOR, ?MODULE).
 
 %% Supervises the upstream links for all queues (but not exchanges). We need

@@ -1,0 +1,61 @@
+[
+	%% 服务器节点前缀名
+	{prefix, "my_server_"},
+	%% 新启动的节点都加入该节点的集群中(如果该节点名字是自己则什么都不做)
+	{main_cluster_node, "rabbit1"},
+	%% 需要启动的节点列表(节点名字， 节点IP， 客户端监听端口号， 是否启动smp， 节点类型， 节点系统其它相关信息)
+	{nodes, [
+			{"rabbit1", "127.0.0.1", 5673, nosmp, disc, "-rabbitmq_management listener [{port,15673}]"},
+			{"rabbit2", "127.0.0.1", 5674, nosmp, ram,  "-rabbitmq_management listener [{port,15674}]"},
+			{"rabbit3", "127.0.0.1", 5675, nosmp, disc, "-rabbitmq_management listener [{port,15675}]"}
+		]
+	},
+	%% 客户端节点配置
+	{clients, [
+			{"rabbit_client1", "127.0.0.1", nosmp,
+						[
+							{username,			<<"guest">>},
+							{password,			<<"guest">>},
+							{virtual_host,		<<"/">>},
+							{channel_max,		0},
+							{port,				5673},
+							{host,				"localhost"}
+						 ], ""
+			},
+			{"rabbit_client2", "127.0.0.1", nosmp,
+						[
+							{username,			<<"guest">>},
+							{password,			<<"guest">>},
+							{virtual_host,		<<"/">>},
+							{channel_max,		0},
+							{port,				5674},
+							{host,				"localhost"}
+						 ], ""
+			},
+			{"rabbit_client3", "127.0.0.1", nosmp,
+						[
+							{username,			<<"guest">>},
+							{password,			<<"guest">>},
+							{virtual_host,		<<"/">>},
+							{channel_max,		0},
+							{port,				5675},
+							{host,				"localhost"}
+						 ], ""
+			}
+		]
+	},
+	%% 代码执行目录
+	{beam_dir, "../ebin"},
+	%% rabbitmq.config配置文件的路径
+	{rabbitmq_config_file, ""},
+	%% 日志目录
+	{rabbitmq_log_path, "../log/"},
+	%% 数据库目录
+	{rabbitmq_db_path, "../db/"},
+	%% 插件压缩文件路径
+	{plugins_path, "../plugins/"},
+	%% 允许插件的配置文件路径
+	{plugins_enabled_file, "../options/enabled_plugins"},
+	%% 所有节点的cookie
+	{cookie, 'xxw'}
+].

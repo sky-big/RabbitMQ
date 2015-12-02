@@ -15,7 +15,7 @@
 %%
 -module(rabbit_test_configs).
 
--include_lib("amqp_client/include/amqp_client.hrl").
+-include("amqp_client.hrl").
 
 -export([enable_plugins/1]).
 -export([cluster/2, cluster_ab/1, cluster_abc/1, start_ab/1, start_abc/1]).

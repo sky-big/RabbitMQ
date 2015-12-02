@@ -1,4 +1,4 @@
--compile({parse_transform,pmod_pt}).
+%% -compile({parse_transform,pmod_pt}).
 
 -module(sockjs_multiplex_channel, [Conn, Topic]).
 

@@ -17,7 +17,7 @@
 -module(rabbit_federation_db).
 
 -include("rabbit_federation.hrl").
--include_lib("amqp_client/include/amqp_client.hrl").
+-include("amqp_client.hrl").
 
 -define(DICT, orddict).
 

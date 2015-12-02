@@ -19,8 +19,8 @@
 -define(LOG_DIR, "/var/tmp/rabbitmq-tracing/").
 
 -include_lib("eunit/include/eunit.hrl").
--include_lib("amqp_client/include/amqp_client.hrl").
--include_lib("rabbitmq_management/include/rabbit_mgmt_test.hrl").
+-include("amqp_client.hrl").
+-include("rabbit_mgmt_test.hrl").
 
 -import(rabbit_misc, [pget/2]).
 

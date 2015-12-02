@@ -18,7 +18,7 @@
 
 -behaviour(supervisor2).
 
--include_lib("rabbit_common/include/rabbit.hrl").
+-include("rabbit.hrl").
 -include("rabbit_federation.hrl").
 
 %% Supervises the upstream links for an exchange or queue.

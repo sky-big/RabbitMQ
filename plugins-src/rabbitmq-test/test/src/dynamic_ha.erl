@@ -31,7 +31,7 @@
 
 -compile(export_all).
 -include_lib("eunit/include/eunit.hrl").
--include_lib("amqp_client/include/amqp_client.hrl").
+-include("amqp_client.hrl").
 
 -define(QNAME, <<"ha.test">>).
 -define(POLICY, <<"^ha.test$">>). %% " emacs

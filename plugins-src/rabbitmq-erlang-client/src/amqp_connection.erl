@@ -147,19 +147,23 @@
 %% running in the same process space.  If the port is set to 'undefined',
 %% the default ports will be selected depending on whether this is a
 %% normal or an SSL connection.
+%% 启动一个客户端连接到RabbitMQ系统
 start(AmqpParams) ->
-    ensure_started(),
-    AmqpParams1 =
-        case AmqpParams of
-            #amqp_params_network{port = undefined, ssl_options = none} ->
-                AmqpParams#amqp_params_network{port = ?PROTOCOL_PORT};
-            #amqp_params_network{port = undefined, ssl_options = _} ->
-                AmqpParams#amqp_params_network{port = ?PROTOCOL_SSL_PORT};
-            _ ->
-                AmqpParams
-        end,
-    {ok, _Sup, Connection} = amqp_sup:start_connection_sup(AmqpParams1),
-    amqp_gen_connection:connect(Connection).
+	%% 确保amqp_client App应用的启动
+	ensure_started(),
+	AmqpParams1 =
+		case AmqpParams of
+			#amqp_params_network{port = undefined, ssl_options = none} ->
+				AmqpParams#amqp_params_network{port = ?PROTOCOL_PORT};
+			#amqp_params_network{port = undefined, ssl_options = _} ->
+				AmqpParams#amqp_params_network{port = ?PROTOCOL_SSL_PORT};
+			_ ->
+				AmqpParams
+		end,
+	%% 连接到RabbitMQ系统
+	{ok, _Sup, Connection} = amqp_sup:start_connection_sup(AmqpParams1),
+	%% 实际的连接到RabbitMQ系统的步骤
+	amqp_gen_connection:connect(Connection).
 
 %% Usually the amqp_client application will already be running. We
 %% check whether that is the case by invoking an undocumented function

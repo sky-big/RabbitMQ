@@ -1,5 +1,5 @@
 -include_lib("eunit/include/eunit.hrl").
--include_lib("amqp_client/include/amqp_client.hrl").
+-include("amqp_client.hrl").
 
 -define(OK, 200).
 -define(CREATED, 201).

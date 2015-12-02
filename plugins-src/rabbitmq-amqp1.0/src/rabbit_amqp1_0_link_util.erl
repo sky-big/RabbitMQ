@@ -16,7 +16,7 @@
 
 -module(rabbit_amqp1_0_link_util).
 
--include_lib("amqp_client/include/amqp_client.hrl").
+-include("amqp_client.hrl").
 -include("rabbit_amqp1_0.hrl").
 
 -export([outcomes/1, ctag_to_handle/1, handle_to_ctag/1, durable/1]).

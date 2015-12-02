@@ -15,7 +15,7 @@
 %%
 -module(rabbit_ha_test_consumer).
 
--include_lib("amqp_client/include/amqp_client.hrl").
+-include("amqp_client.hrl").
 
 -export([await_response/1, create/5, start/6]).
 

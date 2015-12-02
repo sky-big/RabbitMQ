@@ -17,7 +17,7 @@
 -module(rabbit_shovel_test_dyn).
 
 -include_lib("eunit/include/eunit.hrl").
--include_lib("amqp_client/include/amqp_client.hrl").
+-include("amqp_client.hrl").
 
 -import(rabbit_misc, [pget/2]).
 

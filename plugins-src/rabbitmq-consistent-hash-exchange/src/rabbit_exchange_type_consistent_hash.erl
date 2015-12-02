@@ -15,7 +15,7 @@
 %%
 
 -module(rabbit_exchange_type_consistent_hash).
--include_lib("rabbit_common/include/rabbit.hrl").
+-include("rabbit.hrl").
 
 -behaviour(rabbit_exchange_type).
 

@@ -16,7 +16,7 @@
 
 -module(rabbit_exchange_type_consistent_hash_test).
 -export([test/0]).
--include_lib("amqp_client/include/amqp_client.hrl").
+-include("amqp_client.hrl").
 
 %% Because the routing is probabilistic, we can't really test a great
 %% deal here.

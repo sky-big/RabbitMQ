@@ -11,14 +11,14 @@
 %% The Original Code is RabbitMQ.
 %%
 %% The Initial Developer of the Original Code is GoPivotal, Inc.
-%% Copyright (c) 2007-2014 GoPivotal, Inc.  All rights reserved.
+%% Copyright (c) 2007-2013 GoPivotal, Inc.  All rights reserved.
 %%
 
 -ifndef(AMQP_CLIENT_HRL).
 -define(AMQP_CLIENT_HRL, true).
 
--include_lib("rabbit_common/include/rabbit.hrl").
--include_lib("rabbit_common/include/rabbit_framing.hrl").
+-include("rabbit.hrl").
+-include("rabbit_framing.hrl").
 
 -record(amqp_msg, {props = #'P_basic'{}, payload = <<>>}).
 
@@ -38,7 +38,7 @@
                               client_properties  = [],
                               socket_options     = []}).
 
--record(amqp_params_direct, {username          = none,
+-record(amqp_params_direct, {username          = <<"guest">>,
                              password          = none,
                              virtual_host      = <<"/">>,
                              node              = node(),
