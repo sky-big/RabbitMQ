@@ -1,5 +1,5 @@
 # RabbitMQ
-RabbitMQ系统中文完全注释，主要是进行RabbitMQ源代码分析(在阅读过程中得到了网上很多资料的帮助)
+RabbitMQ系统3.5.3版本中文完全注释，主要是进行RabbitMQ源代码分析(在阅读过程中得到了网上很多资料的帮助)
 当前目录下的所有文件是Eclipse上的工程，可以将该项目直接导入到Eclipse编辑器中
 
 一.erlang_otp_data_struct目录下是RabbitMQ系统中使用过的Erlang OTP中的数据结构源代码中文注释
