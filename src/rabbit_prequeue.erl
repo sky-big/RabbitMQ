@@ -59,10 +59,10 @@ init({Q, StartMode, Marker}) ->
 			end).
 
 
-%% master类型的队列进程的启动初始化
+%% master类型的队列进程的启动初始化(单独队列进程或者主镜像队列进程的初始化)
 init(Q, master) -> rabbit_amqqueue_process:init(Q);
 
-%% slave类型的队列进程的启动初始化(高可用队列队列进程相关)
+%% slave类型的队列进程的启动初始化(高可用队列队列进程相关，副镜像队列进程的初始化)
 init(Q, slave)  -> rabbit_mirror_queue_slave:init(Q);
 
 %% 队列重启类型的队列进程初始化

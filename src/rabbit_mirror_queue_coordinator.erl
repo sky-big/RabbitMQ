@@ -29,9 +29,9 @@
 -include("rabbit.hrl").
 -include("gm_specs.hrl").
 
--record(state, { q,
-                 gm,
-                 monitors,
+-record(state, { q,									%% 队列的数据结构信息
+                 gm,								%% gm进程的Pid
+                 monitors,							%% 监视rabbit_channel进程的数据结构
                  death_fun,
                  depth_fun
                }).
@@ -308,34 +308,41 @@
 %% For more documentation see the comments in bug 23554.
 %%
 %%----------------------------------------------------------------------------
-
+%% 镜像队列协调进程的启动入口函数
 start_link(Queue, GM, DeathFun, DepthFun) ->
 	gen_server2:start_link(?MODULE, [Queue, GM, DeathFun, DepthFun], []).
 
 
+%% 获取当前协调进程下启动的gm进程的Pid
 get_gm(CPid) ->
 	gen_server2:call(CPid, get_gm, infinity).
 
 
+%% 监视rabbit_channel进程
 ensure_monitoring(CPid, Pids) ->
 	gen_server2:cast(CPid, {ensure_monitoring, Pids}).
 
 %% ---------------------------------------------------------------------------
 %% gen_server
 %% ---------------------------------------------------------------------------
-
+%% 主镜像队列协调进程的初始化回调函数
 init([#amqqueue { name = QueueName } = Q, GM, DeathFun, DepthFun]) ->
+	%% 存储队列名字
 	?store_proc_name(QueueName),
 	GM1 = case GM of
 			  undefined ->
+				  %% 启动主镜像队列对应的GM进程
 				  {ok, GM2} = gm:start_link(
 								QueueName, ?MODULE, [self()],
+								%% (通过工作进程池提交任务)执行mnesia数据库事务函数
 								fun rabbit_misc:execute_mnesia_transaction/1),
+				  %% 接收GM进程发送过来的加入镜像队列群组成功
 				  receive {joined, GM2, _Members} ->
 							  ok
 				  end,
 				  GM2;
 			  _ ->
+				  %% 如果GM节点先前就存在，则直接跟该GM进程关联
 				  true = link(GM),
 				  GM
 		  end,
@@ -348,28 +355,35 @@ init([#amqqueue { name = QueueName } = Q, GM, DeathFun, DepthFun]) ->
 	 {backoff, ?HIBERNATE_AFTER_MIN, ?HIBERNATE_AFTER_MIN, ?DESIRED_HIBERNATE}}.
 
 
+%% 获取当前协调进程下启动的gm进程的Pid
 handle_call(get_gm, _From, State = #state { gm = GM }) ->
 	reply(GM, State).
 
 
+%% 处理循环镜像队列中有死亡的镜像队列(主镜像队列接收到死亡的镜像队列不可能是主镜像队列死亡的消息，它监视的左右两侧的副镜像队列进程)
 handle_cast({gm_deaths, DeadGMPids},
 			State = #state { q  = #amqqueue { name = QueueName, pid = MPid } })
   when node(MPid) =:= node() ->
+	%% 返回新的主镜像队列进程，死亡的镜像队列进程列表，需要新增加镜像队列的节点列表
 	case rabbit_mirror_queue_misc:remove_from_queue(
 		   QueueName, MPid, DeadGMPids) of
 		{ok, MPid, DeadPids, ExtraNodes} ->
+			%% 打印镜像队列死亡的日志
 			rabbit_mirror_queue_misc:report_deaths(MPid, true, QueueName,
 												   DeadPids),
+			%% 异步在ExtraNodes的所有节点上增加QName队列的副镜像队列
 			rabbit_mirror_queue_misc:add_mirrors(QueueName, ExtraNodes, async),
 			noreply(State);
 		{error, not_found} ->
 			{stop, normal, State}
 	end;
 
+%% 主镜像队列的协调进程处理request_depth消息(该消息是副镜像队列启动成功后广播的消息)
 handle_cast(request_depth, State = #state { depth_fun = DepthFun }) ->
 	ok = DepthFun(),
 	noreply(State);
 
+%% 主镜像队列的协调进程处理监视rabbit_channel进程的消息
 handle_cast({ensure_monitoring, Pids}, State = #state { monitors = Mons }) ->
 	noreply(State #state { monitors = pmon:monitor_all(Pids, Mons) });
 
@@ -377,12 +391,15 @@ handle_cast({delete_and_terminate, Reason}, State) ->
 	{stop, Reason, State}.
 
 
+%% 处理rabbit_channel进程挂掉的消息
 handle_info({'DOWN', _MonitorRef, process, Pid, _Reason},
 			State = #state { monitors  = Mons,
 							 death_fun = DeathFun }) ->
 	noreply(case pmon:is_monitored(Pid, Mons) of
 				false -> State;
+				%% 调用DeathFun函数通知主镜像队列rabbit_channel进程挂掉
 				true  -> ok = DeathFun(Pid),
+						 %% 将对该rabbit_channel进程的监视信息删除
 						 State #state { monitors = pmon:erase(Pid, Mons) }
 			end);
 
@@ -410,12 +427,13 @@ handle_pre_hibernate(State = #state { gm = GM }) ->
 %% ---------------------------------------------------------------------------
 %% GM
 %% ---------------------------------------------------------------------------
-
+%% 自己启动的GM进程成功的加入到镜像循环队列中的回调接口
 joined([CPid], Members) ->
 	CPid ! {joined, self(), Members},
 	ok.
 
 
+%% 镜像循环队列中的成员有变动的回调接口
 members_changed([_CPid], _Births, []) ->
 	ok;
 
@@ -423,6 +441,7 @@ members_changed([CPid],  _Births, Deaths) ->
 	ok = gen_server2:cast(CPid, {gm_deaths, Deaths}).
 
 
+%% 处理自己启动的GM进程回调发送过来的消息
 handle_msg([CPid], _From, request_depth = Msg) ->
 	ok = gen_server2:cast(CPid, Msg);
 
@@ -437,6 +456,7 @@ handle_msg([_CPid], _From, _Msg) ->
 	ok.
 
 
+%% 处理中断的回调接口
 handle_terminate([_CPid], _Reason) ->
 	ok.
 

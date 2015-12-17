@@ -295,7 +295,7 @@ action(force_boot, Node, [], _Opts, Inform) ->
 	end;
 
 
-%% *****高可用队列相关***********
+%% 同步QName对应的镜像队列
 action(sync_queue, Node, [Q], Opts, Inform) ->
 	VHost = proplists:get_value(?VHOST_OPT, Opts),
 	QName = rabbit_misc:r(list_to_binary(VHost), queue, list_to_binary(Q)),
@@ -303,7 +303,7 @@ action(sync_queue, Node, [Q], Opts, Inform) ->
 	rpc_call(Node, rabbit_control_main, sync_queue, [QName]);
 
 
-%% *****高可用队列相关***********
+%% 取消同步QName对应的镜像队列
 action(cancel_sync_queue, Node, [Q], Opts, Inform) ->
 	VHost = proplists:get_value(?VHOST_OPT, Opts),
 	QName = rabbit_misc:r(list_to_binary(VHost), queue, list_to_binary(Q)),
@@ -631,11 +631,13 @@ action(eval, Node, [Expr], _Opts, _Inform) ->
 format_parse_error({_Line, Mod, Err}) -> lists:flatten(Mod:format_error(Err)).
 
 
+%% 同步Q对应的镜像队列
 sync_queue(Q) ->
 	rabbit_amqqueue:with(
 	  Q, fun(#amqqueue{pid = QPid}) -> rabbit_amqqueue:sync_mirrors(QPid) end).
 
 
+%% 取消同步Q对应的镜像队列
 cancel_sync_queue(Q) ->
 	rabbit_amqqueue:with(
 	  Q, fun(#amqqueue{pid = QPid}) ->

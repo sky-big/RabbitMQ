@@ -1035,13 +1035,16 @@ timeout(State = #vqstate { index_state = IndexState }) ->
 	State #vqstate { index_state = rabbit_queue_index:sync(IndexState) }.
 
 
+%% 刷新日志文件，将日志文件中的操作项存入对应的操作项的磁盘文件(队列进程从休眠状态接收到一个消息后，则会调用该接口进行一次日志文件的刷新)
 handle_pre_hibernate(State = #vqstate { index_state = IndexState }) ->
 	State #vqstate { index_state = rabbit_queue_index:flush(IndexState) }.
 
 
+%% 睡眠接口，RabbitMQ系统中使用的内存过多，此操作是将内存中的队列数据写入到磁盘中
 resume(State) -> a(reduce_memory_use(State)).
 
 
+%% 获取消息队列中消息进入和出队列的速率大小
 msg_rates(#vqstate { rates = #rates { in  = AvgIngressRate,
 									  out = AvgEgressRate } }) ->
 	{AvgIngressRate, AvgEgressRate}.

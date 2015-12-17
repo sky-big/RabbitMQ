@@ -364,6 +364,7 @@ definitions() ->
 	   {match, #amqqueue{name = queue_name_match(), _='_'}}]
 	 }
 	]
+	%% 获得gm_group数据库表的定义，跟消息队列镜像队列相关的数据库表
 	++ gm:table_definitions()
 	++ mirrored_supervisor:table_definitions().
 

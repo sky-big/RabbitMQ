@@ -488,20 +488,20 @@ id({Id, _, _, _, _, _}) -> Id.
 
 
 update_all(Overall, OldOverall) ->
-MatchHead = #mirrored_sup_childspec{mirroring_pid = OldOverall,
-key           = '$1',
-childspec     = '$2',
-_             = '_'},
-[write(Group, Overall, C) ||
-[{Group, _Id}, C] <- mnesia:select(?TABLE, [{MatchHead, [], ['$$']}])].
+	MatchHead = #mirrored_sup_childspec{mirroring_pid = OldOverall,
+										key           = '$1',
+										childspec     = '$2',
+										_             = '_'},
+	[write(Group, Overall, C) ||
+	   [{Group, _Id}, C] <- mnesia:select(?TABLE, [{MatchHead, [], ['$$']}])].
 
 
 delete_all(Group) ->
-MatchHead = #mirrored_sup_childspec{key       = {Group, '_'},
-childspec = '$1',
-_         = '_'},
-[delete(Group, id(C)) ||
-C <- mnesia:select(?TABLE, [{MatchHead, [], ['$1']}])].
+	MatchHead = #mirrored_sup_childspec{key       = {Group, '_'},
+										childspec = '$1',
+										_         = '_'},
+	[delete(Group, id(C)) ||
+	   C <- mnesia:select(?TABLE, [{MatchHead, [], ['$1']}])].
 
 
 errors(Results) -> [E || {error, E} <- Results].

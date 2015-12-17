@@ -35,14 +35,14 @@
 -include("rabbit.hrl").
 
 -record(state, {
-				name,
-				gm,
-				coordinator,
-				backing_queue,
-				backing_queue_state,
+				name,								%% 队列的名字
+				gm,									%% 该主镜像队列的gm进程Pid
+				coordinator,						%% 该主镜像队列的协调进程Pid
+				backing_queue,						%% backing_queue的模块名字
+				backing_queue_state,				%% 当前backing_queue的状态数据结构
 				seen_status,
 				confirmed,
-				known_senders
+				known_senders						%% 所有关联的rabbit_channel进程的sets数据结构集合
 			   }).
 
 -ifdef(use_specs).
@@ -81,43 +81,55 @@
 %% ---------------------------------------------------------------------------
 %% Backing queue
 %% ---------------------------------------------------------------------------
-
+%% 消息队列主镜像backing_queue的启动函数(是不会调用的接口，如果有调用则直接停止调用的进程)
 start(_DurableQueues) ->
 	%% This will never get called as this module will never be
 	%% installed as the default BQ implementation.
 	exit({not_valid_for_generic_backing_queue, ?MODULE}).
 
 
+%% 消息队列主镜像backing_queue的停止函数(是不会调用的接口，如果有调用则直接停止调用的进程)
 stop() ->
 	%% Same as start/1.
 	exit({not_valid_for_generic_backing_queue, ?MODULE}).
 
 
+%% 消息队列主镜像backing_queue的崩溃处理函数(是不会调用的接口，如果有调用则直接停止调用的进程)
 delete_crashed(_QName) ->
 	exit({not_valid_for_generic_backing_queue, ?MODULE}).
 
 
+%% 主镜像队列的初始化
 init(Q, Recover, AsyncCallback) ->
+	%% 拿到backing_queue的处理模块名字
 	{ok, BQ} = application:get_env(backing_queue_module),
+	%% 使用backing_queue模块进行初始化(实际消息存储相关初始化)
 	BQS = BQ:init(Q, Recover, AsyncCallback),
+	%% 启动主镜像队列的协调进程和gm进程，同时初始化本镜像队列的数据结构
 	State = #state{gm = GM} = init_with_existing_bq(Q, BQ, BQS),
 	ok = gm:broadcast(GM, {depth, BQ:depth(BQS)}),
 	State.
 
 
+%% 启动主镜像队列的协调进程和gm进程，同时初始化本镜像队列的数据结构
 init_with_existing_bq(Q = #amqqueue{name = QName}, BQ, BQS) ->
+	%% coordinator：协调员，启动主镜像队列进程的协调进程
 	{ok, CPid} = rabbit_mirror_queue_coordinator:start_link(
 				   Q, undefined, sender_death_fun(), depth_fun()),
+	%% 获取协调进程下启动的gm进程的Pid
 	GM = rabbit_mirror_queue_coordinator:get_gm(CPid),
 	Self = self(),
+	%% 更新队列结构中gm_pids字段，同时将队列状态置为存活状态live
 	ok = rabbit_misc:execute_mnesia_transaction(
 		   fun () ->
+					%% 主镜像队列只更新GM进程信息到消息队列数据结构中gm_pids字段中
 					[Q1 = #amqqueue{gm_pids = GMPids}]
 						= mnesia:read({rabbit_queue, QName}),
 					ok = rabbit_amqqueue:store_queue(
 						   Q1#amqqueue{gm_pids = [{GM, Self} | GMPids],
 									   state   = live})
 		   end),
+	%% 获取该队列需要做镜像的节点列表
 	{_MNode, SNodes} = rabbit_mirror_queue_misc:suggested_queue_nodes(Q),
 	%% We need synchronous add here (i.e. do not return until the
 	%% slave is running) so that when queue declaration is finished
@@ -125,7 +137,9 @@ init_with_existing_bq(Q = #amqqueue{name = QName}, BQ, BQS) ->
 	%% just by declaring a new queue. But add can't be synchronous all
 	%% the time as it can be called by slaves and that's
 	%% deadlock-prone.
+	%% 在SNodes节点上启动QName队列的镜像队列
 	rabbit_mirror_queue_misc:add_mirrors(QName, SNodes, sync),
+	%% 组装主镜像队列的数据结构
 	#state { name                = QName,
 			 gm                  = GM,
 			 coordinator         = CPid,
@@ -144,16 +158,20 @@ stop_mirroring(State = #state { coordinator         = CPid,
 	{BQ, BQS}.
 
 
+%% 向副的镜像队列中同步消息
 sync_mirrors(HandleInfo, EmitStats,
 			 State = #state { name                = QName,
 							  gm                  = GM,
 							  backing_queue       = BQ,
 							  backing_queue_state = BQS }) ->
+	%% 日志函数
 	Log = fun (Fmt, Params) ->
 				   rabbit_mirror_queue_misc:log_info(
 					 QName, "Synchronising: " ++ Fmt ++ "~n", Params)
 		  end,
+	%% 打印有多少消息需要同步
 	Log("~p messages to synchronise", [BQ:len(BQS)]),
+	%% 拿到队列所有的副镜像队列进程的Pid
 	{ok, #amqqueue{slave_pids = SPids}} = rabbit_amqqueue:lookup(QName),
 	Ref = make_ref(),
 	Syncer = rabbit_mirror_queue_sync:master_prepare(Ref, QName, Log, SPids),
@@ -232,53 +250,70 @@ stop_all_slaves(Reason, #state{name = QName, gm = GM}) ->
 	ok = gm:forget_group(QName).
 
 
+%% 主镜像队列清除该队列中所有的消息
 purge(State = #state { gm                  = GM,
 					   backing_queue       = BQ,
 					   backing_queue_state = BQS }) ->
+	%% 向镜像循环队列进行广播
 	ok = gm:broadcast(GM, {drop, 0, BQ:len(BQS), false}),
+	%% 调用backing_queue模块进行操作
 	{Count, BQS1} = BQ:purge(BQS),
+	%% 更新最新的backing_queue状态
 	{Count, State #state { backing_queue_state = BQS1 }}.
 
 
+%% 将当前队列中所有等待ack的消息从消息索引和消息存储服务器中删除掉(该接口尚未实现)
 purge_acks(_State) -> exit({not_implemented, {?MODULE, purge_acks}}).
 
 
+%% 主镜像队列中发布消息的接口
 publish(Msg = #basic_message { id = MsgId }, MsgProps, IsDelivered, ChPid, Flow,
 		State = #state { gm                  = GM,
 						 seen_status         = SS,
 						 backing_queue       = BQ,
 						 backing_queue_state = BQS }) ->
 	false = dict:is_key(MsgId, SS), %% ASSERTION
+	%% 向该消息队列广播发布消息
 	ok = gm:broadcast(GM, {publish, ChPid, Flow, MsgProps, Msg},
 					  rabbit_basic:msg_size(Msg)),
+	%% 主镜像队列中将消息直接发布到backing_queue中(将消息发送到主镜像队列的backing_queue中)
 	BQS1 = BQ:publish(Msg, MsgProps, IsDelivered, ChPid, Flow, BQS),
+	%% 监视rabbit_channel进程
 	ensure_monitoring(ChPid, State #state { backing_queue_state = BQS1 }).
 
 
+%% 主镜像队列发布已经发送给消费者的消息
 publish_delivered(Msg = #basic_message { id = MsgId }, MsgProps,
 				  ChPid, Flow, State = #state { gm                  = GM,
 												seen_status         = SS,
 												backing_queue       = BQ,
 												backing_queue_state = BQS }) ->
 	false = dict:is_key(MsgId, SS), %% ASSERTION
+	%% 向该消息队列广播发布消息
 	ok = gm:broadcast(GM, {publish_delivered, ChPid, Flow, MsgProps, Msg},
 					  rabbit_basic:msg_size(Msg)),
+	%% 主镜像队列中将消息直接发布到backing_queue中(将消息发送到主镜像队列的backing_queue中)
 	{AckTag, BQS1} = BQ:publish_delivered(Msg, MsgProps, ChPid, Flow, BQS),
 	State1 = State #state { backing_queue_state = BQS1 },
+	%% 监视rabbit_channel进程
 	{AckTag, ensure_monitoring(ChPid, State1)}.
 
 
+%% 主镜像队列丢弃消息的接口
 discard(MsgId, ChPid, Flow, State = #state { gm                  = GM,
 											 backing_queue       = BQ,
 											 backing_queue_state = BQS,
 											 seen_status         = SS }) ->
 	false = dict:is_key(MsgId, SS), %% ASSERTION
+	%% 向该消息队列广播发布消息
 	ok = gm:broadcast(GM, {discard, ChPid, Flow, MsgId}),
+	%% 监视rabbit_channel进程，同时更新最新的backing_queue的状态
 	ensure_monitoring(ChPid,
 					  State #state { backing_queue_state =
 										 BQ:discard(MsgId, ChPid, Flow, BQS) }).
 
 
+%% 通过消息message_properties的特性字段去执行Pred函数，如果条件满足，则将该消息从backing_queue中丢弃掉
 dropwhile(Pred, State = #state{backing_queue       = BQ,
 							   backing_queue_state = BQS }) ->
 	Len  = BQ:len(BQS),
@@ -286,6 +321,8 @@ dropwhile(Pred, State = #state{backing_queue       = BQ,
 	{Next, drop(Len, false, State #state { backing_queue_state = BQS1 })}.
 
 
+%% 通过消息message_properties的特性字段去执行Pred函数，如果条件满足，将消息执行Fun函数，然后将结果放入到Acc列表中
+%% 直到找到一个不满足的消息，则停止操作(该操作主要是将过期的消息删除掉)
 fetchwhile(Pred, Fun, Acc, State = #state{backing_queue       = BQ,
 										  backing_queue_state = BQS }) ->
 	Len  = BQ:len(BQS),
@@ -293,10 +330,12 @@ fetchwhile(Pred, Fun, Acc, State = #state{backing_queue       = BQ,
 	{Next, Acc1, drop(Len, true, State #state { backing_queue_state = BQS1 })}.
 
 
+%% 得到backing_queue中已经得到confirm的消息列表
 drain_confirmed(State = #state { backing_queue       = BQ,
 								 backing_queue_state = BQS,
 								 seen_status         = SS,
 								 confirmed           = Confirmed }) ->
+	%% 先主镜像队列进行drain_confirmed操作得到已经得到confirm的消息列表
 	{MsgIds, BQS1} = BQ:drain_confirmed(BQS),
 	{MsgIds1, SS1} =
 		lists:foldl(
@@ -324,112 +363,141 @@ drain_confirmed(State = #state { backing_queue       = BQ,
 										  confirmed           = [] }}.
 
 
+%% 主镜像队列从队列中取出头部的一个消息
 fetch(AckRequired, State = #state { backing_queue       = BQ,
 									backing_queue_state = BQS }) ->
+	%% 主镜像队列backing_queue先做读取操作
 	{Result, BQS1} = BQ:fetch(AckRequired, BQS),
+	%% 更新backing_queue的状态
 	State1 = State #state { backing_queue_state = BQS1 },
 	{Result, case Result of
 				 empty                          -> State1;
+				 %% 向镜像队列循环队列中广播丢弃队列中的第一个元素
 				 {_MsgId, _IsDelivered, AckTag} -> drop_one(AckTag, State1)
 			 end}.
 
 
+%% 主镜像队列丢弃队列的头部元素
 drop(AckRequired, State = #state { backing_queue       = BQ,
 								   backing_queue_state = BQS }) ->
+	%% 主镜像队列backing_queue先做操作
 	{Result, BQS1} = BQ:drop(AckRequired, BQS),
+	%% 更新backing_queue的状态
 	State1 = State #state { backing_queue_state = BQS1 },
 	{Result, case Result of
 				 empty            -> State1;
+				 %% 向镜像队列循环队列中广播丢弃队列中的第一个元素
 				 {_MsgId, AckTag} -> drop_one(AckTag, State1)
 			 end}.
 
 
+%% 主镜像队列进行ack操作
 ack(AckTags, State = #state { gm                  = GM,
 							  backing_queue       = BQ,
 							  backing_queue_state = BQS }) ->
+	%% 主镜像队列backing_queue先做操作
 	{MsgIds, BQS1} = BQ:ack(AckTags, BQS),
 	case MsgIds of
 		[] -> ok;
+		%% 向镜像队列循环队列进行广播
 		_  -> ok = gm:broadcast(GM, {ack, MsgIds})
 	end,
 	{MsgIds, State #state { backing_queue_state = BQS1 }}.
 
 
+%% 主镜像队列将AckTags消息重新放入到队列中
 requeue(AckTags, State = #state { gm                  = GM,
 								  backing_queue       = BQ,
 								  backing_queue_state = BQS }) ->
+	%% 主镜像队列backing_queue先做操作
 	{MsgIds, BQS1} = BQ:requeue(AckTags, BQS),
+	%% 向镜像队列循环队列进行广播
 	ok = gm:broadcast(GM, {requeue, MsgIds}),
 	{MsgIds, State #state { backing_queue_state = BQS1 }}.
 
 
+%% 主镜像队列对等待ack的每个消息进行MsgFun函数操作(不必广播给循环镜像队列)
 ackfold(MsgFun, Acc, State = #state { backing_queue       = BQ,
 									  backing_queue_state = BQS }, AckTags) ->
 	{Acc1, BQS1} = BQ:ackfold(MsgFun, Acc, BQS, AckTags),
 	{Acc1, State #state { backing_queue_state =  BQS1 }}.
 
 
+%% 主镜像队列对消息队列中的所有消息执行Fun函数(不必广播给循环镜像队列)
 fold(Fun, Acc, State = #state { backing_queue = BQ,
 								backing_queue_state = BQS }) ->
 	{Result, BQS1} = BQ:fold(Fun, Acc, BQS),
 	{Result, State #state { backing_queue_state = BQS1 }}.
 
 
+%% 主镜像队列中获取队列长度(不必广播给循环镜像队列)
 len(#state { backing_queue = BQ, backing_queue_state = BQS }) ->
 	BQ:len(BQS).
 
 
+%% 主镜像队列判断队列是否为空(不包括等待ack的所有消息)(不必广播给循环镜像队列)
 is_empty(#state { backing_queue = BQ, backing_queue_state = BQS }) ->
 	BQ:is_empty(BQS).
 
 
+%% 得到队列中所有的消息长度(包括等待ack的所有消息)(不必广播给循环镜像队列)
 depth(#state { backing_queue = BQ, backing_queue_state = BQS }) ->
 	BQ:depth(BQS).
 
 
+%% rabbit_memory_monitor进程通知消息队列最新的内存持续时间
 set_ram_duration_target(Target, State = #state { backing_queue       = BQ,
 												 backing_queue_state = BQS }) ->
 	State #state { backing_queue_state =
 					   BQ:set_ram_duration_target(Target, BQS) }.
 
 
+%% 获得当前消息队列内存中消息速率中分母持续时间大小
 ram_duration(State = #state { backing_queue = BQ, backing_queue_state = BQS }) ->
 	{Result, BQS1} = BQ:ram_duration(BQS),
 	{Result, State #state { backing_queue_state = BQS1 }}.
 
 
+%% 判断是否需要进行同步confirm操作
 needs_timeout(#state { backing_queue = BQ, backing_queue_state = BQS }) ->
 	BQ:needs_timeout(BQS).
 
 
+%% confirm同步的操作
 timeout(State = #state { backing_queue = BQ, backing_queue_state = BQS }) ->
 	State #state { backing_queue_state = BQ:timeout(BQS) }.
 
 
+%% 刷新日志文件，将日志文件中的操作项存入对应的操作项的磁盘文件(队列进程从休眠状态接收到一个消息后，则会调用该接口进行一次日志文件的刷新)
 handle_pre_hibernate(State = #state { backing_queue       = BQ,
 									  backing_queue_state = BQS }) ->
 	State #state { backing_queue_state = BQ:handle_pre_hibernate(BQS) }.
 
 
+%% 睡眠接口，RabbitMQ系统中使用的内存过多，此操作是将内存中的队列数据写入到磁盘中
 resume(State = #state { backing_queue       = BQ,
 						backing_queue_state = BQS }) ->
 	State #state { backing_queue_state = BQ:resume(BQS) }.
 
 
+%% 获取消息队列中消息进入和出队列的速率大小
 msg_rates(#state { backing_queue = BQ, backing_queue_state = BQS }) ->
 	BQ:msg_rates(BQS).
 
 
+%% 主镜像队列中获取队列信息的接口
 info(backing_queue_status,
 	 State = #state { backing_queue = BQ, backing_queue_state = BQS }) ->
 	BQ:info(backing_queue_status, BQS) ++
 		[ {mirror_seen,    dict:size(State #state.seen_status)},
 		  {mirror_senders, sets:size(State #state.known_senders)} ];
 
+%% 主镜像队列中获取队列Item关键key对应的信息接口
 info(Item, #state { backing_queue = BQ, backing_queue_state = BQS }) ->
 	BQ:info(Item, BQS).
 
 
+%% backing_queue执行Fun函数的接口
 invoke(?MODULE, Fun, State) ->
 	Fun(?MODULE, State);
 
@@ -438,6 +506,7 @@ invoke(Mod, Fun, State = #state { backing_queue       = BQ,
 	State #state { backing_queue_state = BQ:invoke(Mod, Fun, BQS) }.
 
 
+%% 主镜像队列判断消息是否重复
 is_duplicate(Message = #basic_message { id = MsgId },
 			 State = #state { seen_status         = SS,
 							  backing_queue       = BQ,
@@ -486,10 +555,13 @@ is_duplicate(Message = #basic_message { id = MsgId },
 %% ---------------------------------------------------------------------------
 %% Other exported functions
 %% ---------------------------------------------------------------------------
-
+%% 副镜像队列成为主镜像队列后用来组装主镜像队列的状态数据结构
 promote_backing_queue_state(QName, CPid, BQ, BQS, GM, AckTags, Seen, KS) ->
+	%% 将等待ack的消息重新放入到消息队列中
 	{_MsgIds, BQS1} = BQ:requeue(AckTags, BQS),
+	%% 获得当前消息队列的实际长度
 	Len   = BQ:len(BQS1),
+	%% 获得将ack重新放入队列后的实际长度
 	Depth = BQ:depth(BQS1),
 	true = Len == Depth, %% ASSERTION: everything must have been requeued
 	ok = gm:broadcast(GM, {depth, Depth}),
@@ -503,19 +575,24 @@ promote_backing_queue_state(QName, CPid, BQ, BQS, GM, AckTags, Seen, KS) ->
 			 known_senders       = sets:from_list(KS) }.
 
 
+%% 向循环镜像队列发布rabbit_channel进程死亡的接口
 sender_death_fun() ->
 	Self = self(),
 	fun (DeadPid) ->
 			 rabbit_amqqueue:run_backing_queue(
 			   Self, ?MODULE,
 			   fun (?MODULE, State = #state { gm = GM, known_senders = KS }) ->
+						%% 广播DeadPid进程死亡的消息
 						ok = gm:broadcast(GM, {sender_death, DeadPid}),
+						%% 将死亡的rabbit_channel进程从known_senders字段中删除掉
 						KS1 = sets:del_element(DeadPid, KS),
+						%% 更新known_senders字段
 						State #state { known_senders = KS1 }
 			   end)
 	end.
 
 
+%% 让主镜像队列广播当前队列中所有消息包括等待ack的消息的总的数量
 depth_fun() ->
 	Self = self(),
 	fun () ->
@@ -532,7 +609,7 @@ depth_fun() ->
 %% ---------------------------------------------------------------------------
 %% Helpers
 %% ---------------------------------------------------------------------------
-
+%% 向镜像队列循环队列中广播丢弃队列中的第一个元素
 drop_one(AckTag, State = #state { gm                  = GM,
 								  backing_queue       = BQ,
 								  backing_queue_state = BQS }) ->
@@ -551,6 +628,7 @@ drop(PrevLen, AckRequired, State = #state { gm                  = GM,
 	end.
 
 
+%% 监视所有的发送者
 ensure_monitoring(ChPid, State = #state { coordinator = CPid,
 										  known_senders = KS }) ->
 	case sets:is_element(ChPid, KS) of

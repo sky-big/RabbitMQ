@@ -184,7 +184,7 @@ init_it2(Recover, From, State = #q{q                   = Q,
 					%% 向file_handle_cache进行注册
 					ok = file_handle_cache:register_callback(
 						   rabbit_amqqueue, set_maximum_since_use, [self()]),
-					%% 向rabbit_memory_monitor进程注册，用来统计内存使用情况
+					%% rabbit_memory_monitor进程通知消息队列最新的内存持续时间
 					ok = rabbit_memory_monitor:register(
 						   self(), {rabbit_amqqueue,
 									set_ram_duration_target, [self()]}),
@@ -257,6 +257,7 @@ recovery_barrier(BarrierPid) ->
 	end.
 
 
+%% 副镜像队列成为主镜像队列后会调用该接口进行backing_queue的状态的初始化
 init_with_backing_queue_state(Q = #amqqueue{exclusive_owner = Owner}, BQ, BQS,
 							  RateTRef, Deliveries, Senders, MTC) ->
 	case Owner of
@@ -265,6 +266,7 @@ init_with_backing_queue_state(Q = #amqqueue{exclusive_owner = Owner}, BQ, BQS,
 	end,
 	%% 初始化队列的基本信息
 	State = init_state(Q),
+	%% 初始化backing_queue模块名字和状态数据结构，速率定时器，rabbit_channel进程列表，以及消息confirm相关的数据结构
 	State1 = State#q{backing_queue       = BQ,
 					 backing_queue_state = BQS,
 					 rate_timer_ref      = RateTRef,
@@ -275,6 +277,7 @@ init_with_backing_queue_state(Q = #amqqueue{exclusive_owner = Owner}, BQ, BQS,
 	State3 = lists:foldl(fun (Delivery, StateN) ->
 								  deliver_or_enqueue(Delivery, true, StateN)
 						 end, State2, Deliveries),
+	%% 通知队列修饰模块当前主镜像队列已经启动
 	notify_decorators(startup, State3),
 	State3.
 
@@ -1520,7 +1523,7 @@ handle_call({requeue, AckTags, ChPid}, From, State) ->
 	%% 通知ok后，然后让队列进程backing_queue执行重新排序的操作
 	noreply(requeue(AckTags, ChPid, State));
 
-%% 高可用队列相关
+%% 处理同步镜像队列消息的消息(只有当前队列的backing_queue模块名字为rabbit_mirror_queue_master才会进行镜像队列的消息同步)
 handle_call(sync_mirrors, _From,
 			State = #q{backing_queue       = rabbit_mirror_queue_master,
 					   backing_queue_state = BQS}) ->
@@ -1543,7 +1546,7 @@ handle_call(sync_mirrors, _From,
 		{stop, Reason, BQS1} -> {stop, Reason, S(BQS1)}
 	end;
 
-%% 高可用队列相关
+%% 处理同步镜像队列消息的消息
 handle_call(sync_mirrors, _From, State) ->
 	reply({error, not_mirrored}, State);
 
@@ -1696,6 +1699,7 @@ handle_cast(notify_decorators, State) ->
 	notify_decorators(State),
 	noreply(State);
 
+%% 处理policy_changed消息，更新消息队列的最新信息，同时出发一次发布队列信息的事件
 handle_cast(policy_changed, State = #q{q = #amqqueue{name = Name}}) ->
 	%% We depend on the #q.q field being up to date at least WRT
 	%% policy (but not slave pids) in various places, so when it
@@ -1704,6 +1708,7 @@ handle_cast(policy_changed, State = #q{q = #amqqueue{name = Name}}) ->
 	%% This also has the side effect of waking us up so we emit a
 	%% stats event - so event consumers see the changed policy.
 	{ok, Q} = rabbit_amqqueue:lookup(Name),
+	%% 同时将消息队列的策略重新更新一次
 	noreply(process_args_policy(State#q{q = Q})).
 
 

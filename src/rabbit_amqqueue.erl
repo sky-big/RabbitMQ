@@ -286,6 +286,7 @@ declare(QueueName, Durable, AutoDelete, Args, Owner, Node) ->
 	ok = check_declare_arguments(QueueName, Args),
 	%% 对队列中的参数做初始化
 	Q = rabbit_queue_decorator:set(
+		  %% 从RabbitMQ系统中公用的策略中拿到当前声明的队列的策略
 		  rabbit_policy:set(#amqqueue{name               = QueueName,
 									  durable            = Durable,
 									  auto_delete        = AutoDelete,
@@ -989,28 +990,34 @@ node_permits_offline_promotion(Node) ->
 %% node-forgetting then we can.
 %%
 %% [2] This is simpler; as long as it's down that's OK
-
+%% 让消息队列的backing_queue执行Fun函数
 run_backing_queue(QPid, Mod, Fun) ->
 	gen_server2:cast(QPid, {run_backing_queue, Mod, Fun}).
 
 
+%% rabbit_memory_monitor进程通知消息队列最新的内存持续时间
 set_ram_duration_target(QPid, Duration) ->
 	gen_server2:cast(QPid, {set_ram_duration_target, Duration}).
 
 
+%% 将当前进程客户端中文件句柄打开时间超过Age的句柄软关闭
 set_maximum_since_use(QPid, Age) ->
 	gen_server2:cast(QPid, {set_maximum_since_use, Age}).
 
 
+%% 停止QPid这个镜像队列
 start_mirroring(QPid) -> ok = delegate:cast(QPid, start_mirroring).
 
 
+%% 开始QPid这个镜像队列
 stop_mirroring(QPid)  -> ok = delegate:cast(QPid, stop_mirroring).
 
 
+%% 队列QPid队列进行镜像队列的同步
 sync_mirrors(QPid)        -> delegate:call(QPid, sync_mirrors).
 
 
+%% 队列QPid队列取消镜像队列的同步
 cancel_sync_mirrors(QPid) -> delegate:call(QPid, cancel_sync_mirrors).
 
 
@@ -1021,7 +1028,7 @@ on_node_up(Node) ->
 					%% 拿到所有的队列信息
 					Qs = mnesia:match_object(rabbit_queue,
 											 #amqqueue{_ = '_'}, write),
-					%% 高可用队列相关的操作
+					%% 更新队列数据结构中的recoverable_slaves字段
 					[case lists:member(Node, RSs) of
 						 true  -> RSs1 = RSs -- [Node],
 								  store_queue(

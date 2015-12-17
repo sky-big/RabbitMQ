@@ -16,6 +16,8 @@
 
 -module(rabbit_mirror_queue_mode_nodes).
 
+%% 将队列在RabbitMQ集群中指定的节点上进行镜像，节点名称通过ha-params指定
+
 -include("rabbit.hrl").
 
 -behaviour(rabbit_mirror_queue_mode).
@@ -34,7 +36,9 @@ description() ->
 	[{description, <<"Mirror queue to specified nodes">>}].
 
 
+%% 获取队列的镜像队列所在的节点列表(rabbit_mirror_queue_mode_nodes类型表示在指定的节点列表中启动队列的镜像队列)
 suggested_queue_nodes(Nodes0, MNode, _SNodes, SSNodes, Poss) ->
+	%% 将传入的节点列表格式化
 	Nodes1 = [list_to_atom(binary_to_list(Node)) || Node <- Nodes0],
 	%% If the current master is not in the nodes specified, then what we want
 	%% to do depends on whether there are any synchronised slaves. If there
@@ -45,7 +49,9 @@ suggested_queue_nodes(Nodes0, MNode, _SNodes, SSNodes, Poss) ->
 				[] -> lists:usort([MNode | Nodes1]);
 				_  -> Nodes1
 			end,
+	%% 得到需要启动的节点，但是该节点没有在运行中的节点列表
 	Unavailable = Nodes -- Poss,
+	%% 获得需要启动镜像队列且该节点正在运行中
 	Available = Nodes -- Unavailable,
 	case Available of
 		[] -> %% We have never heard of anything? Not much we can do but
@@ -56,6 +62,7 @@ suggested_queue_nodes(Nodes0, MNode, _SNodes, SSNodes, Poss) ->
 				  false -> %% Make sure the new master is synced! In order to
 					  %% get here SSNodes must not be empty.
 					  [NewMNode | _] = SSNodes,
+					  %% 获取新的主镜像节点和要启动的副镜像节点列表
 					  {NewMNode, Available -- [NewMNode]}
 			  end
 	end.

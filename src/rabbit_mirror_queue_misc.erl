@@ -69,8 +69,8 @@
 -endif.
 
 %%----------------------------------------------------------------------------
-
 %% Returns {ok, NewMPid, DeadPids, ExtraNodes}
+%% 返回新的主镜像队列进程，死亡的镜像队列进程列表，需要新增加镜像队列的节点列表
 remove_from_queue(QueueName, Self, DeadGMPids) ->
 	rabbit_misc:execute_mnesia_transaction(
 	  fun () ->
@@ -81,19 +81,25 @@ remove_from_queue(QueueName, Self, DeadGMPids) ->
 				   [Q = #amqqueue { pid        = QPid,
 									slave_pids = SPids,
 									gm_pids    = GMPids }] ->
+					   %% 获得死亡的GM列表和存活的GM列表
 					   {DeadGM, AliveGM} = lists:partition(
 											 fun ({GM, _}) ->
 													  lists:member(GM, DeadGMPids)
 											 end, GMPids),
+					   %% 获得死亡的实际进程的Pid列表
 					   DeadPids  = [Pid || {_GM, Pid} <- DeadGM],
+					   %% 获得存活的实际进程的Pid列表
 					   AlivePids = [Pid || {_GM, Pid} <- AliveGM],
+					   %% 获得slave_pids字段中存活的队列进程Pid列表
 					   Alive     = [Pid || Pid <- [QPid | SPids],
 										   lists:member(Pid, AlivePids)],
+					   %% 从存活的镜像队列提取出第一个镜像队列进程Pid，它是最老的镜像队列，它将作为新的主镜像队列进程
 					   {QPid1, SPids1} = promote_slave(Alive),
 					   Extra =
 						   case {{QPid, SPids}, {QPid1, SPids1}} of
 							   {Same, Same} ->
 								   [];
+							   %% 此处的情况是主镜像队列没有变化，或者调用此接口的副镜像队列成为新的主镜像队列
 							   _ when QPid =:= QPid1 orelse QPid1 =:= Self ->
 								   %% Either master hasn't changed, so
 								   %% we're ok to update mnesia; or we have
@@ -101,19 +107,25 @@ remove_from_queue(QueueName, Self, DeadGMPids) ->
 								   Q1 = Q#amqqueue{pid        = QPid1,
 												   slave_pids = SPids1,
 												   gm_pids    = AliveGM},
+								   %% 存储更新队列的副镜像队列信息
 								   store_updated_slaves(Q1),
 								   %% If we add and remove nodes at the
 								   %% same time we might tell the old
 								   %% master we need to sync and then
 								   %% shut it down. So let's check if
 								   %% the new master needs to sync.
+								   %% 根据队列的策略如果启动的副镜像队列需要自动同步，则进行同步操作
 								   maybe_auto_sync(Q1),
+								   %% 根据当前集群节点和副镜像队列进程所在的节点得到新增加的节点列表
 								   slaves_to_start_on_failure(Q1, DeadGMPids);
+							   %% 此处的情况是主镜像队列已经发生变化，且调用此接口的副镜像队列没有成为新的主镜像队列
 							   _ ->
 								   %% Master has changed, and we're not it.
 								   %% [1].
+								   %% 更新最新的存活的副镜像队列进程Pid列表和存活的GM进程列表
 								   Q1 = Q#amqqueue{slave_pids = Alive,
 												   gm_pids    = AliveGM},
+								   %% 存储更新队列的副镜像队列信息
 								   store_updated_slaves(Q1),
 								   []
 						   end,
@@ -145,13 +157,17 @@ remove_from_queue(QueueName, Self, DeadGMPids) ->
 
 %% Sometimes a slave dying means we need to start more on other
 %% nodes - "exactly" mode can cause this to happen.
+%% 根据当前集群节点和副镜像队列进程所在的节点得到新增加的节点列表
 slaves_to_start_on_failure(Q, DeadGMPids) ->
 	%% In case Mnesia has not caught up yet, filter out nodes we know
 	%% to be dead..
 	ClusterNodes = rabbit_mnesia:cluster_nodes(running) --
 					   [node(P) || P <- DeadGMPids],
+	%% 拿到同步副镜像队列进程所在的节点和异步副镜像队列进程所在的节点
 	{_, OldNodes, _} = actual_queue_nodes(Q),
+	%% 获取队列Q需要做镜像的节点列表
 	{_, NewNodes} = suggested_queue_nodes(Q, ClusterNodes),
+	%% 相减后获得增加的节点列表
 	NewNodes -- OldNodes.
 
 
@@ -209,19 +225,23 @@ drop_mirror(QName, MirrorNode) ->
 	end.
 
 
+%% 在Nodes的所有节点上增加QName队列的副镜像队列
 add_mirrors(QName, Nodes, SyncMode) ->
 	[add_mirror(QName, Node, SyncMode)  || Node <- Nodes],
 	ok.
 
 
+%% 在MirrorNode节点上增加QName队列的镜像
 add_mirror(QName, MirrorNode, SyncMode) ->
 	case rabbit_amqqueue:lookup(QName) of
 		{ok, Q} ->
 			rabbit_misc:with_exit_handler(
 			  rabbit_misc:const(ok),
 			  fun () ->
+					   %% 实际的在MirrorNode节点上启动Q队列的镜像队列
 					   SPid = rabbit_amqqueue_sup_sup:start_queue_process(
 								MirrorNode, Q, slave),
+					   %% 打印启动镜像队列的日志
 					   log_info(QName, "Adding mirror on node ~p: ~p~n",
 								[MirrorNode, SPid]),
 					   rabbit_mirror_queue_slave:go(SPid, SyncMode)
@@ -231,6 +251,7 @@ add_mirror(QName, MirrorNode, SyncMode) ->
 	end.
 
 
+%% 打印镜像队列死亡的日志
 report_deaths(_MirrorPid, _IsMaster, _QueueName, []) ->
 	ok;
 report_deaths(MirrorPid, IsMaster, QueueName, DeadPids) ->
@@ -243,15 +264,19 @@ report_deaths(MirrorPid, IsMaster, QueueName, DeadPids) ->
 			  [[$ , rabbit_misc:pid_to_string(P)] || P <- DeadPids]]).
 
 
+%% 打印info日志的接口
 log_info   (QName, Fmt, Args) -> log(info,    QName, Fmt, Args).
+%% 打印warning日志的接口
 log_warning(QName, Fmt, Args) -> log(warning, QName, Fmt, Args).
 
 
+%% 统一打印日志的接口
 log(Level, QName, Fmt, Args) ->
 	rabbit_log:log(mirroring, Level, "Mirrored ~s: " ++ Fmt,
 				   [rabbit_misc:rs(QName) | Args]).
 
 
+%% 存储更新队列的副镜像队列信息
 store_updated_slaves(Q = #amqqueue{slave_pids         = SPids,
 								   sync_slave_pids    = SSPids,
 								   recoverable_slaves = RS}) ->
@@ -261,13 +286,14 @@ store_updated_slaves(Q = #amqqueue{slave_pids         = SPids,
 	Q1 = Q#amqqueue{sync_slave_pids    = SSPids1,
 					recoverable_slaves = update_recoverable(SPids, RS),
 					state              = live},
+	%% 将队列的最新数据存入Mnesia数据库
 	ok = rabbit_amqqueue:store_queue(Q1),
 	%% Wake it up so that we emit a stats event
 	rabbit_amqqueue:notify_policy_changed(Q1),
 	Q1.
 
-%% Recoverable nodes are those which we could promote if the whole
-%% cluster were to suddenly stop and we then lose the master; i.e. all
+%% Recoverable(可重获的) nodes are those which we could promote if the whole
+%% cluster were to suddenly(突然) stop and we then lose the master; i.e. all
 %% nodes with running slaves, and all stopped nodes which had running
 %% slaves when they were up.
 %%
@@ -286,7 +312,7 @@ update_recoverable(SPids, RS) ->
 	(RS -- DelNodes) ++ AddNodes.
 
 %%----------------------------------------------------------------------------
-
+%% 将当前存活的镜像队列进程最老的进程提取出来返回
 promote_slave([SPid | SPids]) ->
 	%% The slave pids are maintained in descending order of age, so
 	%% the one to promote is the oldest.
@@ -298,6 +324,7 @@ initial_queue_node(Q, DefNode) ->
 	MNode.
 
 
+%% 获取队列Q需要做镜像的节点列表
 suggested_queue_nodes(Q)      -> suggested_queue_nodes(Q, all_nodes()).
 suggested_queue_nodes(Q, All) -> suggested_queue_nodes(Q, node(), All).
 
@@ -305,13 +332,16 @@ suggested_queue_nodes(Q, All) -> suggested_queue_nodes(Q, node(), All).
 %% rabbit_mnesia:cluster_nodes(running) out of a loop or transaction
 %% or both.
 suggested_queue_nodes(Q = #amqqueue{exclusive_owner = Owner}, DefNode, All) ->
+	%% 拿到同步副镜像队列进程所在的节点和异步副镜像队列进程所在的节点
 	{MNode0, SNodes, SSNodes} = actual_queue_nodes(Q),
 	MNode = case MNode0 of
 				none -> DefNode;
 				_    -> MNode0
 			end,
 	case Owner of
-		none -> Params = policy(<<"ha-params">>, Q),
+		none -> %% 获得队列Q在rabbit_policy模块中ha-params参数对应的值(该参数是用来表示队列的镜像队列存在于哪些节点)
+				Params = policy(<<"ha-params">>, Q),
+				%% 根据镜像队列类型从rabbit_policy模块中拿到镜像队列的backing_queue处理模块名字
 				case module(Q) of
 					{ok, M} -> M:suggested_queue_nodes(
 								 Params, MNode, SNodes, SSNodes, All);
@@ -321,7 +351,7 @@ suggested_queue_nodes(Q = #amqqueue{exclusive_owner = Owner}, DefNode, All) ->
 	end.
 
 
-%% 得到所有的节点
+%% 得到当前RabbitMQ集群中正在运行中的所有节点
 all_nodes() -> rabbit_mnesia:cluster_nodes(running).
 
 
@@ -332,7 +362,7 @@ policy(Policy, Q) ->
 	end.
 
 
-%% 拿到镜像队列的backing_queue处理模块名字
+%% 根据镜像队列类型从rabbit_policy模块中拿到镜像队列的backing_queue处理模块名字
 module(#amqqueue{} = Q) ->
 	case rabbit_policy:get(<<"ha-mode">>, Q) of
 		undefined -> not_mirrored;
@@ -357,6 +387,7 @@ is_mirrored(Q) ->
 	end.
 
 
+%% 拿到同步副镜像队列进程所在的节点和异步副镜像队列进程所在的节点
 actual_queue_nodes(#amqqueue{pid             = MPid,
 							 slave_pids      = SPids,
 							 sync_slave_pids = SSPids}) ->
@@ -367,6 +398,7 @@ actual_queue_nodes(#amqqueue{pid             = MPid,
 	 end, Nodes(SPids), Nodes(SSPids)}.
 
 
+%% 根据队列的策略如果启动的副镜像队列需要自动同步，则进行同步操作
 maybe_auto_sync(Q = #amqqueue{pid = QPid}) ->
 	case policy(<<"ha-sync-mode">>, Q) of
 		<<"automatic">> ->
@@ -376,6 +408,7 @@ maybe_auto_sync(Q = #amqqueue{pid = QPid}) ->
 	end.
 
 
+%% 队列的策略变化后回调更新消息队列的镜像队列
 update_mirrors(OldQ = #amqqueue{pid = QPid},
 			   NewQ = #amqqueue{pid = QPid}) ->
 	case {is_mirrored(OldQ), is_mirrored(NewQ)} of

@@ -152,8 +152,9 @@ invalid_file() ->
 	filename:join(rabbit_mnesia:dir(), "policies_are_invalid").
 
 %%----------------------------------------------------------------------------
-%% 设置RabbitMQ资源策略
+%% 设置RabbitMQ资源策略(使用的资源类型是队列和exchange交换机)
 parse_set(VHost, Name, Pattern, Definition, Priority, ApplyTo) ->
+	%% 优先级必须为空
 	try list_to_integer(Priority) of
 		Num -> parse_set0(VHost, Name, Pattern, Definition, Num, ApplyTo)
 	catch
@@ -163,6 +164,7 @@ parse_set(VHost, Name, Pattern, Definition, Priority, ApplyTo) ->
 
 %% 实际将策略数据写入mnesia数据库的操作接口
 parse_set0(VHost, Name, Pattern, Defn, Priority, ApplyTo) ->
+	%% 解析传入的JSON参数信息
 	case rabbit_misc:json_decode(Defn) of
 		{ok, JSON} ->
 			set0(VHost, Name,
@@ -352,6 +354,7 @@ notify({Q1 = #amqqueue{}, Q2 = #amqqueue{}}) ->
 
 %% 根据Name得到匹配的Policy
 match(Name, Policies) ->
+	%% 同时拿到优先级最高的策略
 	case lists:sort(fun sort_pred/2, [P || P <- Policies, matches(Name, P)]) of
 		[]               -> undefined;
 		[Policy | _Rest] -> Policy

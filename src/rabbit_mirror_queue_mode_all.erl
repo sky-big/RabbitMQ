@@ -16,6 +16,8 @@
 
 -module(rabbit_mirror_queue_mode_all).
 
+%% 将队列在RabbitMQ集群中的所有节点上做镜像队列
+
 -include("rabbit.hrl").
 
 -behaviour(rabbit_mirror_queue_mode).
@@ -34,7 +36,9 @@ description() ->
 	[{description, <<"Mirror queue to all nodes">>}].
 
 
+%% 获取队列的镜像队列所在的节点列表(rabbit_mirror_queue_mode_all模式表示队列的镜像队列存在于RabbitMQ集群中的每一个节点)
 suggested_queue_nodes(_Params, MNode, _SNodes, _SSNodes, Poss) ->
+	%% 将主队列的节点排除
 	{MNode, Poss -- [MNode]}.
 
 
