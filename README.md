@@ -20,7 +20,7 @@ RabbitMQ系统3.5.3版本中文完全注释，主要是进行RabbitMQ源代码�
     5.Run_Clients.bat脚本是根据option目录下的run.options文件中的配置启动客户端节点，用来测试连接RabbitMQ集群中的节点，
       这些客户端测试节点会定时5秒向客户端发送消息，然后会启动消费者不断的在对应的队列消费消息。
 
-四.src目录下的代码除去高可用队列以为其他的所有代码都已经使用中文进行过详细的中文注释
+四.src目录下的RabbitMQ消息队列代码都已经使用中文进行过详细的中文注释
 
     1.rabbit_alarm启动步骤(先执行rabbit_alarm:start()函数)
          (1).启动一个rabbit_alarm_sup的supervisor2监督进程同时在该监督进程下启动一个rabbit_alarm的gen_event进程
