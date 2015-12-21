@@ -64,8 +64,16 @@ init([]) ->
 			end,
 			%% 启动RabbitMQ系统相关应用
 			rabbit:boot(),
-			%% 加入集群的动作
-			join_cluster(Options)
+			OtherClusterNodes = rabbit_mnesia:cluster_nodes(all) -- [node()],
+			case OtherClusterNodes of
+				[] ->
+					%% 加入集群的动作
+					join_cluster(Options);
+				_ ->
+					nothing
+			end,
+			%% 设置队列的镜像队列
+			set_mirror_queue()
 	end,
 	{ok, #state{}}.
 
@@ -147,3 +155,8 @@ join_cluster(Options) ->
 					rabbit:start()
 			end
 	end.
+
+
+%% 设置队列的镜像队列
+set_mirror_queue() ->
+	rabbit_policy:parse_set(<<"/">>, "queue_mirror", ".*", "{\"ha-mode\":\"all\"}", "0", <<"queues">>).

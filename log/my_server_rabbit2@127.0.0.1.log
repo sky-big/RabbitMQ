@@ -1,10 +1,10 @@
 
-=INFO REPORT==== 2-Dec-2015::11:41:59 ===
+=INFO REPORT==== 21-Dec-2015::16:36:42 ===
 Starting RabbitMQ 3.5.3 on Erlang R15B
 Copyright (C) 2007-2014 GoPivotal, Inc.
 Licensed under the MPL.  See http://www.rabbitmq.com/
 
-=INFO REPORT==== 2-Dec-2015::11:41:59 ===
+=INFO REPORT==== 21-Dec-2015::16:36:42 ===
 node           : my_server_rabbit2@127.0.0.1
 home dir       : C:\Users\xxw
 config file(s) : (none)
@@ -13,90 +13,71 @@ log            : ../log/my_server_rabbit2@127.0.0.1.log
 sasl log       : ../log/my_server_rabbit2@127.0.0.1_sasl.log
 database dir   : c:/github/RabbitMQ/ebin/../db/my_server_rabbit2@127.0.0.1-mnesia
 
-=WARNING REPORT==== 2-Dec-2015::11:41:59 ===
+=WARNING REPORT==== 21-Dec-2015::16:36:42 ===
 Kernel poll (epoll, kqueue, etc) is disabled. Throughput and CPU utilization may worsen.
 
-=WARNING REPORT==== 2-Dec-2015::11:42:00 ===
+=WARNING REPORT==== 21-Dec-2015::16:36:43 ===
 Only 2048MB of 8068MB memory usable due to limited address space.
 Crashes due to memory exhaustion are possible - see
 http://www.rabbitmq.com/memory.html#address-space
 
-=INFO REPORT==== 2-Dec-2015::11:42:00 ===
+=INFO REPORT==== 21-Dec-2015::16:36:43 ===
 Memory limit set to 819MB of 8068MB total.
 
-=INFO REPORT==== 2-Dec-2015::11:42:00 ===
+=INFO REPORT==== 21-Dec-2015::16:36:43 ===
 Disk free limit set to 50MB
 
-=INFO REPORT==== 2-Dec-2015::11:42:00 ===
+=INFO REPORT==== 21-Dec-2015::16:36:43 ===
 Limiting to approx 924 file handles (829 sockets)
 
-=INFO REPORT==== 2-Dec-2015::11:42:09 ===
+=INFO REPORT==== 21-Dec-2015::16:36:47 ===
 Priority queues enabled, real BQ is rabbit_variable_queue
 
-=INFO REPORT==== 2-Dec-2015::11:42:09 ===
-Management plugin: using rates mode 'basic'
-
-=INFO REPORT==== 2-Dec-2015::11:42:10 ===
-msg_store_transient: using rabbit_msg_store_ets_index to provide index
-
-=INFO REPORT==== 2-Dec-2015::11:42:10 ===
-msg_store_persistent: using rabbit_msg_store_ets_index to provide index
-
-=WARNING REPORT==== 2-Dec-2015::11:42:10 ===
-msg_store_persistent: rebuilding indices from scratch
-
-=INFO REPORT==== 2-Dec-2015::11:42:10 ===
+=INFO REPORT==== 21-Dec-2015::16:36:47 ===
 Adding vhost '/'
 
-=INFO REPORT==== 2-Dec-2015::11:42:11 ===
+=INFO REPORT==== 21-Dec-2015::16:36:48 ===
 Creating user 'guest'
 
-=INFO REPORT==== 2-Dec-2015::11:42:11 ===
+=INFO REPORT==== 21-Dec-2015::16:36:48 ===
 Setting user tags for user 'guest' to [administrator]
 
-=INFO REPORT==== 2-Dec-2015::11:42:11 ===
+=INFO REPORT==== 21-Dec-2015::16:36:48 ===
 Setting permissions for 'guest' in '/' to '.*', '.*', '.*'
 
-=INFO REPORT==== 2-Dec-2015::11:42:12 ===
+=INFO REPORT==== 21-Dec-2015::16:36:49 ===
+msg_store_transient: using rabbit_msg_store_ets_index to provide index
+
+=INFO REPORT==== 21-Dec-2015::16:36:49 ===
+msg_store_persistent: using rabbit_msg_store_ets_index to provide index
+
+=WARNING REPORT==== 21-Dec-2015::16:36:49 ===
+msg_store_persistent: rebuilding indices from scratch
+
+=INFO REPORT==== 21-Dec-2015::16:36:49 ===
 started TCP Listener on 127.0.0.1:5674
 
-=INFO REPORT==== 2-Dec-2015::11:42:12 ===
-Management plugin started. Port: 15674
+=INFO REPORT==== 21-Dec-2015::16:36:49 ===
+Server startup complete; 0 plugins started.
 
-=INFO REPORT==== 2-Dec-2015::11:42:12 ===
-Statistics database started.
-
-=INFO REPORT==== 2-Dec-2015::11:42:12 ===
-Server startup complete; 10 plugins started.
- * rabbitmq_management
- * rabbitmq_federation
- * rabbitmq_shovel
- * rabbitmq_management_agent
- * rabbitmq_amqp1_0
- * rabbitmq_web_dispatch
- * webmachine
- * mochiweb
- * amqp_client
- * sockjs
-
-=INFO REPORT==== 2-Dec-2015::11:42:12 ===
+=INFO REPORT==== 21-Dec-2015::16:36:49 ===
 Stopping RabbitMQ
 
-=INFO REPORT==== 2-Dec-2015::11:42:12 ===
+=INFO REPORT==== 21-Dec-2015::16:36:49 ===
 stopped TCP Listener on 127.0.0.1:5674
 
-=INFO REPORT==== 2-Dec-2015::11:42:13 ===
+=INFO REPORT==== 21-Dec-2015::16:36:49 ===
 Stopped RabbitMQ application
 
-=INFO REPORT==== 2-Dec-2015::11:42:15 ===
+=INFO REPORT==== 21-Dec-2015::16:36:51 ===
 Clustering with ['my_server_rabbit1@127.0.0.1'] as ram node
 
-=INFO REPORT==== 2-Dec-2015::11:42:26 ===
+=INFO REPORT==== 21-Dec-2015::16:36:58 ===
 Starting RabbitMQ 3.5.3 on Erlang R15B
 Copyright (C) 2007-2014 GoPivotal, Inc.
 Licensed under the MPL.  See http://www.rabbitmq.com/
 
-=INFO REPORT==== 2-Dec-2015::11:42:26 ===
+=INFO REPORT==== 21-Dec-2015::16:36:58 ===
 node           : my_server_rabbit2@127.0.0.1
 home dir       : C:\Users\xxw
 config file(s) : (none)
@@ -105,285 +86,49 @@ log            : ../log/my_server_rabbit2@127.0.0.1.log
 sasl log       : ../log/my_server_rabbit2@127.0.0.1_sasl.log
 database dir   : c:/github/RabbitMQ/ebin/../db/my_server_rabbit2@127.0.0.1-mnesia
 
-=WARNING REPORT==== 2-Dec-2015::11:42:26 ===
+=WARNING REPORT==== 21-Dec-2015::16:36:58 ===
 Kernel poll (epoll, kqueue, etc) is disabled. Throughput and CPU utilization may worsen.
 
-=WARNING REPORT==== 2-Dec-2015::11:42:26 ===
+=WARNING REPORT==== 21-Dec-2015::16:36:58 ===
 Only 2048MB of 8068MB memory usable due to limited address space.
 Crashes due to memory exhaustion are possible - see
 http://www.rabbitmq.com/memory.html#address-space
 
-=INFO REPORT==== 2-Dec-2015::11:42:26 ===
+=INFO REPORT==== 21-Dec-2015::16:36:58 ===
 Memory limit set to 819MB of 8068MB total.
 
-=INFO REPORT==== 2-Dec-2015::11:42:26 ===
+=INFO REPORT==== 21-Dec-2015::16:36:58 ===
 Disk free limit set to 50MB
 
-=INFO REPORT==== 2-Dec-2015::11:42:26 ===
+=INFO REPORT==== 21-Dec-2015::16:36:58 ===
 Limiting to approx 924 file handles (829 sockets)
 
-=INFO REPORT==== 2-Dec-2015::11:42:28 ===
-Management plugin: using rates mode 'basic'
-
-=INFO REPORT==== 2-Dec-2015::11:42:28 ===
+=INFO REPORT==== 21-Dec-2015::16:37:00 ===
 msg_store_transient: using rabbit_msg_store_ets_index to provide index
 
-=INFO REPORT==== 2-Dec-2015::11:42:28 ===
+=INFO REPORT==== 21-Dec-2015::16:37:00 ===
 msg_store_persistent: using rabbit_msg_store_ets_index to provide index
 
-=WARNING REPORT==== 2-Dec-2015::11:42:28 ===
+=WARNING REPORT==== 21-Dec-2015::16:37:00 ===
 msg_store_persistent: rebuilding indices from scratch
 
-=INFO REPORT==== 2-Dec-2015::11:42:28 ===
+=INFO REPORT==== 21-Dec-2015::16:37:00 ===
 started TCP Listener on 127.0.0.1:5674
 
-=INFO REPORT==== 2-Dec-2015::11:42:28 ===
-rabbit on node 'my_server_rabbit1@127.0.0.1' up
-
-=INFO REPORT==== 2-Dec-2015::11:42:28 ===
-Management plugin started. Port: 15674
-
-=INFO REPORT==== 2-Dec-2015::11:42:29 ===
-Server startup complete; 10 plugins started.
- * rabbitmq_management
- * rabbitmq_federation
- * rabbitmq_shovel
- * rabbitmq_management_agent
- * rabbitmq_amqp1_0
- * rabbitmq_web_dispatch
- * webmachine
- * mochiweb
- * amqp_client
- * sockjs
-
-=INFO REPORT==== 2-Dec-2015::11:42:29 ===
+=INFO REPORT==== 21-Dec-2015::16:37:00 ===
 rabbit on node 'my_server_rabbit3@127.0.0.1' up
 
-=INFO REPORT==== 2-Dec-2015::11:42:34 ===
-accepting AMQP connection <0.880.0> (127.0.0.1:62552 -> 127.0.0.1:5674)
+=INFO REPORT==== 21-Dec-2015::16:37:00 ===
+Server startup complete; 0 plugins started.
 
-=WARNING REPORT==== 2-Dec-2015::15:38:05 ===
-closing AMQP connection <0.880.0> (127.0.0.1:62552 -> 127.0.0.1:5674):
-connection_closed_abruptly
-
-=INFO REPORT==== 2-Dec-2015::15:38:11 ===
-accepting AMQP connection <0.6824.0> (127.0.0.1:53069 -> 127.0.0.1:5674)
-
-=WARNING REPORT==== 2-Dec-2015::15:38:36 ===
-closing AMQP connection <0.6824.0> (127.0.0.1:53069 -> 127.0.0.1:5674):
-connection_closed_abruptly
-
-=INFO REPORT==== 2-Dec-2015::15:40:20 ===
-accepting AMQP connection <0.6889.0> (127.0.0.1:53302 -> 127.0.0.1:5674)
-
-=WARNING REPORT==== 2-Dec-2015::15:40:35 ===
-closing AMQP connection <0.6889.0> (127.0.0.1:53302 -> 127.0.0.1:5674):
-connection_closed_abruptly
-
-=INFO REPORT==== 2-Dec-2015::15:44:35 ===
-accepting AMQP connection <0.7004.0> (127.0.0.1:54046 -> 127.0.0.1:5674)
-
-=WARNING REPORT==== 2-Dec-2015::15:44:51 ===
-closing AMQP connection <0.7004.0> (127.0.0.1:54046 -> 127.0.0.1:5674):
-connection_closed_abruptly
-
-=INFO REPORT==== 2-Dec-2015::15:45:50 ===
-accepting AMQP connection <0.7047.0> (127.0.0.1:54126 -> 127.0.0.1:5674)
-
-=WARNING REPORT==== 2-Dec-2015::15:45:56 ===
-closing AMQP connection <0.7047.0> (127.0.0.1:54126 -> 127.0.0.1:5674):
-connection_closed_abruptly
-
-=INFO REPORT==== 2-Dec-2015::15:46:20 ===
-accepting AMQP connection <0.7071.0> (127.0.0.1:54163 -> 127.0.0.1:5674)
-
-=WARNING REPORT==== 2-Dec-2015::15:46:22 ===
-closing AMQP connection <0.7071.0> (127.0.0.1:54163 -> 127.0.0.1:5674):
-connection_closed_abruptly
-
-=INFO REPORT==== 2-Dec-2015::15:46:37 ===
-accepting AMQP connection <0.7089.0> (127.0.0.1:54190 -> 127.0.0.1:5674)
-
-=WARNING REPORT==== 2-Dec-2015::15:46:40 ===
-closing AMQP connection <0.7089.0> (127.0.0.1:54190 -> 127.0.0.1:5674):
-connection_closed_abruptly
-
-=INFO REPORT==== 2-Dec-2015::15:46:53 ===
-accepting AMQP connection <0.7107.0> (127.0.0.1:54213 -> 127.0.0.1:5674)
-
-=WARNING REPORT==== 2-Dec-2015::15:46:55 ===
-closing AMQP connection <0.7107.0> (127.0.0.1:54213 -> 127.0.0.1:5674):
-connection_closed_abruptly
-
-=INFO REPORT==== 2-Dec-2015::15:53:16 ===
-accepting AMQP connection <0.7275.0> (127.0.0.1:54744 -> 127.0.0.1:5674)
-
-=WARNING REPORT==== 2-Dec-2015::15:53:32 ===
-closing AMQP connection <0.7275.0> (127.0.0.1:54744 -> 127.0.0.1:5674):
-connection_closed_abruptly
-
-=INFO REPORT==== 2-Dec-2015::16:09:10 ===
-accepting AMQP connection <0.7684.0> (127.0.0.1:55771 -> 127.0.0.1:5674)
-
-=WARNING REPORT==== 2-Dec-2015::16:09:31 ===
-closing AMQP connection <0.7684.0> (127.0.0.1:55771 -> 127.0.0.1:5674):
-connection_closed_abruptly
-
-=INFO REPORT==== 2-Dec-2015::16:10:26 ===
-accepting AMQP connection <0.7726.0> (127.0.0.1:55851 -> 127.0.0.1:5674)
-
-=INFO REPORT==== 16-Dec-2015::20:08:45 ===
-Starting RabbitMQ 3.5.3 on Erlang R15B
-Copyright (C) 2007-2014 GoPivotal, Inc.
-Licensed under the MPL.  See http://www.rabbitmq.com/
-
-=INFO REPORT==== 16-Dec-2015::20:08:45 ===
-node           : my_server_rabbit2@127.0.0.1
-home dir       : C:\Users\xxw
-config file(s) : (none)
-cookie hash    : vsoziVgtD2XOblNsBTYZ/w==
-log            : ../log/my_server_rabbit2@127.0.0.1.log
-sasl log       : ../log/my_server_rabbit2@127.0.0.1_sasl.log
-database dir   : c:/github/RabbitMQ/ebin/../db/my_server_rabbit2@127.0.0.1-mnesia
-
-=WARNING REPORT==== 16-Dec-2015::20:08:45 ===
-Kernel poll (epoll, kqueue, etc) is disabled. Throughput and CPU utilization may worsen.
-
-=WARNING REPORT==== 16-Dec-2015::20:08:51 ===
-Only 2048MB of 8068MB memory usable due to limited address space.
-Crashes due to memory exhaustion are possible - see
-http://www.rabbitmq.com/memory.html#address-space
-
-=INFO REPORT==== 16-Dec-2015::20:08:51 ===
-Memory limit set to 819MB of 8068MB total.
-
-=INFO REPORT==== 16-Dec-2015::20:08:52 ===
-Disk free limit set to 50MB
-
-=INFO REPORT==== 16-Dec-2015::20:08:52 ===
-Limiting to approx 924 file handles (829 sockets)
-
-=INFO REPORT==== 16-Dec-2015::20:08:53 ===
-Priority queues enabled, real BQ is rabbit_variable_queue
-
-=INFO REPORT==== 16-Dec-2015::20:08:53 ===
-Management plugin: using rates mode 'basic'
-
-=INFO REPORT==== 16-Dec-2015::20:08:53 ===
-msg_store_transient: using rabbit_msg_store_ets_index to provide index
-
-=INFO REPORT==== 16-Dec-2015::20:08:53 ===
-msg_store_persistent: using rabbit_msg_store_ets_index to provide index
-
-=WARNING REPORT==== 16-Dec-2015::20:08:53 ===
-msg_store_persistent: rebuilding indices from scratch
-
-=INFO REPORT==== 16-Dec-2015::20:08:53 ===
-started TCP Listener on 127.0.0.1:5674
-
-=INFO REPORT==== 16-Dec-2015::20:08:53 ===
-rabbit on node 'my_server_rabbit3@127.0.0.1' up
-
-=INFO REPORT==== 16-Dec-2015::20:08:54 ===
-Management plugin started. Port: 15674
-
-=INFO REPORT==== 16-Dec-2015::20:08:54 ===
+=INFO REPORT==== 21-Dec-2015::16:37:00 ===
 rabbit on node 'my_server_rabbit1@127.0.0.1' up
 
-=INFO REPORT==== 16-Dec-2015::20:08:54 ===
-Server startup complete; 10 plugins started.
- * rabbitmq_management
- * rabbitmq_federation
- * rabbitmq_shovel
- * rabbitmq_management_agent
- * rabbitmq_amqp1_0
- * rabbitmq_web_dispatch
- * webmachine
- * mochiweb
- * amqp_client
- * sockjs
+=INFO REPORT==== 21-Dec-2015::16:37:36 ===
+accepting AMQP connection <0.724.0> (127.0.0.1:56279 -> 127.0.0.1:5674)
 
-=INFO REPORT==== 16-Dec-2015::20:08:54 ===
-Stopping RabbitMQ
+=INFO REPORT==== 21-Dec-2015::16:37:36 ===
+Mirrored queue 'my_server_rabbit_client2@127.0.0.1' in vhost '/': Adding mirror on node 'my_server_rabbit3@127.0.0.1': <20240.885.0>
 
-=INFO REPORT==== 16-Dec-2015::20:08:54 ===
-stopped TCP Listener on 127.0.0.1:5674
-
-=INFO REPORT==== 16-Dec-2015::20:08:55 ===
-rabbit on node 'my_server_rabbit3@127.0.0.1' down
-
-=INFO REPORT==== 16-Dec-2015::20:08:56 ===
-Keep my_server_rabbit3@127.0.0.1 listeners: the node is already back
-
-=INFO REPORT==== 16-Dec-2015::20:08:56 ===
-Stopped RabbitMQ application
-
-=INFO REPORT==== 16-Dec-2015::20:08:56 ===
-Already member of cluster: ['my_server_rabbit3@127.0.0.1',
-                            'my_server_rabbit1@127.0.0.1',
-                            'my_server_rabbit2@127.0.0.1']
-
-=INFO REPORT==== 16-Dec-2015::20:08:58 ===
-Starting RabbitMQ 3.5.3 on Erlang R15B
-Copyright (C) 2007-2014 GoPivotal, Inc.
-Licensed under the MPL.  See http://www.rabbitmq.com/
-
-=INFO REPORT==== 16-Dec-2015::20:08:58 ===
-node           : my_server_rabbit2@127.0.0.1
-home dir       : C:\Users\xxw
-config file(s) : (none)
-cookie hash    : vsoziVgtD2XOblNsBTYZ/w==
-log            : ../log/my_server_rabbit2@127.0.0.1.log
-sasl log       : ../log/my_server_rabbit2@127.0.0.1_sasl.log
-database dir   : c:/github/RabbitMQ/ebin/../db/my_server_rabbit2@127.0.0.1-mnesia
-
-=WARNING REPORT==== 16-Dec-2015::20:08:58 ===
-Kernel poll (epoll, kqueue, etc) is disabled. Throughput and CPU utilization may worsen.
-
-=WARNING REPORT==== 16-Dec-2015::20:08:58 ===
-Only 2048MB of 8068MB memory usable due to limited address space.
-Crashes due to memory exhaustion are possible - see
-http://www.rabbitmq.com/memory.html#address-space
-
-=INFO REPORT==== 16-Dec-2015::20:08:58 ===
-Memory limit set to 819MB of 8068MB total.
-
-=INFO REPORT==== 16-Dec-2015::20:08:58 ===
-Disk free limit set to 50MB
-
-=INFO REPORT==== 16-Dec-2015::20:08:58 ===
-Limiting to approx 924 file handles (829 sockets)
-
-=INFO REPORT==== 16-Dec-2015::20:09:00 ===
-Management plugin: using rates mode 'basic'
-
-=INFO REPORT==== 16-Dec-2015::20:09:01 ===
-msg_store_transient: using rabbit_msg_store_ets_index to provide index
-
-=INFO REPORT==== 16-Dec-2015::20:09:01 ===
-rabbit on node 'my_server_rabbit3@127.0.0.1' up
-
-=INFO REPORT==== 16-Dec-2015::20:09:01 ===
-msg_store_persistent: using rabbit_msg_store_ets_index to provide index
-
-=INFO REPORT==== 16-Dec-2015::20:09:01 ===
-started TCP Listener on 127.0.0.1:5674
-
-=INFO REPORT==== 16-Dec-2015::20:09:01 ===
-Management plugin started. Port: 15674
-
-=INFO REPORT==== 16-Dec-2015::20:09:01 ===
-rabbit on node 'my_server_rabbit1@127.0.0.1' up
-
-=INFO REPORT==== 16-Dec-2015::20:09:01 ===
-Server startup complete; 10 plugins started.
- * rabbitmq_management
- * rabbitmq_federation
- * rabbitmq_shovel
- * rabbitmq_management_agent
- * rabbitmq_amqp1_0
- * rabbitmq_web_dispatch
- * webmachine
- * mochiweb
- * amqp_client
- * sockjs
+=INFO REPORT==== 21-Dec-2015::16:37:36 ===
+Mirrored queue 'my_server_rabbit_client2@127.0.0.1' in vhost '/': Adding mirror on node 'my_server_rabbit1@127.0.0.1': <20238.623.0>

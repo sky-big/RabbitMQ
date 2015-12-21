@@ -65,6 +65,7 @@
 	],
 	[
 		{i, "../include"},
+		{i, "../plugins-src/rabbitmq-erlang-client/include"},
 		{outdir, "../ebin"},
 		{d, debug},
 		debug_info,

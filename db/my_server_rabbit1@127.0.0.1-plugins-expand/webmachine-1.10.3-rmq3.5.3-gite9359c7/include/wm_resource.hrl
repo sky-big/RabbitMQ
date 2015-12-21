@@ -1,1 +1,0 @@
--record(wm_resource, {module, modstate, modexports, trace}).

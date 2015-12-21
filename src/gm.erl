@@ -405,8 +405,6 @@
 -define(VERSION_START, 0).
 -define(SETS, ordsets).									%% 排序的SETS数据结构的模块名字
 -define(DICT, orddict).									%% 排序的DICT数据结构的模块名字
-%% 添加的代码避免报错，默认模块是erlang
--define(INSTR_MOD, erlang).
 
 %% gm进程的状态数据结构
 -record(state,
@@ -449,6 +447,9 @@
                                {attributes, record_info(fields, gm_group)}]}).
 
 -define(TABLE_MATCH, {match, #gm_group { _ = '_' }}).
+
+%% 自己添加的代码
+-define(INSTR_MOD, ?MODULE).
 
 -define(TAG, '$gm').
 
