@@ -132,3 +132,61 @@ Mirrored queue 'my_server_rabbit_client2@127.0.0.1' in vhost '/': Adding mirror 
 
 =INFO REPORT==== 21-Dec-2015::16:37:36 ===
 Mirrored queue 'my_server_rabbit_client2@127.0.0.1' in vhost '/': Adding mirror on node 'my_server_rabbit1@127.0.0.1': <20238.623.0>
+
+=INFO REPORT==== 21-Dec-2015::17:10:38 ===
+Starting RabbitMQ 3.5.3 on Erlang R15B
+Copyright (C) 2007-2014 GoPivotal, Inc.
+Licensed under the MPL.  See http://www.rabbitmq.com/
+
+=INFO REPORT==== 21-Dec-2015::17:10:38 ===
+node           : my_server_rabbit2@127.0.0.1
+home dir       : C:\Users\xxw
+config file(s) : (none)
+cookie hash    : vsoziVgtD2XOblNsBTYZ/w==
+log            : ../log/my_server_rabbit2@127.0.0.1.log
+sasl log       : ../log/my_server_rabbit2@127.0.0.1_sasl.log
+database dir   : c:/github/RabbitMQ/ebin/../db/my_server_rabbit2@127.0.0.1-mnesia
+
+=WARNING REPORT==== 21-Dec-2015::17:10:38 ===
+Kernel poll (epoll, kqueue, etc) is disabled. Throughput and CPU utilization may worsen.
+
+=WARNING REPORT==== 21-Dec-2015::17:10:38 ===
+Only 2048MB of 8068MB memory usable due to limited address space.
+Crashes due to memory exhaustion are possible - see
+http://www.rabbitmq.com/memory.html#address-space
+
+=INFO REPORT==== 21-Dec-2015::17:10:38 ===
+Memory limit set to 819MB of 8068MB total.
+
+=INFO REPORT==== 21-Dec-2015::17:10:38 ===
+Disk free limit set to 50MB
+
+=INFO REPORT==== 21-Dec-2015::17:10:38 ===
+Limiting to approx 924 file handles (829 sockets)
+
+=INFO REPORT==== 21-Dec-2015::17:10:39 ===
+Priority queues enabled, real BQ is rabbit_variable_queue
+
+=INFO REPORT==== 21-Dec-2015::17:10:39 ===
+msg_store_transient: using rabbit_msg_store_ets_index to provide index
+
+=INFO REPORT==== 21-Dec-2015::17:10:39 ===
+msg_store_persistent: using rabbit_msg_store_ets_index to provide index
+
+=WARNING REPORT==== 21-Dec-2015::17:10:39 ===
+msg_store_persistent: rebuilding indices from scratch
+
+=INFO REPORT==== 21-Dec-2015::17:10:39 ===
+started TCP Listener on 127.0.0.1:5674
+
+=INFO REPORT==== 21-Dec-2015::17:10:39 ===
+rabbit on node 'my_server_rabbit1@127.0.0.1' up
+
+=INFO REPORT==== 21-Dec-2015::17:10:40 ===
+Server startup complete; 0 plugins started.
+
+=INFO REPORT==== 21-Dec-2015::17:10:40 ===
+rabbit on node 'my_server_rabbit3@127.0.0.1' up
+
+=INFO REPORT==== 21-Dec-2015::17:11:40 ===
+accepting AMQP connection <0.325.0> (127.0.0.1:59771 -> 127.0.0.1:5674)

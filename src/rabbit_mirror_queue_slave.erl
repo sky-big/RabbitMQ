@@ -62,6 +62,9 @@
 				rate_timer_ref,												%% 队列中消息进入和出去的速率定时器
 				
 				sender_queues, %% :: Pid -> {Q Msg, Set MsgId, ChState}		%% rabbit_channel进程对应的相关消息状态
+																			%% tuple的第一个元素是存储rabbit_channel进程发送过来的消息，但是这些消息还没有从GM进程发送过来
+																			%% tuple的第二个元素是记录的是GM进程发送过来的消息，但是rabbit_channel进程没有发送过来
+																			%% tuple的第三个元素记录的是当前rabbit_channel进程的状态
 				msg_id_ack,    %% :: MsgId -> AckTag							%% 当前副镜像队列中等待ack的消息字典(数据存储格式是：MsgId -> AckTag)
 				
 				msg_id_status,												%% 消息ID对应该消息当前的状态
@@ -244,7 +247,7 @@ handle_call(go, _From, {not_started, Q} = NotStarted) ->
 		{error, Error} -> {stop, Error, NotStarted}
 	end;
 
-%% 副镜像队列处理有镜像队列成员死亡的消息
+%% 副镜像队列处理有镜像队列成员死亡的消息(副镜像队列接收到主镜像队列死亡的消息)
 handle_call({gm_deaths, DeadGMPids}, From,
 			State = #state { gm = GM, q = Q = #amqqueue {
 														 name = QName, pid = MPid }}) ->
@@ -270,6 +273,7 @@ handle_call({gm_deaths, DeadGMPids}, From,
 				%% 此情况是本副镜像队列成为主镜像队列
 				Self ->
 					%% we've become master
+					%% 将自己这个副镜像队列提升为主镜像队列
 					QueueState = promote_me(From, State),
 					%% 异步在ExtraNodes的所有节点上增加QName队列的副镜像队列
 					rabbit_mirror_queue_misc:add_mirrors(
@@ -781,11 +785,12 @@ promote_me(From, #state { q                   = Q = #amqqueue { name = QName },
 					   (_Msgid, _Status, MTC0) ->
 							MTC0
 					end, gb_trees:empty(), MS),
-	%% 获得rabbit_channel进程已经发送过来的消息但是没有从GM进程获取的消息，这些消息直接放入到主镜像队列中
+	%% 获得rabbit_channel进程已经发送过来的消息但是没有从GM进程获取的消息
+	%% 这些消息在该副镜像队列成为主镜像队列后，直接将该消息发布到主镜像队列的backing_queue模块中
 	Deliveries = [promote_delivery(Delivery) ||
 					{_ChPid, {PubQ, _PendCh, _ChState}} <- dict:to_list(SQ),
 					Delivery <- queue:to_list(PubQ)],
-	%% 获得跟当前队列相关的rabbit_channel进程列表
+	%% 获得跟当前队列相关的存活的rabbit_channel进程列表
 	AwaitGmDown = [ChPid || {ChPid, {_, _, down_from_ch}} <- dict:to_list(SQ)],
 	%% 将已经死亡的rabbit_channel进程剔除掉
 	KS1 = lists:foldl(fun (ChPid0, KS0) ->
@@ -1019,7 +1024,7 @@ publish_or_discard(Status, ChPid, MsgId,
 			{empty, _MQ2} ->
 				{MQ, sets:add_element(MsgId, PendingCh),
 				 dict:store(MsgId, Status, MS)};
-			%% 此处情况是rabbit_channel进程直接发送过来的消息比GM循环队列发送过来的消息先到
+			%% 此处情况是rabbit_channel进程直接发送过来的消息比GM循环队列发送过来的消息先到(rabbit_channel进程发送的消息先到达)
 			{{value, Delivery = #delivery {
 										   message = #basic_message { id = MsgId } }}, MQ2} ->
 				{MQ2, PendingCh,

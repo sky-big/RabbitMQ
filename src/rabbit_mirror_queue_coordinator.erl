@@ -32,8 +32,8 @@
 -record(state, { q,									%% 队列的数据结构信息
                  gm,								%% gm进程的Pid
                  monitors,							%% 监视rabbit_channel进程的数据结构
-                 death_fun,
-                 depth_fun
+                 death_fun,							%% 向循环镜像队列发布rabbit_channel进程死亡的函数
+                 depth_fun							%% 向主镜像队列广播当前队列中所有消息包括等待ack的消息的总的数量的函数
                }).
 
 -ifdef(use_specs).
