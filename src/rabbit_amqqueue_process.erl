@@ -1528,6 +1528,7 @@ handle_call(sync_mirrors, _From,
 			State = #q{backing_queue       = rabbit_mirror_queue_master,
 					   backing_queue_state = BQS}) ->
 	S = fun(BQSN) -> State#q{backing_queue_state = BQSN} end,
+	%% 处理接收消息的函数
 	HandleInfo = fun (Status) ->
 						  receive {'$gen_call', From, {info, Items}} ->
 									  Infos = infos(Items, State#q{status = Status}),
@@ -1536,6 +1537,7 @@ handle_call(sync_mirrors, _From,
 								  ok
 						  end
 				 end,
+	%% 向rabbit_event事件中心发布当前消息队列的详细信息的函数
 	EmitStats = fun (Status) ->
 						 rabbit_event:if_enabled(
 						   State, #q.stats_timer,

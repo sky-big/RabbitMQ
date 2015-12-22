@@ -173,10 +173,14 @@ sync_mirrors(HandleInfo, EmitStats,
 	Log("~p messages to synchronise", [BQ:len(BQS)]),
 	%% 拿到队列所有的副镜像队列进程的Pid
 	{ok, #amqqueue{slave_pids = SPids}} = rabbit_amqqueue:lookup(QName),
+	%% 生成唯一标识
 	Ref = make_ref(),
+	%% 启动做同步工作的同步进程
 	Syncer = rabbit_mirror_queue_sync:master_prepare(Ref, QName, Log, SPids),
+	%% 向镜像循环队列广播镜像队列同步的开始消息
 	gm:broadcast(GM, {sync_start, Ref, Syncer, SPids}),
 	S = fun(BQSN) -> State#state{backing_queue_state = BQSN} end,
+	%% 主镜像队列开始进行同步的接口(主镜像队列从backing_queue中拿到所有的消息然后向副镜像队列进行同步操作)
 	case rabbit_mirror_queue_sync:master_go(
 		   Syncer, Ref, Log, HandleInfo, EmitStats, BQ, BQS) of
 		{shutdown,  R, BQS1}   -> {stop, R, S(BQS1)};
@@ -613,16 +617,20 @@ depth_fun() ->
 drop_one(AckTag, State = #state { gm                  = GM,
 								  backing_queue       = BQ,
 								  backing_queue_state = BQS }) ->
+	%% 向镜像循环队列发布丢弃一个消息的消息
 	ok = gm:broadcast(GM, {drop, BQ:len(BQS), 1, AckTag =/= undefined}),
 	State.
 
 
+%% 丢弃消息队列中的消息，第一个参数PrevLen表示丢弃前的数量
 drop(PrevLen, AckRequired, State = #state { gm                  = GM,
 											backing_queue       = BQ,
 											backing_queue_state = BQS }) ->
 	Len = BQ:len(BQS),
 	case PrevLen - Len of
 		0       -> State;
+		%% Dropped表示丢弃的消息数量
+		%% 向镜像循环队列发布丢弃Dropped消息
 		Dropped -> ok = gm:broadcast(GM, {drop, Len, Dropped, AckRequired}),
 				   State
 	end.

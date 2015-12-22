@@ -1279,34 +1279,38 @@ moving_average(Time,  HalfLife,  Next, Current) ->
 
 %% -------------------------------------------------------------------------
 %% Begin copypasta from gen_server2.erl
-
+%% 获得当前进程的父进程的Pid
 get_parent() ->
-    case get('$ancestors') of
-        [Parent | _] when is_pid (Parent) -> Parent;
-        [Parent | _] when is_atom(Parent) -> name_to_pid(Parent);
-        _ -> exit(process_was_not_started_by_proc_lib)
-    end.
+	case get('$ancestors') of
+		[Parent | _] when is_pid (Parent) -> Parent;
+		[Parent | _] when is_atom(Parent) -> name_to_pid(Parent);
+		_ -> exit(process_was_not_started_by_proc_lib)
+	end.
 
+
+%% 通过进程名字转换为进程的Pid
 name_to_pid(Name) ->
-    case whereis(Name) of
-        undefined -> case whereis_name(Name) of
-                         undefined -> exit(could_not_find_registerd_name);
-                         Pid       -> Pid
-                     end;
-        Pid       -> Pid
-    end.
+	case whereis(Name) of
+		undefined -> case whereis_name(Name) of
+						 undefined -> exit(could_not_find_registerd_name);
+						 Pid       -> Pid
+					 end;
+		Pid       -> Pid
+	end.
 
+
+%% 通过进程的Pid获得进程的名字
 whereis_name(Name) ->
-    case ets:lookup(global_names, Name) of
-        [{_Name, Pid, _Method, _RPid, _Ref}] ->
-            if node(Pid) == node() -> case erlang:is_process_alive(Pid) of
-                                          true  -> Pid;
-                                          false -> undefined
-                                      end;
-               true                -> Pid
-            end;
-        [] -> undefined
-    end.
+	case ets:lookup(global_names, Name) of
+		[{_Name, Pid, _Method, _RPid, _Ref}] ->
+			if node(Pid) == node() -> case erlang:is_process_alive(Pid) of
+										  true  -> Pid;
+										  false -> undefined
+									  end;
+			   true                -> Pid
+			end;
+		[] -> undefined
+	end.
 
 %% End copypasta from gen_server2.erl
 %% -------------------------------------------------------------------------

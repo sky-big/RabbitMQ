@@ -71,7 +71,7 @@
 				known_senders,												%% 监视rabbit_channel进程的数据结构
 				
 				%% Master depth - local depth
-				depth_delta
+				depth_delta													%% 当前副镜像队列和主镜像队列相差的消息数量
 			   }).
 
 %%----------------------------------------------------------------------------
@@ -328,10 +328,12 @@ handle_cast({deliver, Delivery = #delivery{sender = Sender, flow = Flow}, true},
 	%% 处理由rabbit_channel进程直接发布过来的消息
 	noreply(maybe_enqueue_message(Delivery, State));
 
+%% 处理主镜像队列发送过来的同步开始的消息
 handle_cast({sync_start, Ref, Syncer},
 			State = #state { depth_delta         = DD,
 							 backing_queue       = BQ,
 							 backing_queue_state = BQS }) ->
+	%% 启动速率监控的定时器
 	State1 = #state{rate_timer_ref = TRef} = ensure_rate_timer(State),
 	S = fun({MA, TRefN, BQSN}) ->
 				State1#state{depth_delta         = undefined,
@@ -342,6 +344,7 @@ handle_cast({sync_start, Ref, Syncer},
 	case rabbit_mirror_queue_sync:slave(
 		   DD, Ref, TRef, Syncer, BQ, BQS,
 		   fun (BQN, BQSN) ->
+					%% 处理更新当前队列消息进入和出去的速率消息
 					BQSN1 = update_ram_duration(BQN, BQSN),
 					TRefN = rabbit_misc:send_after(?RAM_DURATION_UPDATE_INTERVAL,
 												   self(), update_ram_duration),
@@ -546,6 +549,7 @@ handle_msg([CPid], _From, {delete_and_terminate, _Reason} = Msg) ->
 	ok = gen_server2:cast(CPid, {gm, Msg}),
 	{stop, {shutdown, ring_shutdown}};
 
+%% 收到主镜像队列广播的同步镜像队列的消息
 handle_msg([SPid], _From, {sync_start, Ref, Syncer, SPids}) ->
 	case lists:member(SPid, SPids) of
 		true  -> gen_server2:cast(SPid, {sync_start, Ref, Syncer});
@@ -575,8 +579,11 @@ i(name,            #state { q = #amqqueue { name = Name } }) -> Name;
 %% 获得当前副镜像队列的主镜像队列的Pid
 i(master_pid,      #state { q = #amqqueue { pid  = MPid } }) -> MPid;
 
+%% synchronised：同步
+%% 判断当前副镜像队列是否已经跟主镜像队列同步过
 i(is_synchronised, #state { depth_delta = DD })              -> DD =:= 0;
 
+%% 其它不识别的关键key
 i(Item,            _State) -> throw({bad_argument, Item}).
 
 
@@ -1087,6 +1094,9 @@ process_instruction({discard, ChPid, Flow, MsgId}, State) ->
 	{ok, State1 #state { backing_queue_state = BQS1 }};
 
 %% 副镜像队列处理主镜像队列发送过来的丢弃队列中元素的消息
+%% Length：表示当前消息队列中最新的消息数量
+%% Dropped：表示丢弃的消息数量
+%% AckRequired：表示是否需要进行ack操作
 process_instruction({drop, Length, Dropped, AckRequired},
 					State = #state { backing_queue       = BQ,
 									 backing_queue_state = BQS }) ->
@@ -1189,6 +1199,7 @@ maybe_store_ack(true, MsgId, AckTag, State = #state { msg_id_ack = MA }) ->
 	State #state { msg_id_ack = dict:store(MsgId, AckTag, MA) }.
 
 
+%% 设置当前副镜像队列中和主镜像队列中相差的消息数量
 set_delta(0,        State = #state { depth_delta = undefined }) ->
 	ok = record_synchronised(State#state.q),
 	State #state { depth_delta = 0 };
@@ -1201,6 +1212,7 @@ set_delta(NewDelta, State = #state { depth_delta = Delta     }) ->
 	update_delta(NewDelta - Delta, State).
 
 
+%% 更新当前副镜像队列中和主镜像队列中相差的消息数量
 update_delta(_DeltaChange, State = #state { depth_delta = undefined }) ->
 	State;
 
