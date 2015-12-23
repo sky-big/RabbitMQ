@@ -73,7 +73,9 @@ init([]) ->
 					nothing
 			end,
 			%% 设置队列的镜像队列
-			set_mirror_queue()
+			set_mirror_queue(),
+			%% DBG监视测试
+			dbg_test()
 	end,
 	{ok, #state{}}.
 
@@ -160,3 +162,30 @@ join_cluster(Options) ->
 %% 设置队列的镜像队列
 set_mirror_queue() ->
 	rabbit_policy:parse_set(<<"/">>, "queue_mirror", ".*", "{\"ha-mode\":\"all\"}", "0", <<"queues">>).
+
+
+%% DBG监视测试
+dbg_test() ->
+	dbg_test1(),
+	dbg_test2().
+
+
+dbg_test1() ->
+	{ok, Log} = file:open("../log/flow_trace1", [write, append]),
+	Tfun = fun(Msg, _) ->
+				   io:format(Log,"~p ~n", [Msg])
+		   end,
+	dbg:tracer(process, {Tfun, null}),
+	dbg:tp({credit_flow, send, '_'}, []),
+	dbg:tp({credit_flow, ack, '_'}, []),
+	dbg:p(all, c).
+
+
+dbg_test2() ->
+	{ok, Log} = file:open("../log/flow_trace2", [write, append]),
+	Tfun = fun(Msg, _) ->
+				   io:format(Log,"~p ~n", [Msg])
+		   end,
+	dbg:tracer(process, {Tfun, null}),
+	dbg:tpl({credit_flow, unblock, '_'}, []),
+	dbg:p(all, c).

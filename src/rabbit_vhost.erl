@@ -76,6 +76,7 @@ add(VHostPath) ->
 						  %% per 0-9-1 xml
 						  {<<"amq.headers">>,        headers, false},
 						  {<<"amq.fanout">>,         fanout,  false},
+						  %% 跟踪模块使用的amq.rabbitmq.trace交换机
 						  {<<"amq.rabbitmq.trace">>, topic,   true}]],
 				  ok
 		  end),

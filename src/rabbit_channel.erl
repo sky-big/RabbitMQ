@@ -292,7 +292,7 @@ info_all(Items) ->
 	rabbit_misc:filter_exit_map(fun (C) -> info(C, Items) end, list()).
 
 
-%% 刷新本地节点的配置文件后，通知本地所有的rabbit_channel进程，向所有进程同步发送发送配置文件刷新的消息，rabbit_channel进程立刻重新初始化跟踪状态字段
+%% rabbit_trace性能跟踪的开启关闭的VHost有变化，则通知rabbit_channel进程进行重新初始化
 refresh_config_local() ->
 	rabbit_misc:upmap(
 	  fun (C) -> gen_server2:call(C, refresh_config, infinity) end,
@@ -411,7 +411,7 @@ handle_call({info, Items}, _From, State) ->
     catch Error -> reply({error, Error}, State)
     end;
 
-%% 处理配置文件刷新的消息，立刻重新初始化跟踪状态字段
+%% rabbit_trace性能跟踪的开启关闭的VHost有变化，则通知rabbit_channel进程进行重新初始化
 handle_call(refresh_config, _From, State = #ch{virtual_host = VHost}) ->
 	reply(ok, State#ch{trace_state = rabbit_trace:init(VHost)});
 

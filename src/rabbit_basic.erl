@@ -92,7 +92,7 @@
 
 %%----------------------------------------------------------------------------
 
-%% Convenience function, for avoiding round-trips in calls across the
+%% Convenience(方便) function, for avoiding round-trips in calls across the
 %% erlang distributed network.
 publish(Exchange, RoutingKeyBin, Properties, Body) ->
 	publish(Exchange, RoutingKeyBin, false, Properties, Body).
@@ -100,13 +100,19 @@ publish(Exchange, RoutingKeyBin, Properties, Body) ->
 %% Convenience function, for avoiding round-trips in calls across the
 %% erlang distributed network.
 publish(X = #exchange{name = XName}, RKey, Mandatory, Props, Body) ->
+	%% 根据交换机，路由key，消息特性和内容组装消息数据结构
 	Message = message(XName, RKey, properties(Props), Body),
+	%% 组装delivery的数据结构，然后发布到X交换机上
 	publish(X, delivery(Mandatory, false, Message, undefined));
+
 publish(XName, RKey, Mandatory, Props, Body) ->
+	%% 根据交换机，路由key，消息特性和内容组装消息数据结构
 	Message = message(XName, RKey, properties(Props), Body),
+	%% 组装delivery的数据结构，然后发布到X交换机上
 	publish(delivery(Mandatory, false, Message, undefined)).
 
 
+%% 发布消息的接口
 publish(Delivery = #delivery{
 							 message = #basic_message{exchange_name = XName}}) ->
 	case rabbit_exchange:lookup(XName) of
@@ -115,6 +121,7 @@ publish(Delivery = #delivery{
 	end.
 
 
+%% 向指定的X交换机发布消息的接口
 publish(X, Delivery) ->
 	Qs = rabbit_amqqueue:lookup(rabbit_exchange:route(X, Delivery)),
 	DeliveredQPids = rabbit_amqqueue:deliver(Qs, Delivery),
@@ -132,6 +139,7 @@ build_content(Properties, BodyBin) when is_binary(BodyBin) ->
 	build_content(Properties, [BodyBin]);
 
 
+%% 创建消息的内容的数据结构
 build_content(Properties, PFR) ->
 	%% basic.publish hasn't changed so we can just hard-code amqp_0_9_1
 	{ClassId, _MethodId} =
@@ -189,13 +197,18 @@ message(XName, RoutingKey, #content{properties = Props} = DecodedContent) ->
 	end.
 
 
+%% 根据交换机，路由key，消息特性和内容组装消息数据结构
 message(XName, RoutingKey, RawProperties, Body) ->
+	%% 组装消息的特性数据结构
 	Properties = properties(RawProperties),
+	%% 创建消息的内容的数据结构
 	Content = build_content(Properties, Body),
+	%% 组装basic_message结构
 	{ok, Msg} = message(XName, RoutingKey, Content),
 	Msg.
 
 
+%% 组装消息的特性数据结构
 properties(P = #'P_basic'{}) ->
 	P;
 properties(P) when is_list(P) ->

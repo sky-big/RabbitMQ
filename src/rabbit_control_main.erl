@@ -485,12 +485,14 @@ action(list_consumers, Node, _Args, Opts, Inform) ->
 					  rabbit_amqqueue:consumer_info_keys());
 
 
+%% 打开RabbitMQ系统的性能跟踪功能
 action(trace_on, Node, [], Opts, Inform) ->
 	VHost = proplists:get_value(?VHOST_OPT, Opts),
 	Inform("Starting tracing for vhost \"~s\"", [VHost]),
 	rpc_call(Node, rabbit_trace, start, [list_to_binary(VHost)]);
 
 
+%% 关闭RabbitMQ系统的性能跟踪功能
 action(trace_off, Node, [], Opts, Inform) ->
 	VHost = proplists:get_value(?VHOST_OPT, Opts),
 	Inform("Stopping tracing for vhost \"~s\"", [VHost]),
