@@ -26,25 +26,27 @@
 -export([init/1]).
 
 %%----------------------------------------------------------------------------
-
+%% 启动RabbitMQ系统的App对应的监督进程
 start_link() ->
-    supervisor:start_link({local, ?SUPERVISOR}, ?MODULE, []).
+	supervisor:start_link({local, ?SUPERVISOR}, ?MODULE, []).
+
 
 start_child(Id, Args) ->
-    supervisor:start_child(
-      ?SUPERVISOR,
-      {Id, {rabbit_tracing_consumer_sup, start_link, [Args]},
-       temporary, ?MAX_WAIT, supervisor,
-       [rabbit_tracing_consumer_sup]}).
+	supervisor:start_child(
+	  ?SUPERVISOR,
+	  {Id, {rabbit_tracing_consumer_sup, start_link, [Args]},
+	   temporary, ?MAX_WAIT, supervisor,
+	   [rabbit_tracing_consumer_sup]}).
+
 
 stop_child(Id) ->
-    supervisor:terminate_child(?SUPERVISOR, Id),
-    supervisor:delete_child(?SUPERVISOR, Id),
-    ok.
+	supervisor:terminate_child(?SUPERVISOR, Id),
+	supervisor:delete_child(?SUPERVISOR, Id),
+	ok.
 
 %%----------------------------------------------------------------------------
 
 init([]) -> {ok, {{one_for_one, 3, 10},
-                  [{traces, {rabbit_tracing_traces, start_link, []},
-                    transient, ?MAX_WAIT, worker,
-                    [rabbit_tracing_traces]}]}}.
+				  [{traces, {rabbit_tracing_traces, start_link, []},
+					transient, ?MAX_WAIT, worker,
+					[rabbit_tracing_traces]}]}}.

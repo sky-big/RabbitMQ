@@ -19,8 +19,10 @@
 -behaviour(application).
 -export([start/2, stop/1]).
 
+%% 启动RabbitMQ系统的跟踪插件App
 start(_Type, _StartArgs) ->
-    rabbit_tracing_sup:start_link().
+	rabbit_tracing_sup:start_link().
+
 
 stop(_State) ->
-    ok.
+	ok.
