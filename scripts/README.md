@@ -64,3 +64,4 @@ RabbitMQ系统3.5.3版本中文完全注释，该目录下是RabbitMQ系统包�
       第二个客户端节点连接的是端口为5674的RabbitMQ系统节点
       第三个客户端节点连接的是端口为5675的RabbitMQ系统节点
     
+二.version_up:up_all().会将改变的代码热更新到RabbitMQ服务器集群中
