@@ -265,6 +265,8 @@ clean_plugin(Plugin, ExpandDir) ->
 prepare_dir_plugin(PluginAppDescPath) ->
 	PluginEbinDir = filename:dirname(PluginAppDescPath),
 	Plugin = filename:basename(PluginAppDescPath, ".app"),
+	%% 添加的代码
+	option_set_server:cover_plugin_beam(filelib:wildcard(PluginEbinDir++ "/*.beam")),
 	code:add_patha(PluginEbinDir),
 	case filelib:wildcard(PluginEbinDir++ "/*.beam") of
 		[] ->
@@ -276,9 +278,9 @@ prepare_dir_plugin(PluginAppDescPath) ->
 					ok;
 				{error, badfile} ->
 					rabbit_log:error("Failed to enable plugin \"~s\": "
-										 "it may have been built with an "
-											 "incompatible (more recent?) "
-												 "version of Erlang~n", [Plugin]),
+									 "it may have been built with an "
+									 "incompatible (more recent?) "
+									 "version of Erlang~n", [Plugin]),
 					throw({plugin_built_with_incompatible_erlang, Plugin});
 				Error ->
 					throw({plugin_module_unloadable, Plugin, Error})

@@ -1,0 +1,13 @@
+{application,rabbitmq_tracing,
+             [{description,"RabbitMQ message logging / tracing"},
+              {vsn,"3.5.3"},
+              {modules,[rabbit_tracing_app,rabbit_tracing_consumer,
+                        rabbit_tracing_consumer_sup,rabbit_tracing_files,
+                        rabbit_tracing_mgmt,rabbit_tracing_sup,
+                        rabbit_tracing_traces,rabbit_tracing_wm_file,
+                        rabbit_tracing_wm_files,rabbit_tracing_wm_trace,
+                        rabbit_tracing_wm_traces]},
+              {registered,[]},
+              {mod,{rabbit_tracing_app,[]}},
+              {env,[{directory,"/var/tmp/rabbitmq-tracing"}]},
+              {applications,[kernel,stdlib,rabbit,rabbitmq_management]}]}.

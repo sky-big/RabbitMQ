@@ -26,7 +26,7 @@
 		'../plugins-src/rabbitmq-management-agent/src/*',
 		'../plugins-src/rabbitmq-management-visualiser/src/*',
 		'../plugins-src/rabbitmq-mqtt/src/*',
-		'../plugins-src/rabbitmq-shovel/src/*r',
+		'../plugins-src/rabbitmq-shovel/src/*',
 		'../plugins-src/rabbitmq-shovel-management/*',
 		'../plugins-src/rabbitmq-stomp/src/*',
 		'../plugins-src/rabbitmq-test/src/*',

@@ -29,8 +29,10 @@
 
 %% @spec start(_Type, _StartArgs) -> ServerRet
 %% @doc application start callback for webmachine.
+%% webmachine应用的启动接口
 start(_Type, _StartArgs) ->
     webmachine_deps:ensure(),
+	%% 启动webmachine应用进程树
     {ok, _Pid} = SupLinkRes = webmachine_sup:start_link(),
     Handlers = case application:get_env(webmachine, log_handlers) of
         undefined ->
@@ -44,7 +46,9 @@ start(_Type, _StartArgs) ->
             {Module, Config} <- Handlers],
     SupLinkRes.
 
+
 %% @spec stop(_State) -> ServerRet
 %% @doc application stop callback for webmachine.
+%% webmachine应用的停止回调接口
 stop(_State) ->
     ok.

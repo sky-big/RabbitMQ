@@ -1,0 +1,18 @@
+{application, rabbitmq_management,
+ [{description, "RabbitMQ Management Console"},
+  {vsn, "%%VSN%%"},
+  {modules, []},
+  {registered, []},
+  {mod, {rabbit_mgmt_app, []}},
+  {env, [{listener,          [{port, 15672}]},
+         {http_log_dir,      none},
+         {load_definitions,  none},
+         {rates_mode,        basic},
+         {sample_retention_policies,
+          %% List of {MaxAgeInSeconds, SampleEveryNSeconds}
+          [{global,   [{605, 5}, {3660, 60}, {29400, 600}, {86400, 1800}]},
+           {basic,    [{605, 5}, {3600, 60}]},
+           {detailed, [{10, 5}]}]}
+        ]},
+  {applications, [kernel, stdlib, rabbit, xmerl, rabbitmq_web_dispatch,
+                  amqp_client, rabbitmq_management_agent]}]}.

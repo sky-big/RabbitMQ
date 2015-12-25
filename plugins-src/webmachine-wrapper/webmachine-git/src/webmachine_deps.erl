@@ -36,20 +36,20 @@ deps_on_path() ->
 %% @doc Find new siblings paths relative to Module that aren't already on the
 %%      code path.
 new_siblings(Module) ->
-    Existing = deps_on_path(),
-    SiblingEbin = [ X || X <- filelib:wildcard(local_path(["deps", "*", "ebin"], Module)),
-                         filename:basename(filename:dirname(X)) /=  %% don't include self
-                             filename:basename(filename:dirname(
-                                                 filename:dirname(
-                                                   filename:dirname(X)))) ],
-    Siblings = [filename:dirname(X) || X <- SiblingEbin,
-                           ordsets:is_element(
-                             filename:basename(filename:dirname(X)),
-                             Existing) =:= false],
-    lists:filter(fun filelib:is_dir/1, 
-                 lists:append([[filename:join([X, "ebin"]),
-                                filename:join([X, "include"])] ||
-                                  X <- Siblings])).
+	Existing = deps_on_path(),
+	SiblingEbin = [ X || X <- filelib:wildcard(local_path(["deps", "*", "ebin"], Module)),
+						 filename:basename(filename:dirname(X)) /=  %% don't include self
+							 filename:basename(filename:dirname(
+												 filename:dirname(
+												   filename:dirname(X)))) ],
+	Siblings = [filename:dirname(X) || X <- SiblingEbin,
+									   ordsets:is_element(
+										 filename:basename(filename:dirname(X)),
+										 Existing) =:= false],
+	lists:filter(fun filelib:is_dir/1, 
+				 lists:append([[filename:join([X, "ebin"]),
+								filename:join([X, "include"])] ||
+							   X <- Siblings])).
         
 
 %% @spec ensure(Module) -> ok

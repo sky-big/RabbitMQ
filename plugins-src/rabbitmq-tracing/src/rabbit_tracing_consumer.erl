@@ -35,6 +35,7 @@
 -export([init/1, handle_call/3, handle_cast/2, handle_info/2, terminate/2,
          code_change/3]).
 
+%% RabbitMQ系统跟踪消费者的启动接口
 start_link(Args) ->
 	gen_server:start_link(?MODULE, Args, []).
 
@@ -43,7 +44,7 @@ info_all(Pid) ->
 	gen_server:call(Pid, info_all, infinity).
 
 %%----------------------------------------------------------------------------
-
+%% RabbitMQ系统跟踪消费者启动的回调初始化函数
 init(Args) ->
 	process_flag(trap_exit, true),
 	Name = pget(name, Args),

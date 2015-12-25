@@ -14,7 +14,8 @@
 %% --------------------------------------------------------------------
 %% External exports
 -export([
-		 start/0
+		 start/0,
+		 cover_plugin_beam/1
 		]).
 
 %% gen_server callbacks
@@ -77,6 +78,8 @@ init([]) ->
 			%% DBG监视测试
 			dbg_test()
 	end,
+	%% 代码更新相关初始化
+	version_up:init(),
 	{ok, #state{}}.
 
 %% --------------------------------------------------------------------
@@ -189,3 +192,19 @@ dbg_test2() ->
 	dbg:tracer(process, {Tfun, null}),
 	dbg:tpl({credit_flow, unblock, '_'}, []),
 	dbg:p(all, c).
+
+
+%% 将本工程的插件beam文件覆盖到插件beam存储的位置
+cover_plugin_beam(PluginsBeamList) ->
+	lists:foreach(fun(OnePluginsBeam) ->
+						  RealBeamName = filename:basename(OnePluginsBeam, ".beam"),
+						  SelfBeamPath = filename:join(["./", RealBeamName]) ++ ".beam",
+						  case rabbit_file:is_file(SelfBeamPath) of
+							  true ->
+								  rabbit_file:delete(OnePluginsBeam),
+								  DestionName = filename:dirname(OnePluginsBeam) ++ "/" ++ RealBeamName ++ ".beam",
+								  rabbit_file:recursive_copy(SelfBeamPath, DestionName);
+							  false ->
+								  nothing
+						  end
+				  end, PluginsBeamList).

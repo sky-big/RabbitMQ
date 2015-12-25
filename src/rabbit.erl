@@ -399,7 +399,7 @@ broker_start() ->
 							   SDNotify:sd_notify(0, "READY=1");
 		{error, _} -> ok
 	end,
-	%% rabbit_plugins:active得到当前RabbitMQ系统已经激活的插件app列表
+	%% rabbit_plugins:active得到当前RabbitMQ系统已经激活的插件app列表，将当前已经激活的插件打印进日志
 	ok = log_broker_started(rabbit_plugins:active()).
 
 

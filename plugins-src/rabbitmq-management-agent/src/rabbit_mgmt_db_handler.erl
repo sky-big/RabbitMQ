@@ -39,12 +39,13 @@
 %% 启动rabbit_mgmt_db_handler这个rabbit_event事件服务器的事件进程
 add_handler() ->
 	%% 确保统计数据能够使用
-    ensure_statistics_enabled(),
+	ensure_statistics_enabled(),
 	%% 启动rabbit_mgmt_db_handler这个rabbit_event事件服务器的事件进程
-    gen_event:add_handler(rabbit_event, ?MODULE, []).
+	gen_event:add_handler(rabbit_event, ?MODULE, []).
+
 
 gc() ->
-    erlang:garbage_collect(whereis(rabbit_event)).
+	erlang:garbage_collect(whereis(rabbit_event)).
 
 %% some people have reasons to only run with the agent enabled:
 %% make it possible for them to configure key management app

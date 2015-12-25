@@ -73,6 +73,7 @@ make_loop(IgnoreApps) ->
 	%% 得到分发信息
 	Dispatch = rabbit_mgmt_dispatcher:build_dispatcher(IgnoreApps),
 	WMLoop = rabbit_webmachine:makeloop(Dispatch),
+	%% 获取本地应用有"priv/www"目录的绝对路径
 	LocalPaths = [filename:join(module_path(M), ?STATIC_PATH) ||
 					M <- rabbit_mgmt_dispatcher:modules(IgnoreApps)],
 	fun(Req) -> respond(Req, LocalPaths, WMLoop) end.
@@ -85,6 +86,7 @@ module_path(Module) ->
 
 %% rabbitmq_management管理器处理客户端的Http请求
 respond(Req, LocalPaths, WMLoop) ->
+	io:format("KKKKKKKKKKKKKKKK:~p~n", [{LocalPaths}]),
 	%% 从Req请求中得到客户端请求的路径
 	Path = Req:get(path),
 	Redirect = fun(L) -> {301, [{"Location", L}], ""} end,
@@ -105,6 +107,7 @@ respond(Req, LocalPaths, WMLoop) ->
 %% 将客户端传送文件的接口
 serve_file(Req, Path, [LocalPath], _Redirect) ->
 	Req:serve_file(Path, LocalPath);
+
 serve_file(Req, Path, [LocalPath | Others], Redirect) ->
 	Path1 = filename:join([LocalPath, Path]),
 	case filelib:is_regular(Path1) of

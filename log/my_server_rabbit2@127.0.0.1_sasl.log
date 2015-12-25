@@ -1,0 +1,295 @@
+
+=CRASH REPORT==== 25-Dec-2015::15:45:50 ===
+  crasher:
+    initial call: application_master:init/4
+    pid: <0.117.0>
+    registered_name: []
+    exception exit: {{failed_to_cluster_with,
+                         ['my_server_rabbit1@127.0.0.1',
+                          'my_server_rabbit3@127.0.0.1'],
+                         "Mnesia could not connect to any nodes."},
+                     {rabbit,start,[normal,[]]}}
+      in function  application_master:init/4 (application_master.erl, line 138)
+    ancestors: [<0.116.0>]
+    messages: [{'EXIT',<0.118.0>,normal}]
+    links: [<0.116.0>,<0.7.0>]
+    dictionary: []
+    trap_exit: true
+    status: running
+    heap_size: 1597
+    stack_size: 24
+    reductions: 200
+  neighbours:
+
+=CRASH REPORT==== 25-Dec-2015::15:45:51 ===
+  crasher:
+    initial call: option_set_server:init/1
+    pid: <0.46.0>
+    registered_name: []
+    exception exit: {could_not_start,rabbit,
+                        {{failed_to_cluster_with,
+                             ['my_server_rabbit1@127.0.0.1',
+                              'my_server_rabbit3@127.0.0.1'],
+                             "Mnesia could not connect to any nodes."},
+                         {rabbit,start,[normal,[]]}}}
+      in function  gen_server:init_it/6 (gen_server.erl, line 321)
+    ancestors: [<0.2.0>]
+    messages: []
+    links: [<0.2.0>]
+    dictionary: []
+    trap_exit: false
+    status: running
+    heap_size: 10946
+    stack_size: 24
+    reductions: 1182269
+  neighbours:
+
+=CRASH REPORT==== 25-Dec-2015::15:46:14 ===
+  crasher:
+    initial call: application_master:init/4
+    pid: <0.299.0>
+    registered_name: []
+    exception exit: {bad_return,
+                        {{rabbit_shovel,start,[normal,[]]},
+                         {'EXIT',
+                             {undef,
+                                 [{rabbit_shovel,start,[normal,[]],[]},
+                                  {application_master,start_it_old,4,
+                                      [{file,"application_master.erl"},
+                                       {line,274}]}]}}}}
+      in function  application_master:init/4 (application_master.erl, line 138)
+    ancestors: [<0.298.0>]
+    messages: [{'EXIT',<0.300.0>,normal}]
+    links: [<0.298.0>,<0.7.0>]
+    dictionary: []
+    trap_exit: true
+    status: running
+    heap_size: 610
+    stack_size: 24
+    reductions: 124
+  neighbours:
+
+=CRASH REPORT==== 25-Dec-2015::15:46:16 ===
+  crasher:
+    initial call: option_set_server:init/1
+    pid: <0.46.0>
+    registered_name: []
+    exception exit: {could_not_start,rabbitmq_shovel,
+                        {undef,
+                            [{rabbit_shovel,start,[normal,[]],[]},
+                             {application_master,start_it_old,4,
+                                 [{file,"application_master.erl"},
+                                  {line,274}]}]}}
+      in function  gen_server:init_it/6 (gen_server.erl, line 321)
+    ancestors: [<0.2.0>]
+    messages: []
+    links: [<0.2.0>]
+    dictionary: []
+    trap_exit: false
+    status: running
+    heap_size: 2584
+    stack_size: 24
+    reductions: 1190781
+  neighbours:
+
+=CRASH REPORT==== 25-Dec-2015::15:47:02 ===
+  crasher:
+    initial call: application_master:init/4
+    pid: <0.118.0>
+    registered_name: []
+    exception exit: {{failed_to_cluster_with,
+                         ['my_server_rabbit1@127.0.0.1',
+                          'my_server_rabbit3@127.0.0.1'],
+                         "Mnesia could not connect to any nodes."},
+                     {rabbit,start,[normal,[]]}}
+      in function  application_master:init/4 (application_master.erl, line 138)
+    ancestors: [<0.117.0>]
+    messages: [{'EXIT',<0.119.0>,normal}]
+    links: [<0.117.0>,<0.7.0>]
+    dictionary: []
+    trap_exit: true
+    status: running
+    heap_size: 1597
+    stack_size: 24
+    reductions: 200
+  neighbours:
+
+=CRASH REPORT==== 25-Dec-2015::15:47:03 ===
+  crasher:
+    initial call: option_set_server:init/1
+    pid: <0.46.0>
+    registered_name: []
+    exception exit: {could_not_start,rabbit,
+                        {{failed_to_cluster_with,
+                             ['my_server_rabbit1@127.0.0.1',
+                              'my_server_rabbit3@127.0.0.1'],
+                             "Mnesia could not connect to any nodes."},
+                         {rabbit,start,[normal,[]]}}}
+      in function  gen_server:init_it/6 (gen_server.erl, line 321)
+    ancestors: [<0.2.0>]
+    messages: []
+    links: [<0.2.0>]
+    dictionary: []
+    trap_exit: false
+    status: running
+    heap_size: 4181
+    stack_size: 24
+    reductions: 1185959
+  neighbours:
+
+=CRASH REPORT==== 25-Dec-2015::15:48:41 ===
+  crasher:
+    initial call: application_master:init/4
+    pid: <0.115.0>
+    registered_name: []
+    exception exit: {{failed_to_cluster_with,
+                         ['my_server_rabbit3@127.0.0.1',
+                          'my_server_rabbit1@127.0.0.1'],
+                         "Mnesia could not connect to any nodes."},
+                     {rabbit,start,[normal,[]]}}
+      in function  application_master:init/4 (application_master.erl, line 138)
+    ancestors: [<0.114.0>]
+    messages: [{'EXIT',<0.116.0>,normal}]
+    links: [<0.114.0>,<0.7.0>]
+    dictionary: []
+    trap_exit: true
+    status: running
+    heap_size: 1597
+    stack_size: 24
+    reductions: 200
+  neighbours:
+
+=CRASH REPORT==== 25-Dec-2015::15:59:04 ===
+  crasher:
+    initial call: application_master:init/4
+    pid: <0.116.0>
+    registered_name: []
+    exception exit: {{failed_to_cluster_with,
+                         ['my_server_rabbit1@127.0.0.1',
+                          'my_server_rabbit3@127.0.0.1'],
+                         "Mnesia could not connect to any nodes."},
+                     {rabbit,start,[normal,[]]}}
+      in function  application_master:init/4 (application_master.erl, line 138)
+    ancestors: [<0.115.0>]
+    messages: [{'EXIT',<0.117.0>,normal}]
+    links: [<0.115.0>,<0.7.0>]
+    dictionary: []
+    trap_exit: true
+    status: running
+    heap_size: 1597
+    stack_size: 24
+    reductions: 200
+  neighbours:
+
+=CRASH REPORT==== 25-Dec-2015::15:59:05 ===
+  crasher:
+    initial call: option_set_server:init/1
+    pid: <0.46.0>
+    registered_name: []
+    exception exit: {could_not_start,rabbit,
+                        {{failed_to_cluster_with,
+                             ['my_server_rabbit1@127.0.0.1',
+                              'my_server_rabbit3@127.0.0.1'],
+                             "Mnesia could not connect to any nodes."},
+                         {rabbit,start,[normal,[]]}}}
+      in function  gen_server:init_it/6 (gen_server.erl, line 321)
+    ancestors: [<0.2.0>]
+    messages: []
+    links: [<0.2.0>]
+    dictionary: []
+    trap_exit: false
+    status: running
+    heap_size: 17711
+    stack_size: 24
+    reductions: 1175735
+  neighbours:
+
+=CRASH REPORT==== 25-Dec-2015::15:59:17 ===
+  crasher:
+    initial call: application_master:init/4
+    pid: <0.114.0>
+    registered_name: []
+    exception exit: {{failed_to_cluster_with,
+                         ['my_server_rabbit1@127.0.0.1',
+                          'my_server_rabbit3@127.0.0.1'],
+                         "Mnesia could not connect to any nodes."},
+                     {rabbit,start,[normal,[]]}}
+      in function  application_master:init/4 (application_master.erl, line 138)
+    ancestors: [<0.113.0>]
+    messages: [{'EXIT',<0.115.0>,normal}]
+    links: [<0.113.0>,<0.7.0>]
+    dictionary: []
+    trap_exit: true
+    status: running
+    heap_size: 1597
+    stack_size: 24
+    reductions: 200
+  neighbours:
+
+=CRASH REPORT==== 25-Dec-2015::15:59:18 ===
+  crasher:
+    initial call: option_set_server:init/1
+    pid: <0.46.0>
+    registered_name: []
+    exception exit: {could_not_start,rabbit,
+                        {{failed_to_cluster_with,
+                             ['my_server_rabbit1@127.0.0.1',
+                              'my_server_rabbit3@127.0.0.1'],
+                             "Mnesia could not connect to any nodes."},
+                         {rabbit,start,[normal,[]]}}}
+      in function  gen_server:init_it/6 (gen_server.erl, line 321)
+    ancestors: [<0.2.0>]
+    messages: []
+    links: [<0.2.0>]
+    dictionary: []
+    trap_exit: false
+    status: running
+    heap_size: 17711
+    stack_size: 24
+    reductions: 1175721
+  neighbours:
+
+=CRASH REPORT==== 25-Dec-2015::16:04:50 ===
+  crasher:
+    initial call: application_master:init/4
+    pid: <0.117.0>
+    registered_name: []
+    exception exit: {{failed_to_cluster_with,
+                         ['my_server_rabbit1@127.0.0.1',
+                          'my_server_rabbit3@127.0.0.1'],
+                         "Mnesia could not connect to any nodes."},
+                     {rabbit,start,[normal,[]]}}
+      in function  application_master:init/4 (application_master.erl, line 138)
+    ancestors: [<0.116.0>]
+    messages: [{'EXIT',<0.118.0>,normal}]
+    links: [<0.116.0>,<0.7.0>]
+    dictionary: []
+    trap_exit: true
+    status: running
+    heap_size: 1597
+    stack_size: 24
+    reductions: 200
+  neighbours:
+
+=CRASH REPORT==== 25-Dec-2015::16:04:51 ===
+  crasher:
+    initial call: option_set_server:init/1
+    pid: <0.46.0>
+    registered_name: []
+    exception exit: {could_not_start,rabbit,
+                        {{failed_to_cluster_with,
+                             ['my_server_rabbit1@127.0.0.1',
+                              'my_server_rabbit3@127.0.0.1'],
+                             "Mnesia could not connect to any nodes."},
+                         {rabbit,start,[normal,[]]}}}
+      in function  gen_server:init_it/6 (gen_server.erl, line 321)
+    ancestors: [<0.2.0>]
+    messages: []
+    links: [<0.2.0>]
+    dictionary: []
+    trap_exit: false
+    status: running
+    heap_size: 6765
+    stack_size: 24
+    reductions: 1442842
+  neighbours:

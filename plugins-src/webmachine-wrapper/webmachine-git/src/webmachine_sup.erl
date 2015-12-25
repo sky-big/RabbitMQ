@@ -30,36 +30,39 @@
 
 %% @spec start_link() -> ServerRet
 %% @doc API for starting the supervisor.
+%% webmachine应用监督进程的启动
 start_link() ->
-    supervisor:start_link({local, ?MODULE}, ?MODULE, []).
+	supervisor:start_link({local, ?MODULE}, ?MODULE, []).
 
 %% @spec upgrade() -> ok
 %% @doc Add processes if necessary.
 upgrade() ->
-    {ok, {_, Specs}} = init([]),
-
-    Old = sets:from_list(
-            [Name || {Name, _, _, _} <- supervisor:which_children(?MODULE)]),
-    New = sets:from_list([Name || {Name, _, _, _, _, _} <- Specs]),
-    Kill = sets:subtract(Old, New),
-
-    sets:fold(fun (Id, ok) ->
-                      supervisor:terminate_child(?MODULE, Id),
-                      supervisor:delete_child(?MODULE, Id),
-                      ok
-              end, ok, Kill),
-
-    [supervisor:start_child(?MODULE, Spec) || Spec <- Specs],
-    ok.
+	{ok, {_, Specs}} = init([]),
+	
+	Old = sets:from_list(
+			[Name || {Name, _, _, _} <- supervisor:which_children(?MODULE)]),
+	New = sets:from_list([Name || {Name, _, _, _, _, _} <- Specs]),
+	Kill = sets:subtract(Old, New),
+	
+	sets:fold(fun (Id, ok) ->
+					   supervisor:terminate_child(?MODULE, Id),
+					   supervisor:delete_child(?MODULE, Id),
+					   ok
+			  end, ok, Kill),
+	
+	[supervisor:start_child(?MODULE, Spec) || Spec <- Specs],
+	ok.
 
 %% @spec init([]) -> SupervisorTree
 %% @doc supervisor callback.
 init([]) ->
-    Router = {webmachine_router,
-              {webmachine_router, start_link, []},
-              permanent, 5000, worker, [webmachine_router]},
-    LogHandler = [{webmachine_logger, {gen_event, start_link, [{local, ?EVENT_LOGGER}]},
-                   permanent, 5000, worker, [dynamic]},
-                  {webmachine_logger_watcher_sup, {webmachine_logger_watcher_sup, start_link, []},
-                   permanent, 5000, supervisor, [webmachine_logger_watcher_sup]}],
-    {ok, {{one_for_one, 9, 10},  LogHandler ++ [Router]}}.
+	%% webmachine_router进程的启动配置
+	Router = {webmachine_router,
+			  {webmachine_router, start_link, []},
+			  permanent, 5000, worker, [webmachine_router]},
+	%% 启动日志进程
+	LogHandler = [{webmachine_logger, {gen_event, start_link, [{local, ?EVENT_LOGGER}]},
+				   permanent, 5000, worker, [dynamic]},
+				  {webmachine_logger_watcher_sup, {webmachine_logger_watcher_sup, start_link, []},
+				   permanent, 5000, supervisor, [webmachine_logger_watcher_sup]}],
+	{ok, {{one_for_one, 9, 10},  LogHandler ++ [Router]}}.

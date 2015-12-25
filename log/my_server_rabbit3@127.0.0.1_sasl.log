@@ -1,0 +1,144 @@
+
+=CRASH REPORT==== 25-Dec-2015::15:45:52 ===
+  crasher:
+    initial call: application_master:init/4
+    pid: <0.293.0>
+    registered_name: []
+    exception exit: {bad_return,
+                        {{rabbit_shovel,start,[normal,[]]},
+                         {'EXIT',
+                             {undef,
+                                 [{rabbit_shovel,start,[normal,[]],[]},
+                                  {application_master,start_it_old,4,
+                                      [{file,"application_master.erl"},
+                                       {line,274}]}]}}}}
+      in function  application_master:init/4 (application_master.erl, line 138)
+    ancestors: [<0.292.0>]
+    messages: [{'EXIT',<0.294.0>,normal}]
+    links: [<0.292.0>,<0.7.0>]
+    dictionary: []
+    trap_exit: true
+    status: running
+    heap_size: 610
+    stack_size: 24
+    reductions: 124
+  neighbours:
+
+=CRASH REPORT==== 25-Dec-2015::15:45:53 ===
+  crasher:
+    initial call: option_set_server:init/1
+    pid: <0.46.0>
+    registered_name: []
+    exception exit: {could_not_start,rabbitmq_shovel,
+                        {undef,
+                            [{rabbit_shovel,start,[normal,[]],[]},
+                             {application_master,start_it_old,4,
+                                 [{file,"application_master.erl"},
+                                  {line,274}]}]}}
+      in function  gen_server:init_it/6 (gen_server.erl, line 321)
+    ancestors: [<0.2.0>]
+    messages: []
+    links: [<0.2.0>]
+    dictionary: []
+    trap_exit: false
+    status: running
+    heap_size: 2584
+    stack_size: 24
+    reductions: 1182185
+  neighbours:
+
+=CRASH REPORT==== 25-Dec-2015::15:46:17 ===
+  crasher:
+    initial call: application_master:init/4
+    pid: <0.331.0>
+    registered_name: []
+    exception exit: {bad_return,
+                        {{rabbit_shovel,start,[normal,[]]},
+                         {'EXIT',
+                             {undef,
+                                 [{rabbit_shovel,start,[normal,[]],[]},
+                                  {application_master,start_it_old,4,
+                                      [{file,"application_master.erl"},
+                                       {line,274}]}]}}}}
+      in function  application_master:init/4 (application_master.erl, line 138)
+    ancestors: [<0.330.0>]
+    messages: [{'EXIT',<0.332.0>,normal}]
+    links: [<0.330.0>,<0.7.0>]
+    dictionary: []
+    trap_exit: true
+    status: running
+    heap_size: 610
+    stack_size: 24
+    reductions: 124
+  neighbours:
+
+=CRASH REPORT==== 25-Dec-2015::15:46:19 ===
+  crasher:
+    initial call: option_set_server:init/1
+    pid: <0.46.0>
+    registered_name: []
+    exception exit: {could_not_start,rabbitmq_shovel,
+                        {undef,
+                            [{rabbit_shovel,start,[normal,[]],[]},
+                             {application_master,start_it_old,4,
+                                 [{file,"application_master.erl"},
+                                  {line,274}]}]}}
+      in function  gen_server:init_it/6 (gen_server.erl, line 321)
+    ancestors: [<0.2.0>]
+    messages: []
+    links: [<0.2.0>]
+    dictionary: []
+    trap_exit: false
+    status: running
+    heap_size: 2584
+    stack_size: 24
+    reductions: 1190753
+  neighbours:
+
+=CRASH REPORT==== 25-Dec-2015::15:47:04 ===
+  crasher:
+    initial call: application_master:init/4
+    pid: <0.289.0>
+    registered_name: []
+    exception exit: {bad_return,
+                        {{rabbit_shovel,start,[normal,[]]},
+                         {'EXIT',
+                             {undef,
+                                 [{rabbit_shovel,start,[normal,[]],[]},
+                                  {application_master,start_it_old,4,
+                                      [{file,"application_master.erl"},
+                                       {line,274}]}]}}}}
+      in function  application_master:init/4 (application_master.erl, line 138)
+    ancestors: [<0.288.0>]
+    messages: [{'EXIT',<0.290.0>,normal}]
+    links: [<0.288.0>,<0.7.0>]
+    dictionary: []
+    trap_exit: true
+    status: running
+    heap_size: 610
+    stack_size: 24
+    reductions: 124
+  neighbours:
+
+=CRASH REPORT==== 25-Dec-2015::15:47:06 ===
+  crasher:
+    initial call: option_set_server:init/1
+    pid: <0.46.0>
+    registered_name: []
+    exception exit: {could_not_start,rabbitmq_shovel,
+                        {undef,
+                            [{rabbit_shovel,start,[normal,[]],[]},
+                             {application_master,start_it_old,4,
+                                 [{file,"application_master.erl"},
+                                  {line,274}]}]}}
+      in function  gen_server:init_it/6 (gen_server.erl, line 321)
+    ancestors: [<0.2.0>]
+    messages: []
+    links: [<0.2.0>]
+    dictionary: []
+    trap_exit: false
+    status: running
+    heap_size: 2584
+    stack_size: 24
+    reductions: 1185131
+  neighbours:

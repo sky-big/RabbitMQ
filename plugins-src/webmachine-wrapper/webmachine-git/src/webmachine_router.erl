@@ -117,21 +117,22 @@ init_routes(Name, DefaultRoutes) ->
 
 %% @spec start_link() -> {ok, pid()} | {error, any()}
 %% @doc Starts the webmachine_router gen_server.
+%% webmachine_router进程的启动入口
 start_link() ->
-    %% We expect to only be called from webmachine_sup
-    %%
-    %% Set up the ETS configuration table.
-    try ets:new(?MODULE, [named_table, public, set, {keypos, 1},
-                {read_concurrency, true}]) of
-        _Result ->
-            ok
-    catch
-        error:badarg ->
-            %% The table already exists, which is fine. The webmachine_router
-            %% probably crashed and this is a restart.
-            ok
-    end,
-    gen_server:start_link({local, ?SERVER}, ?MODULE, [], []).
+	%% We expect to only be called from webmachine_sup
+	%%
+	%% Set up the ETS configuration table.
+	try ets:new(?MODULE, [named_table, public, set, {keypos, 1},
+						  {read_concurrency, true}]) of
+		_Result ->
+			ok
+	catch
+		error:badarg ->
+			%% The table already exists, which is fine. The webmachine_router
+			%% probably crashed and this is a restart.
+			ok
+	end,
+	gen_server:start_link({local, ?SERVER}, ?MODULE, [], []).
 
 %% @private
 init([]) ->
@@ -139,42 +140,45 @@ init([]) ->
 
 %% @private
 handle_call({remove_resource, Name, Resource}, _From, State) ->
-    DL = filter_by_resource(Resource, get_dispatch_list(Name)),
-    {reply, set_dispatch_list(Name, DL), State};
+	DL = filter_by_resource(Resource, get_dispatch_list(Name)),
+	{reply, set_dispatch_list(Name, DL), State};
 
 handle_call({remove_route, Name, Route}, _From, State) ->
-    DL = [D || D <- get_dispatch_list(Name),
-               D /= Route],
-    {reply, set_dispatch_list(Name, DL), State};
+	DL = [D || D <- get_dispatch_list(Name),
+			   D /= Route],
+	{reply, set_dispatch_list(Name, DL), State};
 
 handle_call({add_route, Name, Route}, _From, State) ->
-    DL = [Route|[D || D <- get_dispatch_list(Name),
-                      D /= Route]],
-    {reply, set_dispatch_list(Name, DL), State};
+	DL = [Route|[D || D <- get_dispatch_list(Name),
+					  D /= Route]],
+	{reply, set_dispatch_list(Name, DL), State};
 
 handle_call({init_routes, Name, DefaultRoutes}, _From, State) ->
-    %% if the table lacks a dispatch_list row, set it
-    ets:insert_new(?MODULE, {Name, DefaultRoutes}),
-    {reply, ok, State};
+	%% if the table lacks a dispatch_list row, set it
+	ets:insert_new(?MODULE, {Name, DefaultRoutes}),
+	{reply, ok, State};
 
 handle_call(_Request, _From, State) ->
-  {reply, ignore, State}.
+	{reply, ignore, State}.
+
 
 %% @private
 handle_cast(_Msg, State) ->
-  {noreply, State}.
+	{noreply, State}.
+
 
 %% @private
 handle_info(_Info, State) ->
-  {noreply, State}.
+	{noreply, State}.
+
 
 %% @private
 terminate(_Reason, _State) ->
-  ok.
+	ok.
 
 %% @private
 code_change(_OldVsn, State, _Extra) ->
-  {ok, State}.
+	{ok, State}.
 
 %% Internal functions
 

@@ -1,0 +1,8 @@
+{application, rabbitmq_tracing,
+ [{description, "RabbitMQ message logging / tracing"},
+  {vsn, "%%VSN%%"},
+  {modules, []},
+  {registered, []},
+  {mod, {rabbit_tracing_app, []}},
+  {env, [{directory, "/var/tmp/rabbitmq-tracing"}]},
+  {applications, [kernel, stdlib, rabbit, rabbitmq_management]}]}.
