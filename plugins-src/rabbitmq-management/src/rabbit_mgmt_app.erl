@@ -86,10 +86,10 @@ module_path(Module) ->
 
 %% rabbitmq_management管理器处理客户端的Http请求
 respond(Req, LocalPaths, WMLoop) ->
-	io:format("KKKKKKKKKKKKKKKK:~p~n", [{LocalPaths}]),
 	%% 从Req请求中得到客户端请求的路径
 	Path = Req:get(path),
 	Redirect = fun(L) -> {301, [{"Location", L}], ""} end,
+	io:format("AAAAAAAAAAAAAAAAAAA:~p~n", [Path]),
 	case Path of
 		"/api/" ++ Rest when length(Rest) > 0 ->
 			WMLoop(Req);

@@ -47,33 +47,45 @@ info_all(Pid) ->
 %% RabbitMQ系统跟踪消费者启动的回调初始化函数
 init(Args) ->
 	process_flag(trap_exit, true),
+	%% 获得存储跟踪信息的文件名字
 	Name = pget(name, Args),
+	%% 获得要跟踪的交换机的名字
 	VHost = pget(vhost, Args),
+	%% 获得跟踪信息的存储上限
 	MaxPayload = pget(max_payload_bytes, Args, unlimited),
+	%% 启动跟RabbitMQ系统的连接
 	{ok, Conn} = amqp_connection:start(
 				   #amqp_params_direct{virtual_host = VHost}),
 	link(Conn),
+	%% 在连接进程下开启channel进程
 	{ok, Ch} = amqp_connection:open_channel(Conn),
 	link(Ch),
+	%% 声明跟连接进程绑定的队列(该队列会是连接关闭后队列也会立刻删除，队列的名字也是由RabbitMQ服务器随机生成一个)
 	#'queue.declare_ok'{queue = Q} =
 						   amqp_channel:call(Ch, #'queue.declare'{durable   = false,
 																  exclusive = true}),
+	%% 将队列和跟踪相关的交换机<<"amq.rabbitmq.trace">>绑定
 	#'queue.bind_ok'{} =
 						amqp_channel:call(
 						  Ch, #'queue.bind'{exchange = ?X, queue = Q,
 											routing_key = pget(pattern, Args)}),
 	amqp_channel:enable_delivery_flow_control(Ch),
+	%% 订阅生成的队列信息
 	#'basic.consume_ok'{} =
 						   amqp_channel:subscribe(Ch, #'basic.consume'{queue  = Q,
 																	   no_ack = true}, self()),
+	%% 获得存储跟踪信息文件的路径
 	{ok, Dir} = application:get_env(directory),
 	Filename = Dir ++ "/" ++ binary_to_list(Name) ++ ".log",
+	%% 确保文件路径的存在
 	case filelib:ensure_dir(Filename) of
 		ok ->
+			%% 打开指定的跟踪文件
 			case prim_file:open(Filename, [append]) of
 				{ok, F} ->
 					rabbit_tracing_traces:announce(VHost, Name, self()),
 					Format = list_to_atom(binary_to_list(pget(format, Args))),
+					%% 向日志打印跟踪文件开启
 					rabbit_log:info("Tracer opened log file ~p with "
 										"format ~p~n", [Filename, Format]),
 					{ok, #state{conn = Conn, ch = Ch, vhost = VHost, queue = Q,
@@ -102,9 +114,11 @@ handle_cast(_C, State) ->
 	{noreply, State}.
 
 
+%% 收到队列发送过来的跟踪信息
 handle_info({BasicDeliver, Msg, DeliveryCtx},
 			State = #state{format = Format}) ->
 	amqp_channel:notify_received(DeliveryCtx),
+	%% 将跟踪的信息标准化，然后将信息写入到跟踪信息文件中
 	{noreply, log(Format, delivery_to_log_record({BasicDeliver, Msg}, State),
 				  State),
 	 0};
@@ -132,7 +146,7 @@ terminate(_Reason, _State) ->
 code_change(_, State, _) -> {ok, State}.
 
 %%----------------------------------------------------------------------------
-
+%% 将跟踪的信息标准化
 delivery_to_log_record({#'basic.deliver'{routing_key = Key},
 						#amqp_msg{props   = #'P_basic'{headers = H},
 								  payload = Payload}}, State) ->
@@ -166,6 +180,7 @@ delivery_to_log_record({#'basic.deliver'{routing_key = Key},
 				payload      = truncate(Payload, State)}.
 
 
+%% 将跟踪信息生成文本格式
 log(text, Record, State) ->
     Fmt = "~n========================================"
         "========================================~n~s: Message ~s~n~n"
@@ -200,6 +215,7 @@ log(text, Record, State) ->
         [Record#log_record.properties, Record#log_record.payload],
     print_log(io_lib:format(Fmt, Args), State);
 
+%% 将跟踪信息生成json格式
 log(json, Record, State) ->
 	print_log(mochijson2:encode(
 				[{timestamp,    Record#log_record.timestamp},

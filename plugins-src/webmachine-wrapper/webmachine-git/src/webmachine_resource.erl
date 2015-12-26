@@ -186,8 +186,10 @@ resource_call(F, ReqData, {?MODULE, R_Mod, R_ModState, _, R_Trace}) ->
         apply(R_Mod, F, [ReqData, R_ModState])
     catch C:R ->
             Reason = {C, R, trim_trace(erlang:get_stacktrace())},
+			io:format("000000000000000000000000:~p~n", [Reason]),
             {{error, Reason}, ReqData, R_ModState}
     end,
+	io:format("CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC:~p~n", [{F, R_Mod, R_ModState, R_Trace}]),
         case R_Trace of
         false -> nop;
         _ -> log_call(R_Trace, result, R_Mod, F, Result)

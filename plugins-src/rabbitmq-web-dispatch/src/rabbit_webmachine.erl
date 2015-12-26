@@ -45,6 +45,7 @@ makeloop(Dispatch) ->
 					 maybe_log_access(ReqState3);
 				 {Mod, ModOpts, HostTokens, Port, PathTokens, Bindings,
 				  AppRoot, StringPath} ->
+					 io:format("BBBBBBBBBBB:~p~n", [{Mod, ModOpts, HostTokens, Port, PathTokens, Bindings, AppRoot, StringPath}]),
 					 BootstrapResource = webmachine_resource:new(x,x,x,x),
 					 {ok, Resource} = BootstrapResource:wrap(Mod, ModOpts),
 					 {ok, RS1} = Req:load_dispatch_data(Bindings, HostTokens, Port,

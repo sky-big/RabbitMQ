@@ -14,6 +14,7 @@
 %%   Copyright (c) 2007-2014 GoPivotal, Inc.  All rights reserved.
 
 -module(rabbit_tracing_wm_file).
+%% 读取某个跟踪信息文件的内容的处理模块
 
 -export([init/1, resource_exists/2, serve/2, content_types_provided/2,
          is_authorized/2, allowed_methods/2, delete_resource/2]).

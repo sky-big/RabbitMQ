@@ -14,6 +14,7 @@
 %%   Copyright (c) 2007-2014 GoPivotal, Inc.  All rights reserved.
 
 -module(rabbit_tracing_wm_trace).
+%% 创建和删除跟踪信息的逻辑处理模块
 
 -export([init/1, resource_exists/2, to_json/2,
          content_types_provided/2, content_types_accepted/2,
@@ -40,6 +41,7 @@ content_types_accepted(ReqData, Context) ->
 allowed_methods(ReqData, Context) ->
     {['HEAD', 'GET', 'PUT', 'DELETE'], ReqData, Context}.
 
+%% 判断VHost是否存在
 resource_exists(ReqData, Context) ->
     {case trace(ReqData) of
          not_found -> false;
@@ -50,24 +52,24 @@ to_json(ReqData, Context) ->
     rabbit_mgmt_util:reply(trace(ReqData), ReqData, Context).
 
 accept_content(RD, Ctx) ->
-    case rabbit_mgmt_util:vhost(RD) of
-        not_found ->
-            not_found;
-        VHost ->
-            Name = rabbit_mgmt_util:id(name, RD),
-            rabbit_mgmt_util:with_decode(
-              [format, pattern], RD, Ctx,
-              fun([_, _], Trace) ->
-                      Fs = [fun val_payload_bytes/3, fun val_format/3,
-                            fun val_create/3],
-                      case lists:foldl(fun (F,  ok)  -> F(VHost, Name, Trace);
-                                           (_F, Err) -> Err
-                                       end, ok, Fs) of
-                          ok  -> {true, RD, Ctx};
-                          Err -> rabbit_mgmt_util:bad_request(Err, RD, Ctx)
-                      end
-              end)
-    end.
+	case rabbit_mgmt_util:vhost(RD) of
+		not_found ->
+			not_found;
+		VHost ->
+			Name = rabbit_mgmt_util:id(name, RD),
+			rabbit_mgmt_util:with_decode(
+			  [format, pattern], RD, Ctx,
+			  fun([_, _], Trace) ->
+					  Fs = [fun val_payload_bytes/3, fun val_format/3,
+							fun val_create/3],
+					  case lists:foldl(fun (F,  ok)  -> F(VHost, Name, Trace);
+										  (_F, Err) -> Err
+									   end, ok, Fs) of
+						  ok  -> {true, RD, Ctx};
+						  Err -> rabbit_mgmt_util:bad_request(Err, RD, Ctx)
+					  end
+			  end)
+	end.
 
 delete_resource(ReqData, Context) ->
     VHost = rabbit_mgmt_util:vhost(ReqData),
@@ -79,28 +81,34 @@ is_authorized(ReqData, Context) ->
     rabbit_mgmt_util:is_authorized_admin(ReqData, Context).
 
 %%--------------------------------------------------------------------
-
+%% 判断VHost是否存在
 trace(ReqData) ->
-    case rabbit_mgmt_util:vhost(ReqData) of
-        not_found -> not_found;
-        VHost     -> rabbit_tracing_traces:lookup(
-                       VHost, rabbit_mgmt_util:id(name, ReqData))
-    end.
+	case rabbit_mgmt_util:vhost(ReqData) of
+		not_found -> not_found;
+		VHost     -> rabbit_tracing_traces:lookup(
+					   VHost, rabbit_mgmt_util:id(name, ReqData))
+	end.
 
+
+%% 获得跟踪文件的最大上限
 val_payload_bytes(_VHost, _Name, Trace) ->
-    case is_integer(pget(max_payload_bytes, Trace, 0)) of
-        false -> <<"max_payload_bytes not integer">>;
-        true  -> ok
-    end.
+	case is_integer(pget(max_payload_bytes, Trace, 0)) of
+		false -> <<"max_payload_bytes not integer">>;
+		true  -> ok
+	end.
 
+
+%% 获得跟踪文件的标准打印模式
 val_format(_VHost, _Name, Trace) ->
-    case lists:member(pget(format, Trace), [<<"json">>, <<"text">>]) of
-        false -> <<"format not json or text">>;
-        true  -> ok
-    end.
+	case lists:member(pget(format, Trace), [<<"json">>, <<"text">>]) of
+		false -> <<"format not json or text">>;
+		true  -> ok
+	end.
 
+
+%% 跟踪新的创建
 val_create(VHost, Name, Trace) ->
-    case rabbit_tracing_traces:create(VHost, Name, Trace) of
-        {ok, _} -> ok;
-        _       -> ?ERR
-    end.
+	case rabbit_tracing_traces:create(VHost, Name, Trace) of
+		{ok, _} -> ok;
+		_       -> ?ERR
+	end.

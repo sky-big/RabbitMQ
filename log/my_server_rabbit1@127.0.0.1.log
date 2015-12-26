@@ -1434,3 +1434,911 @@ Server startup complete; 8 plugins started.
  * webmachine
  * mochiweb
  * amqp_client
+
+=INFO REPORT==== 25-Dec-2015::20:12:17 ===
+Starting RabbitMQ 3.5.3 on Erlang R15B
+Copyright (C) 2007-2014 GoPivotal, Inc.
+Licensed under the MPL.  See http://www.rabbitmq.com/
+
+=INFO REPORT==== 25-Dec-2015::20:12:17 ===
+node           : my_server_rabbit1@127.0.0.1
+home dir       : C:\Users\xxw
+config file(s) : (none)
+cookie hash    : vsoziVgtD2XOblNsBTYZ/w==
+log            : ../log/my_server_rabbit1@127.0.0.1.log
+sasl log       : ../log/my_server_rabbit1@127.0.0.1_sasl.log
+database dir   : c:/github/RabbitMQ/ebin/../db/my_server_rabbit1@127.0.0.1-mnesia
+
+=WARNING REPORT==== 25-Dec-2015::20:12:17 ===
+Kernel poll (epoll, kqueue, etc) is disabled. Throughput and CPU utilization may worsen.
+
+=WARNING REPORT==== 25-Dec-2015::20:12:18 ===
+Only 2048MB of 8068MB memory usable due to limited address space.
+Crashes due to memory exhaustion are possible - see
+http://www.rabbitmq.com/memory.html#address-space
+
+=INFO REPORT==== 25-Dec-2015::20:12:18 ===
+Memory limit set to 819MB of 8068MB total.
+
+=INFO REPORT==== 25-Dec-2015::20:12:18 ===
+Disk free limit set to 50MB
+
+=INFO REPORT==== 25-Dec-2015::20:12:18 ===
+Limiting to approx 924 file handles (829 sockets)
+
+=INFO REPORT==== 25-Dec-2015::20:12:20 ===
+Priority queues enabled, real BQ is rabbit_variable_queue
+
+=INFO REPORT==== 25-Dec-2015::20:12:20 ===
+Management plugin: using rates mode 'basic'
+
+=INFO REPORT==== 25-Dec-2015::20:12:20 ===
+msg_store_transient: using rabbit_msg_store_ets_index to provide index
+
+=INFO REPORT==== 25-Dec-2015::20:12:20 ===
+msg_store_persistent: using rabbit_msg_store_ets_index to provide index
+
+=WARNING REPORT==== 25-Dec-2015::20:12:20 ===
+msg_store_persistent: rebuilding indices from scratch
+
+=INFO REPORT==== 25-Dec-2015::20:12:20 ===
+started TCP Listener on 127.0.0.1:5673
+
+=INFO REPORT==== 25-Dec-2015::20:12:20 ===
+rabbit on node 'my_server_rabbit2@127.0.0.1' up
+
+=INFO REPORT==== 25-Dec-2015::20:12:21 ===
+Management plugin started. Port: 15673
+
+=INFO REPORT==== 25-Dec-2015::20:12:21 ===
+rabbit on node 'my_server_rabbit3@127.0.0.1' up
+
+=INFO REPORT==== 25-Dec-2015::20:12:21 ===
+Server startup complete; 8 plugins started.
+ * rabbitmq_tracing
+ * rabbitmq_management
+ * rabbitmq_shovel
+ * rabbitmq_management_agent
+ * rabbitmq_web_dispatch
+ * webmachine
+ * mochiweb
+ * amqp_client
+
+=ERROR REPORT==== 25-Dec-2015::20:12:27 ===
+webmachine error: path="/api/trace-files"
+{error,undef,
+    [{rabbit_tracing_wm_files,ping,
+         [{wm_reqdata,'GET',http,
+              {1,1},
+              "127.0.0.1",
+              {wm_reqstate,#Port<0.12503>,
+                  [{resource_module,rabbit_tracing_wm_files}],
+                  undefined,"127.0.0.1",
+                  {wm_reqdata,'GET',http,
+                      {1,1},
+                      "127.0.0.1",defined_on_call,[],"/api/trace-files",
+                      "/api/trace-files",[],[],"../..",500,1073741824,
+                      67108864,[],[],
+                      {8,
+                       {"host",
+                        {'Host',"localhost:15673"},
+                        {"accept",
+                         {'Accept',
+                             "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"},
+                         nil,
+                         {"accept-language",
+                          {'Accept-Language',
+                              "zh-CN,zh;q=0.8,en-US;q=0.5,en;q=0.3"},
+                          {"accept-encoding",
+                           {'Accept-Encoding',"gzip, deflate"},
+                           nil,nil},
+                          {"authorization",
+                           {'Authorization',"Basic Z3Vlc3Q6Z3Vlc3Q="},
+                           nil,
+                           {"connection",
+                            {'Connection',"keep-alive"},
+                            nil,nil}}}},
+                        {"user-agent",
+                         {'User-Agent',
+                             "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:43.0) Gecko/20100101 Firefox/43.0"},
+                         {"referer",
+                          {'Referer',"http://localhost:15673/"},
+                          nil,nil},
+                         nil}}},
+                      not_fetched_yet,false,
+                      {0,nil},
+                      <<>>,follow_request,[],80,[]},
+                  undefined,undefined,
+                  {wm_log_data,undefined,
+                      {1451,45547,495001},
+                      'GET',
+                      {8,
+                       {"host",
+                        {'Host',"localhost:15673"},
+                        {"accept",
+                         {'Accept',
+                             "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"},
+                         nil,
+                         {"accept-language",
+                          {'Accept-Language',
+                              "zh-CN,zh;q=0.8,en-US;q=0.5,en;q=0.3"},
+                          {"accept-encoding",
+                           {'Accept-Encoding',"gzip, deflate"},
+                           nil,nil},
+                          {"authorization",
+                           {'Authorization',"Basic Z3Vlc3Q6Z3Vlc3Q="},
+                           nil,
+                           {"connection",
+                            {'Connection',"keep-alive"},
+                            nil,nil}}}},
+                        {"user-agent",
+                         {'User-Agent',
+                             "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:43.0) Gecko/20100101 Firefox/43.0"},
+                         {"referer",
+                          {'Referer',"http://localhost:15673/"},
+                          nil,nil},
+                         nil}}},
+                      "127.0.0.1","/api/trace-files",
+                      {1,1},
+                      404,0,undefined,undefined,undefined}},
+              [],"/api/trace-files","/api/trace-files",[],[],"../..",500,
+              1073741824,67108864,[],[],
+              {8,
+               {"host",
+                {'Host',"localhost:15673"},
+                {"accept",
+                 {'Accept',
+                     "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"},
+                 nil,
+                 {"accept-language",
+                  {'Accept-Language',"zh-CN,zh;q=0.8,en-US;q=0.5,en;q=0.3"},
+                  {"accept-encoding",
+                   {'Accept-Encoding',"gzip, deflate"},
+                   nil,nil},
+                  {"authorization",
+                   {'Authorization',"Basic Z3Vlc3Q6Z3Vlc3Q="},
+                   nil,
+                   {"connection",{'Connection',"keep-alive"},nil,nil}}}},
+                {"user-agent",
+                 {'User-Agent',
+                     "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:43.0) Gecko/20100101 Firefox/43.0"},
+                 {"referer",{'Referer',"http://localhost:15673/"},nil,nil},
+                 nil}}},
+              not_fetched_yet,false,
+              {0,nil},
+              <<>>,follow_request,[],80,[]},
+          {context,undefined,none}],
+         []},
+     {webmachine_resource,resource_call,3,
+         [{file,
+              "../plugins-src/webmachine-wrapper/webmachine-git/src/webmachine_resource.erl"},
+          {line,186}]},
+     {webmachine_resource,do,3,
+         [{file,
+              "../plugins-src/webmachine-wrapper/webmachine-git/src/webmachine_resource.erl"},
+          {line,142}]},
+     {webmachine_decision_core,resource_call,1,
+         [{file,
+              "../plugins-src/webmachine-wrapper/webmachine-git/src/webmachine_decision_core.erl"},
+          {line,48}]},
+     {webmachine_decision_core,decision,1,
+         [{file,
+              "../plugins-src/webmachine-wrapper/webmachine-git/src/webmachine_decision_core.erl"},
+          {line,160}]},
+     {webmachine_decision_core,handle_request,2,
+         [{file,
+              "../plugins-src/webmachine-wrapper/webmachine-git/src/webmachine_decision_core.erl"},
+          {line,33}]},
+     {rabbit_webmachine,'-makeloop/1-fun-0-',2,
+         [{file,
+              "../plugins-src/rabbitmq-web-dispatch/src/rabbit_webmachine.erl"},
+          {line,56}]},
+     {mochiweb_http,headers,5,
+         [{file,
+              "../plugins-src/mochiweb-wrapper/mochiweb-git/src/mochiweb_http.erl"},
+          {line,101}]}]}
+
+=INFO REPORT==== 25-Dec-2015::20:20:05 ===
+Starting RabbitMQ 3.5.3 on Erlang R15B
+Copyright (C) 2007-2014 GoPivotal, Inc.
+Licensed under the MPL.  See http://www.rabbitmq.com/
+
+=INFO REPORT==== 25-Dec-2015::20:20:05 ===
+node           : my_server_rabbit1@127.0.0.1
+home dir       : C:\Users\xxw
+config file(s) : (none)
+cookie hash    : vsoziVgtD2XOblNsBTYZ/w==
+log            : ../log/my_server_rabbit1@127.0.0.1.log
+sasl log       : ../log/my_server_rabbit1@127.0.0.1_sasl.log
+database dir   : c:/github/RabbitMQ/ebin/../db/my_server_rabbit1@127.0.0.1-mnesia
+
+=WARNING REPORT==== 25-Dec-2015::20:20:05 ===
+Kernel poll (epoll, kqueue, etc) is disabled. Throughput and CPU utilization may worsen.
+
+=WARNING REPORT==== 25-Dec-2015::20:20:05 ===
+Only 2048MB of 8068MB memory usable due to limited address space.
+Crashes due to memory exhaustion are possible - see
+http://www.rabbitmq.com/memory.html#address-space
+
+=INFO REPORT==== 25-Dec-2015::20:20:05 ===
+Memory limit set to 819MB of 8068MB total.
+
+=INFO REPORT==== 25-Dec-2015::20:20:05 ===
+Disk free limit set to 50MB
+
+=INFO REPORT==== 25-Dec-2015::20:20:05 ===
+Limiting to approx 924 file handles (829 sockets)
+
+=INFO REPORT==== 25-Dec-2015::20:20:08 ===
+Priority queues enabled, real BQ is rabbit_variable_queue
+
+=INFO REPORT==== 25-Dec-2015::20:20:08 ===
+Management plugin: using rates mode 'basic'
+
+=INFO REPORT==== 25-Dec-2015::20:20:08 ===
+rabbit on node 'my_server_rabbit3@127.0.0.1' up
+
+=INFO REPORT==== 25-Dec-2015::20:20:08 ===
+msg_store_transient: using rabbit_msg_store_ets_index to provide index
+
+=INFO REPORT==== 25-Dec-2015::20:20:08 ===
+msg_store_persistent: using rabbit_msg_store_ets_index to provide index
+
+=WARNING REPORT==== 25-Dec-2015::20:20:08 ===
+msg_store_persistent: rebuilding indices from scratch
+
+=INFO REPORT==== 25-Dec-2015::20:20:08 ===
+started TCP Listener on 127.0.0.1:5673
+
+=INFO REPORT==== 25-Dec-2015::20:20:08 ===
+Management plugin started. Port: 15673
+
+=INFO REPORT==== 25-Dec-2015::20:20:08 ===
+rabbit on node 'my_server_rabbit2@127.0.0.1' up
+
+=INFO REPORT==== 25-Dec-2015::20:20:08 ===
+Server startup complete; 8 plugins started.
+ * rabbitmq_tracing
+ * rabbitmq_management
+ * rabbitmq_shovel
+ * rabbitmq_management_agent
+ * rabbitmq_web_dispatch
+ * webmachine
+ * mochiweb
+ * amqp_client
+
+=ERROR REPORT==== 25-Dec-2015::20:21:22 ===
+webmachine error: path="/api/trace-files"
+{error,undef,
+    [{rabbit_tracing_wm_files,ping,
+         [{wm_reqdata,'GET',http,
+              {1,1},
+              "127.0.0.1",
+              {wm_reqstate,#Port<0.11550>,
+                  [{resource_module,rabbit_tracing_wm_files}],
+                  undefined,"127.0.0.1",
+                  {wm_reqdata,'GET',http,
+                      {1,1},
+                      "127.0.0.1",defined_on_call,[],"/api/trace-files",
+                      "/api/trace-files",[],[],"../..",500,1073741824,
+                      67108864,[],[],
+                      {8,
+                       {"host",
+                        {'Host',"localhost:15673"},
+                        {"accept",
+                         {'Accept',
+                             "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"},
+                         nil,
+                         {"accept-language",
+                          {'Accept-Language',
+                              "zh-CN,zh;q=0.8,en-US;q=0.5,en;q=0.3"},
+                          {"accept-encoding",
+                           {'Accept-Encoding',"gzip, deflate"},
+                           nil,nil},
+                          {"authorization",
+                           {'Authorization',"Basic Z3Vlc3Q6Z3Vlc3Q="},
+                           nil,
+                           {"connection",
+                            {'Connection',"keep-alive"},
+                            nil,nil}}}},
+                        {"user-agent",
+                         {'User-Agent',
+                             "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:43.0) Gecko/20100101 Firefox/43.0"},
+                         {"referer",
+                          {'Referer',"http://localhost:15673/"},
+                          nil,nil},
+                         nil}}},
+                      not_fetched_yet,false,
+                      {0,nil},
+                      <<>>,follow_request,[],80,[]},
+                  undefined,undefined,
+                  {wm_log_data,undefined,
+                      {1451,46082,952007},
+                      'GET',
+                      {8,
+                       {"host",
+                        {'Host',"localhost:15673"},
+                        {"accept",
+                         {'Accept',
+                             "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"},
+                         nil,
+                         {"accept-language",
+                          {'Accept-Language',
+                              "zh-CN,zh;q=0.8,en-US;q=0.5,en;q=0.3"},
+                          {"accept-encoding",
+                           {'Accept-Encoding',"gzip, deflate"},
+                           nil,nil},
+                          {"authorization",
+                           {'Authorization',"Basic Z3Vlc3Q6Z3Vlc3Q="},
+                           nil,
+                           {"connection",
+                            {'Connection',"keep-alive"},
+                            nil,nil}}}},
+                        {"user-agent",
+                         {'User-Agent',
+                             "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:43.0) Gecko/20100101 Firefox/43.0"},
+                         {"referer",
+                          {'Referer',"http://localhost:15673/"},
+                          nil,nil},
+                         nil}}},
+                      "127.0.0.1","/api/trace-files",
+                      {1,1},
+                      404,0,undefined,undefined,undefined}},
+              [],"/api/trace-files","/api/trace-files",[],[],"../..",500,
+              1073741824,67108864,[],[],
+              {8,
+               {"host",
+                {'Host',"localhost:15673"},
+                {"accept",
+                 {'Accept',
+                     "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"},
+                 nil,
+                 {"accept-language",
+                  {'Accept-Language',"zh-CN,zh;q=0.8,en-US;q=0.5,en;q=0.3"},
+                  {"accept-encoding",
+                   {'Accept-Encoding',"gzip, deflate"},
+                   nil,nil},
+                  {"authorization",
+                   {'Authorization',"Basic Z3Vlc3Q6Z3Vlc3Q="},
+                   nil,
+                   {"connection",{'Connection',"keep-alive"},nil,nil}}}},
+                {"user-agent",
+                 {'User-Agent',
+                     "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:43.0) Gecko/20100101 Firefox/43.0"},
+                 {"referer",{'Referer',"http://localhost:15673/"},nil,nil},
+                 nil}}},
+              not_fetched_yet,false,
+              {0,nil},
+              <<>>,follow_request,[],80,[]},
+          {context,undefined,none}],
+         []},
+     {webmachine_resource,resource_call,3,
+         [{file,
+              "../plugins-src/webmachine-wrapper/webmachine-git/src/webmachine_resource.erl"},
+          {line,186}]},
+     {webmachine_resource,do,3,
+         [{file,
+              "../plugins-src/webmachine-wrapper/webmachine-git/src/webmachine_resource.erl"},
+          {line,142}]},
+     {webmachine_decision_core,resource_call,1,
+         [{file,
+              "../plugins-src/webmachine-wrapper/webmachine-git/src/webmachine_decision_core.erl"},
+          {line,48}]},
+     {webmachine_decision_core,decision,1,
+         [{file,
+              "../plugins-src/webmachine-wrapper/webmachine-git/src/webmachine_decision_core.erl"},
+          {line,160}]},
+     {webmachine_decision_core,handle_request,2,
+         [{file,
+              "../plugins-src/webmachine-wrapper/webmachine-git/src/webmachine_decision_core.erl"},
+          {line,33}]},
+     {rabbit_webmachine,'-makeloop/1-fun-0-',2,
+         [{file,
+              "../plugins-src/rabbitmq-web-dispatch/src/rabbit_webmachine.erl"},
+          {line,56}]},
+     {mochiweb_http,headers,5,
+         [{file,
+              "../plugins-src/mochiweb-wrapper/mochiweb-git/src/mochiweb_http.erl"},
+          {line,101}]}]}
+
+=INFO REPORT==== 25-Dec-2015::20:31:42 ===
+Starting RabbitMQ 3.5.3 on Erlang R15B
+Copyright (C) 2007-2014 GoPivotal, Inc.
+Licensed under the MPL.  See http://www.rabbitmq.com/
+
+=INFO REPORT==== 25-Dec-2015::20:31:42 ===
+node           : my_server_rabbit1@127.0.0.1
+home dir       : C:\Users\xxw
+config file(s) : (none)
+cookie hash    : vsoziVgtD2XOblNsBTYZ/w==
+log            : ../log/my_server_rabbit1@127.0.0.1.log
+sasl log       : ../log/my_server_rabbit1@127.0.0.1_sasl.log
+database dir   : c:/github/RabbitMQ/ebin/../db/my_server_rabbit1@127.0.0.1-mnesia
+
+=WARNING REPORT==== 25-Dec-2015::20:31:42 ===
+Kernel poll (epoll, kqueue, etc) is disabled. Throughput and CPU utilization may worsen.
+
+=WARNING REPORT==== 25-Dec-2015::20:31:42 ===
+Only 2048MB of 8068MB memory usable due to limited address space.
+Crashes due to memory exhaustion are possible - see
+http://www.rabbitmq.com/memory.html#address-space
+
+=INFO REPORT==== 25-Dec-2015::20:31:42 ===
+Memory limit set to 819MB of 8068MB total.
+
+=INFO REPORT==== 25-Dec-2015::20:31:42 ===
+Disk free limit set to 50MB
+
+=INFO REPORT==== 25-Dec-2015::20:31:42 ===
+Limiting to approx 924 file handles (829 sockets)
+
+=INFO REPORT==== 25-Dec-2015::20:31:43 ===
+Priority queues enabled, real BQ is rabbit_variable_queue
+
+=INFO REPORT==== 25-Dec-2015::20:31:43 ===
+Management plugin: using rates mode 'basic'
+
+=INFO REPORT==== 25-Dec-2015::20:31:43 ===
+msg_store_transient: using rabbit_msg_store_ets_index to provide index
+
+=INFO REPORT==== 25-Dec-2015::20:31:43 ===
+msg_store_persistent: using rabbit_msg_store_ets_index to provide index
+
+=WARNING REPORT==== 25-Dec-2015::20:31:43 ===
+msg_store_persistent: rebuilding indices from scratch
+
+=INFO REPORT==== 25-Dec-2015::20:31:43 ===
+started TCP Listener on 127.0.0.1:5673
+
+=INFO REPORT==== 25-Dec-2015::20:31:43 ===
+rabbit on node 'my_server_rabbit2@127.0.0.1' up
+
+=INFO REPORT==== 25-Dec-2015::20:31:43 ===
+Management plugin started. Port: 15673
+
+=INFO REPORT==== 25-Dec-2015::20:31:43 ===
+rabbit on node 'my_server_rabbit3@127.0.0.1' up
+
+=INFO REPORT==== 25-Dec-2015::20:31:43 ===
+Statistics database started.
+
+=INFO REPORT==== 25-Dec-2015::20:31:45 ===
+Server startup complete; 8 plugins started.
+ * rabbitmq_tracing
+ * rabbitmq_management
+ * rabbitmq_shovel
+ * rabbitmq_management_agent
+ * rabbitmq_web_dispatch
+ * webmachine
+ * mochiweb
+ * amqp_client
+
+=INFO REPORT==== 25-Dec-2015::20:40:13 ===
+Starting RabbitMQ 3.5.3 on Erlang R15B
+Copyright (C) 2007-2014 GoPivotal, Inc.
+Licensed under the MPL.  See http://www.rabbitmq.com/
+
+=INFO REPORT==== 25-Dec-2015::20:40:13 ===
+node           : my_server_rabbit1@127.0.0.1
+home dir       : C:\Users\xxw
+config file(s) : (none)
+cookie hash    : vsoziVgtD2XOblNsBTYZ/w==
+log            : ../log/my_server_rabbit1@127.0.0.1.log
+sasl log       : ../log/my_server_rabbit1@127.0.0.1_sasl.log
+database dir   : c:/github/RabbitMQ/ebin/../db/my_server_rabbit1@127.0.0.1-mnesia
+
+=WARNING REPORT==== 25-Dec-2015::20:40:13 ===
+Kernel poll (epoll, kqueue, etc) is disabled. Throughput and CPU utilization may worsen.
+
+=WARNING REPORT==== 25-Dec-2015::20:40:14 ===
+Only 2048MB of 8068MB memory usable due to limited address space.
+Crashes due to memory exhaustion are possible - see
+http://www.rabbitmq.com/memory.html#address-space
+
+=INFO REPORT==== 25-Dec-2015::20:40:14 ===
+Memory limit set to 819MB of 8068MB total.
+
+=INFO REPORT==== 25-Dec-2015::20:40:14 ===
+Disk free limit set to 50MB
+
+=INFO REPORT==== 25-Dec-2015::20:40:14 ===
+Limiting to approx 924 file handles (829 sockets)
+
+=INFO REPORT==== 25-Dec-2015::20:40:16 ===
+Priority queues enabled, real BQ is rabbit_variable_queue
+
+=INFO REPORT==== 25-Dec-2015::20:40:16 ===
+Management plugin: using rates mode 'basic'
+
+=INFO REPORT==== 25-Dec-2015::20:40:16 ===
+msg_store_transient: using rabbit_msg_store_ets_index to provide index
+
+=INFO REPORT==== 25-Dec-2015::20:40:16 ===
+msg_store_persistent: using rabbit_msg_store_ets_index to provide index
+
+=WARNING REPORT==== 25-Dec-2015::20:40:16 ===
+msg_store_persistent: rebuilding indices from scratch
+
+=INFO REPORT==== 25-Dec-2015::20:40:16 ===
+started TCP Listener on 127.0.0.1:5673
+
+=INFO REPORT==== 25-Dec-2015::20:40:16 ===
+rabbit on node 'my_server_rabbit2@127.0.0.1' up
+
+=INFO REPORT==== 25-Dec-2015::20:40:17 ===
+Management plugin started. Port: 15673
+
+=INFO REPORT==== 25-Dec-2015::20:40:17 ===
+rabbit on node 'my_server_rabbit3@127.0.0.1' up
+
+=INFO REPORT==== 25-Dec-2015::20:40:17 ===
+Server startup complete; 8 plugins started.
+ * rabbitmq_tracing
+ * rabbitmq_management
+ * rabbitmq_shovel
+ * rabbitmq_management_agent
+ * rabbitmq_web_dispatch
+ * webmachine
+ * mochiweb
+ * amqp_client
+
+=ERROR REPORT==== 25-Dec-2015::20:44:48 ===
+** Generic server os_mon_sysinfo terminating 
+** Last message in was {'EXIT',#Port<0.5973>,normal}
+** When Server state == {state,not_used}
+** Reason for termination == 
+** {port_died,normal}
+
+=INFO REPORT==== 25-Dec-2015::20:44:48 ===
+rabbit on node 'my_server_rabbit2@127.0.0.1' down
+
+=ERROR REPORT==== 25-Dec-2015::20:44:48 ===
+** Generic server os_mon_sysinfo terminating 
+** Last message in was {'EXIT',#Port<0.12939>,normal}
+** When Server state == {state,not_used}
+** Reason for termination == 
+** {port_died,normal}
+
+=ERROR REPORT==== 25-Dec-2015::20:44:48 ===
+** Generic server os_mon_sysinfo terminating 
+** Last message in was {'EXIT',#Port<0.12945>,normal}
+** When Server state == {state,not_used}
+** Reason for termination == 
+** {port_died,normal}
+
+=INFO REPORT==== 26-Dec-2015::12:46:48 ===
+Starting RabbitMQ 3.5.3 on Erlang R15B
+Copyright (C) 2007-2014 GoPivotal, Inc.
+Licensed under the MPL.  See http://www.rabbitmq.com/
+
+=INFO REPORT==== 26-Dec-2015::12:46:48 ===
+node           : my_server_rabbit1@127.0.0.1
+home dir       : C:\Users\xxw
+config file(s) : (none)
+cookie hash    : vsoziVgtD2XOblNsBTYZ/w==
+log            : ../log/my_server_rabbit1@127.0.0.1.log
+sasl log       : ../log/my_server_rabbit1@127.0.0.1_sasl.log
+database dir   : c:/github/RabbitMQ/ebin/../db/my_server_rabbit1@127.0.0.1-mnesia
+
+=WARNING REPORT==== 26-Dec-2015::12:46:48 ===
+Kernel poll (epoll, kqueue, etc) is disabled. Throughput and CPU utilization may worsen.
+
+=WARNING REPORT==== 26-Dec-2015::12:46:50 ===
+Only 2048MB of 8068MB memory usable due to limited address space.
+Crashes due to memory exhaustion are possible - see
+http://www.rabbitmq.com/memory.html#address-space
+
+=INFO REPORT==== 26-Dec-2015::12:46:50 ===
+Memory limit set to 819MB of 8068MB total.
+
+=INFO REPORT==== 26-Dec-2015::12:46:50 ===
+Disk free limit set to 50MB
+
+=INFO REPORT==== 26-Dec-2015::12:46:50 ===
+Limiting to approx 924 file handles (829 sockets)
+
+=INFO REPORT==== 26-Dec-2015::12:46:50 ===
+Priority queues enabled, real BQ is rabbit_variable_queue
+
+=INFO REPORT==== 26-Dec-2015::12:46:50 ===
+Management plugin: using rates mode 'basic'
+
+=INFO REPORT==== 26-Dec-2015::12:46:50 ===
+msg_store_transient: using rabbit_msg_store_ets_index to provide index
+
+=INFO REPORT==== 26-Dec-2015::12:46:50 ===
+msg_store_persistent: using rabbit_msg_store_ets_index to provide index
+
+=WARNING REPORT==== 26-Dec-2015::12:46:50 ===
+msg_store_persistent: rebuilding indices from scratch
+
+=INFO REPORT==== 26-Dec-2015::12:46:50 ===
+started TCP Listener on 127.0.0.1:5673
+
+=INFO REPORT==== 26-Dec-2015::12:46:50 ===
+rabbit on node 'my_server_rabbit3@127.0.0.1' up
+
+=INFO REPORT==== 26-Dec-2015::12:46:51 ===
+rabbit on node 'my_server_rabbit2@127.0.0.1' up
+
+=INFO REPORT==== 26-Dec-2015::12:46:51 ===
+Management plugin started. Port: 15673
+
+=INFO REPORT==== 26-Dec-2015::12:46:51 ===
+Server startup complete; 8 plugins started.
+ * rabbitmq_tracing
+ * rabbitmq_management
+ * rabbitmq_shovel
+ * rabbitmq_management_agent
+ * rabbitmq_web_dispatch
+ * webmachine
+ * mochiweb
+ * amqp_client
+
+=ERROR REPORT==== 26-Dec-2015::13:06:16 ===
+webmachine error: path="/api/trace-files"
+{error,undef,
+    [{rabbit_tracing_wm_files,ping,
+         [{wm_reqdata,'GET',http,
+              {1,1},
+              "127.0.0.1",
+              {wm_reqstate,#Port<0.12561>,
+                  [{resource_module,rabbit_tracing_wm_files}],
+                  undefined,"127.0.0.1",
+                  {wm_reqdata,'GET',http,
+                      {1,1},
+                      "127.0.0.1",defined_on_call,[],"/api/trace-files",
+                      "/api/trace-files",[],[],"../..",500,1073741824,
+                      67108864,[],[],
+                      {8,
+                       {"host",
+                        {'Host',"localhost:15673"},
+                        {"accept",
+                         {'Accept',
+                             "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"},
+                         nil,
+                         {"accept-language",
+                          {'Accept-Language',
+                              "zh-CN,zh;q=0.8,en-US;q=0.5,en;q=0.3"},
+                          {"accept-encoding",
+                           {'Accept-Encoding',"gzip, deflate"},
+                           nil,nil},
+                          {"authorization",
+                           {'Authorization',"Basic Z3Vlc3Q6Z3Vlc3Q="},
+                           nil,
+                           {"connection",
+                            {'Connection',"keep-alive"},
+                            nil,nil}}}},
+                        {"user-agent",
+                         {'User-Agent',
+                             "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:43.0) Gecko/20100101 Firefox/43.0"},
+                         {"referer",
+                          {'Referer',"http://localhost:15673/"},
+                          nil,nil},
+                         nil}}},
+                      not_fetched_yet,false,
+                      {0,nil},
+                      <<>>,follow_request,[],80,[]},
+                  undefined,undefined,
+                  {wm_log_data,undefined,
+                      {1451,106376,911002},
+                      'GET',
+                      {8,
+                       {"host",
+                        {'Host',"localhost:15673"},
+                        {"accept",
+                         {'Accept',
+                             "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"},
+                         nil,
+                         {"accept-language",
+                          {'Accept-Language',
+                              "zh-CN,zh;q=0.8,en-US;q=0.5,en;q=0.3"},
+                          {"accept-encoding",
+                           {'Accept-Encoding',"gzip, deflate"},
+                           nil,nil},
+                          {"authorization",
+                           {'Authorization',"Basic Z3Vlc3Q6Z3Vlc3Q="},
+                           nil,
+                           {"connection",
+                            {'Connection',"keep-alive"},
+                            nil,nil}}}},
+                        {"user-agent",
+                         {'User-Agent',
+                             "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:43.0) Gecko/20100101 Firefox/43.0"},
+                         {"referer",
+                          {'Referer',"http://localhost:15673/"},
+                          nil,nil},
+                         nil}}},
+                      "127.0.0.1","/api/trace-files",
+                      {1,1},
+                      404,0,undefined,undefined,undefined}},
+              [],"/api/trace-files","/api/trace-files",[],[],"../..",500,
+              1073741824,67108864,[],[],
+              {8,
+               {"host",
+                {'Host',"localhost:15673"},
+                {"accept",
+                 {'Accept',
+                     "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"},
+                 nil,
+                 {"accept-language",
+                  {'Accept-Language',"zh-CN,zh;q=0.8,en-US;q=0.5,en;q=0.3"},
+                  {"accept-encoding",
+                   {'Accept-Encoding',"gzip, deflate"},
+                   nil,nil},
+                  {"authorization",
+                   {'Authorization',"Basic Z3Vlc3Q6Z3Vlc3Q="},
+                   nil,
+                   {"connection",{'Connection',"keep-alive"},nil,nil}}}},
+                {"user-agent",
+                 {'User-Agent',
+                     "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:43.0) Gecko/20100101 Firefox/43.0"},
+                 {"referer",{'Referer',"http://localhost:15673/"},nil,nil},
+                 nil}}},
+              not_fetched_yet,false,
+              {0,nil},
+              <<>>,follow_request,[],80,[]},
+          {context,undefined,none}],
+         []},
+     {webmachine_resource,resource_call,3,
+         [{file,
+              "c:/github/RabbitMQ/plugins-src/webmachine-wrapper/webmachine-git/src/webmachine_resource.erl"},
+          {line,187}]},
+     {webmachine_resource,do,3,
+         [{file,
+              "c:/github/RabbitMQ/plugins-src/webmachine-wrapper/webmachine-git/src/webmachine_resource.erl"},
+          {line,142}]},
+     {webmachine_decision_core,resource_call,1,
+         [{file,
+              "c:/github/RabbitMQ/plugins-src/webmachine-wrapper/webmachine-git/src/webmachine_decision_core.erl"},
+          {line,48}]},
+     {webmachine_decision_core,decision,1,
+         [{file,
+              "c:/github/RabbitMQ/plugins-src/webmachine-wrapper/webmachine-git/src/webmachine_decision_core.erl"},
+          {line,160}]},
+     {webmachine_decision_core,handle_request,2,
+         [{file,
+              "c:/github/RabbitMQ/plugins-src/webmachine-wrapper/webmachine-git/src/webmachine_decision_core.erl"},
+          {line,33}]},
+     {rabbit_webmachine,'-makeloop/1-fun-0-',2,
+         [{file,
+              "c:/github/RabbitMQ/plugins-src/rabbitmq-web-dispatch/src/rabbit_webmachine.erl"},
+          {line,57}]},
+     {mochiweb_http,headers,5,
+         [{file,
+              "../plugins-src/mochiweb-wrapper/mochiweb-git/src/mochiweb_http.erl"},
+          {line,101}]}]}
+
+=ERROR REPORT==== 26-Dec-2015::15:57:20 ===
+webmachine error: path="/api/trace-files"
+{error,undef,
+    [{rabbit_tracing_wm_files,ping,
+         [{wm_reqdata,'GET',http,
+              {1,1},
+              "127.0.0.1",
+              {wm_reqstate,#Port<0.19657>,
+                  [{resource_module,rabbit_tracing_wm_files}],
+                  undefined,"127.0.0.1",
+                  {wm_reqdata,'GET',http,
+                      {1,1},
+                      "127.0.0.1",defined_on_call,[],"/api/trace-files",
+                      "/api/trace-files",[],[],"../..",500,1073741824,
+                      67108864,[],[],
+                      {8,
+                       {"host",
+                        {'Host',"localhost:15673"},
+                        {"accept",
+                         {'Accept',
+                             "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"},
+                         nil,
+                         {"accept-language",
+                          {'Accept-Language',
+                              "zh-CN,zh;q=0.8,en-US;q=0.5,en;q=0.3"},
+                          {"accept-encoding",
+                           {'Accept-Encoding',"gzip, deflate"},
+                           nil,nil},
+                          {"authorization",
+                           {'Authorization',"Basic Z3Vlc3Q6Z3Vlc3Q="},
+                           nil,
+                           {"connection",
+                            {'Connection',"keep-alive"},
+                            nil,nil}}}},
+                        {"user-agent",
+                         {'User-Agent',
+                             "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:43.0) Gecko/20100101 Firefox/43.0"},
+                         {"referer",
+                          {'Referer',"http://localhost:15673/"},
+                          nil,nil},
+                         nil}}},
+                      not_fetched_yet,false,
+                      {0,nil},
+                      <<>>,follow_request,[],80,[]},
+                  undefined,undefined,
+                  {wm_log_data,undefined,
+                      {1451,116640,591350},
+                      'GET',
+                      {8,
+                       {"host",
+                        {'Host',"localhost:15673"},
+                        {"accept",
+                         {'Accept',
+                             "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"},
+                         nil,
+                         {"accept-language",
+                          {'Accept-Language',
+                              "zh-CN,zh;q=0.8,en-US;q=0.5,en;q=0.3"},
+                          {"accept-encoding",
+                           {'Accept-Encoding',"gzip, deflate"},
+                           nil,nil},
+                          {"authorization",
+                           {'Authorization',"Basic Z3Vlc3Q6Z3Vlc3Q="},
+                           nil,
+                           {"connection",
+                            {'Connection',"keep-alive"},
+                            nil,nil}}}},
+                        {"user-agent",
+                         {'User-Agent',
+                             "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:43.0) Gecko/20100101 Firefox/43.0"},
+                         {"referer",
+                          {'Referer',"http://localhost:15673/"},
+                          nil,nil},
+                         nil}}},
+                      "127.0.0.1","/api/trace-files",
+                      {1,1},
+                      404,0,undefined,undefined,undefined}},
+              [],"/api/trace-files","/api/trace-files",[],[],"../..",500,
+              1073741824,67108864,[],[],
+              {8,
+               {"host",
+                {'Host',"localhost:15673"},
+                {"accept",
+                 {'Accept',
+                     "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"},
+                 nil,
+                 {"accept-language",
+                  {'Accept-Language',"zh-CN,zh;q=0.8,en-US;q=0.5,en;q=0.3"},
+                  {"accept-encoding",
+                   {'Accept-Encoding',"gzip, deflate"},
+                   nil,nil},
+                  {"authorization",
+                   {'Authorization',"Basic Z3Vlc3Q6Z3Vlc3Q="},
+                   nil,
+                   {"connection",{'Connection',"keep-alive"},nil,nil}}}},
+                {"user-agent",
+                 {'User-Agent',
+                     "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:43.0) Gecko/20100101 Firefox/43.0"},
+                 {"referer",{'Referer',"http://localhost:15673/"},nil,nil},
+                 nil}}},
+              not_fetched_yet,false,
+              {0,nil},
+              <<>>,follow_request,[],80,[]},
+          {context,undefined,none}],
+         []},
+     {webmachine_resource,resource_call,3,
+         [{file,
+              "c:/github/RabbitMQ/plugins-src/webmachine-wrapper/webmachine-git/src/webmachine_resource.erl"},
+          {line,187}]},
+     {webmachine_resource,do,3,
+         [{file,
+              "c:/github/RabbitMQ/plugins-src/webmachine-wrapper/webmachine-git/src/webmachine_resource.erl"},
+          {line,142}]},
+     {webmachine_decision_core,resource_call,1,
+         [{file,
+              "c:/github/RabbitMQ/plugins-src/webmachine-wrapper/webmachine-git/src/webmachine_decision_core.erl"},
+          {line,48}]},
+     {webmachine_decision_core,decision,1,
+         [{file,
+              "c:/github/RabbitMQ/plugins-src/webmachine-wrapper/webmachine-git/src/webmachine_decision_core.erl"},
+          {line,160}]},
+     {webmachine_decision_core,handle_request,2,
+         [{file,
+              "c:/github/RabbitMQ/plugins-src/webmachine-wrapper/webmachine-git/src/webmachine_decision_core.erl"},
+          {line,33}]},
+     {rabbit_webmachine,'-makeloop/1-fun-0-',2,
+         [{file,
+              "c:/github/RabbitMQ/plugins-src/rabbitmq-web-dispatch/src/rabbit_webmachine.erl"},
+          {line,57}]},
+     {mochiweb_http,headers,5,
+         [{file,
+              "../plugins-src/mochiweb-wrapper/mochiweb-git/src/mochiweb_http.erl"},
+          {line,101}]}]}

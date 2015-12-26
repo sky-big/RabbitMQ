@@ -15,11 +15,12 @@
 %%
 
 -module(rabbit_tracing_wm_files).
+%% 获得当前所有跟踪信息文件的列表的处理模块
 
 -export([init/1, to_json/2, content_types_provided/2, is_authorized/2]).
 
 -include("rabbit_mgmt.hrl").
--include_("webmachine.hrl").
+-include("webmachine.hrl").
 
 %%--------------------------------------------------------------------
 
