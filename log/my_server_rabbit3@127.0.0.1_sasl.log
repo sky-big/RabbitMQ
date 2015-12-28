@@ -232,3 +232,93 @@
                   {shutdown,2000},
                   {child_type,worker}]
 
+
+=CRASH REPORT==== 26-Dec-2015::18:35:30 ===
+  crasher:
+    initial call: os_mon_sysinfo:init/1
+    pid: <0.216.0>
+    registered_name: os_mon_sysinfo
+    exception exit: {port_died,normal}
+      in function  gen_server:terminate/6 (gen_server.erl, line 737)
+    ancestors: [os_mon_sup,<0.214.0>]
+    messages: []
+    links: [<0.215.0>]
+    dictionary: []
+    trap_exit: true
+    status: running
+    heap_size: 233
+    stack_size: 24
+    reductions: 403
+  neighbours:
+
+=SUPERVISOR REPORT==== 26-Dec-2015::18:35:30 ===
+     Supervisor: {local,os_mon_sup}
+     Context:    child_terminated
+     Reason:     {port_died,normal}
+     Offender:   [{pid,<0.216.0>},
+                  {name,os_mon_sysinfo},
+                  {mfargs,{os_mon_sysinfo,start_link,[]}},
+                  {restart_type,permanent},
+                  {shutdown,2000},
+                  {child_type,worker}]
+
+
+=CRASH REPORT==== 26-Dec-2015::18:35:30 ===
+  crasher:
+    initial call: os_mon_sysinfo:init/1
+    pid: <0.5579.0>
+    registered_name: os_mon_sysinfo
+    exception exit: {port_died,normal}
+      in function  gen_server:terminate/6 (gen_server.erl, line 737)
+    ancestors: [os_mon_sup,<0.214.0>]
+    messages: []
+    links: [<0.215.0>]
+    dictionary: []
+    trap_exit: true
+    status: running
+    heap_size: 610
+    stack_size: 24
+    reductions: 369
+  neighbours:
+
+=SUPERVISOR REPORT==== 26-Dec-2015::18:35:30 ===
+     Supervisor: {local,os_mon_sup}
+     Context:    child_terminated
+     Reason:     {port_died,normal}
+     Offender:   [{pid,<0.5579.0>},
+                  {name,os_mon_sysinfo},
+                  {mfargs,{os_mon_sysinfo,start_link,[]}},
+                  {restart_type,permanent},
+                  {shutdown,2000},
+                  {child_type,worker}]
+
+
+=CRASH REPORT==== 26-Dec-2015::18:35:30 ===
+  crasher:
+    initial call: os_mon_sysinfo:init/1
+    pid: <0.5580.0>
+    registered_name: []
+    exception exit: {port_died,normal}
+      in function  gen_server:init_it/6 (gen_server.erl, line 321)
+    ancestors: [os_mon_sup,<0.214.0>]
+    messages: []
+    links: [<0.215.0>]
+    dictionary: []
+    trap_exit: true
+    status: running
+    heap_size: 610
+    stack_size: 24
+    reductions: 350
+  neighbours:
+
+=SUPERVISOR REPORT==== 26-Dec-2015::18:35:30 ===
+     Supervisor: {local,os_mon_sup}
+     Context:    start_error
+     Reason:     {port_died,normal}
+     Offender:   [{pid,<0.5579.0>},
+                  {name,os_mon_sysinfo},
+                  {mfargs,{os_mon_sysinfo,start_link,[]}},
+                  {restart_type,permanent},
+                  {shutdown,2000},
+                  {child_type,worker}]
+

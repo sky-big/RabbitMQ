@@ -1945,3 +1945,105 @@ webmachine error: path="/api/trace-files"
          [{file,
               "../plugins-src/mochiweb-wrapper/mochiweb-git/src/mochiweb_http.erl"},
           {line,101}]}]}
+
+=ERROR REPORT==== 26-Dec-2015::18:35:30 ===
+** Generic server os_mon_sysinfo terminating 
+** Last message in was {'EXIT',#Port<0.5944>,normal}
+** When Server state == {state,not_used}
+** Reason for termination == 
+** {port_died,normal}
+
+=ERROR REPORT==== 26-Dec-2015::18:35:30 ===
+** Generic server os_mon_sysinfo terminating 
+** Last message in was {'EXIT',#Port<0.41306>,normal}
+** When Server state == {state,not_used}
+** Reason for termination == 
+** {port_died,normal}
+
+=ERROR REPORT==== 26-Dec-2015::18:35:30 ===
+** Generic server os_mon_sysinfo terminating 
+** Last message in was {'EXIT',#Port<0.41312>,normal}
+** When Server state == {state,not_used}
+** Reason for termination == 
+** {port_died,normal}
+
+=INFO REPORT==== 28-Dec-2015::10:17:13 ===
+Starting RabbitMQ 3.5.3 on Erlang R15B
+Copyright (C) 2007-2014 GoPivotal, Inc.
+Licensed under the MPL.  See http://www.rabbitmq.com/
+
+=INFO REPORT==== 28-Dec-2015::10:17:14 ===
+node           : my_server_rabbit2@127.0.0.1
+home dir       : C:\Users\xxw
+config file(s) : (none)
+cookie hash    : vsoziVgtD2XOblNsBTYZ/w==
+log            : ../log/my_server_rabbit2@127.0.0.1.log
+sasl log       : ../log/my_server_rabbit2@127.0.0.1_sasl.log
+database dir   : c:/github/RabbitMQ/ebin/../db/my_server_rabbit2@127.0.0.1-mnesia
+
+=WARNING REPORT==== 28-Dec-2015::10:17:14 ===
+Kernel poll (epoll, kqueue, etc) is disabled. Throughput and CPU utilization may worsen.
+
+=WARNING REPORT==== 28-Dec-2015::10:17:14 ===
+Only 2048MB of 8068MB memory usable due to limited address space.
+Crashes due to memory exhaustion are possible - see
+http://www.rabbitmq.com/memory.html#address-space
+
+=INFO REPORT==== 28-Dec-2015::10:17:14 ===
+Memory limit set to 819MB of 8068MB total.
+
+=INFO REPORT==== 28-Dec-2015::10:17:14 ===
+Disk free limit set to 50MB
+
+=INFO REPORT==== 28-Dec-2015::10:17:14 ===
+Limiting to approx 924 file handles (829 sockets)
+
+=INFO REPORT==== 28-Dec-2015::10:17:16 ===
+Priority queues enabled, real BQ is rabbit_variable_queue
+
+=INFO REPORT==== 28-Dec-2015::10:17:16 ===
+Management plugin: using rates mode 'basic'
+
+=INFO REPORT==== 28-Dec-2015::10:17:16 ===
+msg_store_transient: using rabbit_msg_store_ets_index to provide index
+
+=INFO REPORT==== 28-Dec-2015::10:17:16 ===
+msg_store_persistent: using rabbit_msg_store_ets_index to provide index
+
+=WARNING REPORT==== 28-Dec-2015::10:17:16 ===
+msg_store_persistent: rebuilding indices from scratch
+
+=INFO REPORT==== 28-Dec-2015::10:17:16 ===
+started TCP Listener on 127.0.0.1:5674
+
+=INFO REPORT==== 28-Dec-2015::10:17:16 ===
+rabbit on node 'my_server_rabbit1@127.0.0.1' up
+
+=INFO REPORT==== 28-Dec-2015::10:17:17 ===
+Management plugin started. Port: 15674
+
+=INFO REPORT==== 28-Dec-2015::10:17:17 ===
+Statistics database started.
+
+=INFO REPORT==== 28-Dec-2015::10:17:17 ===
+rabbit on node 'my_server_rabbit3@127.0.0.1' up
+
+=INFO REPORT==== 28-Dec-2015::10:17:17 ===
+Server startup complete; 8 plugins started.
+ * rabbitmq_tracing
+ * rabbitmq_management
+ * rabbitmq_shovel
+ * rabbitmq_management_agent
+ * rabbitmq_web_dispatch
+ * webmachine
+ * mochiweb
+ * amqp_client
+
+=INFO REPORT==== 28-Dec-2015::10:17:27 ===
+accepting AMQP connection <0.361.0> (127.0.0.1:57606 -> 127.0.0.1:5674)
+
+=INFO REPORT==== 28-Dec-2015::10:17:27 ===
+Mirrored queue 'my_server_rabbit_client2@127.0.0.1' in vhost '/': Adding mirror on node 'my_server_rabbit1@127.0.0.1': <8215.399.0>
+
+=INFO REPORT==== 28-Dec-2015::10:17:27 ===
+Mirrored queue 'my_server_rabbit_client2@127.0.0.1' in vhost '/': Adding mirror on node 'my_server_rabbit3@127.0.0.1': <8216.391.0>
