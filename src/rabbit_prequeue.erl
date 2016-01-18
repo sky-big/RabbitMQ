@@ -73,9 +73,11 @@ init(#amqqueue{name = QueueName}, restart) ->
 							orelse not rabbit_mnesia:on_running_node(QPid),
 	Slaves = [SPid || SPid <- SPids, rabbit_mnesia:is_process_alive(SPid)],
 	case rabbit_mnesia:is_process_alive(QPid) of
-		%% 主master队列进程是存活的，则表示是启动高可用队列进程的重启
+		%% 主master队列进程是存活的，则表示是高可用队列进程的重启
 		true  -> false = LocalOrMasterDown, %% assertion
+				 %% 让重新启动的副镜像队列跟主镜像队列进行消息同步
 				 rabbit_mirror_queue_slave:go(self(), async),
+				 %% 让重新启动的副镜像队列进行初始化
 				 rabbit_mirror_queue_slave:init(Q); %% [1]
 		false -> case LocalOrMasterDown andalso Slaves =:= [] of
 					 true  -> crash_restart(Q);     %% [2]

@@ -432,11 +432,12 @@
 
 %% 镜像队列群组视图成员数据结构
 -record(view_member, { id,							%% 单个镜像队列(结构是{版本号，该镜像队列的Pid})
-					   aliases,						%% 别名
+					   aliases,						%% 记录id对应的左侧死亡的GM进程列表
 					   left,						%% 当前镜像队列左边的镜像队列(结构是{版本号，该镜像队列的Pid})
 					   right						%% 当前镜像队列右边的镜像队列(结构是{版本号，该镜像队列的Pid})
 					 }).
 
+%% 记录单个GM进程中信息的数据结构
 -record(member, { pending_ack,						%% 待确认的消息,也就是已发布的消息缓存的地方
 				  last_pub,							%% 最后一次发布的消息计数
 				  last_ack							%% 最后一次确认的消息计数
@@ -562,6 +563,7 @@ broadcast(Server, Msg, SizeHint) ->
 	gen_server2:cast(Server, {broadcast, Msg, SizeHint}).
 
 
+%% 此接口无人调用，暂时废弃
 confirmed_broadcast(Server, Msg) ->
 	gen_server2:call(Server, {confirmed_broadcast, Msg}, infinity).
 
@@ -584,10 +586,11 @@ forget_group(GroupName) ->
 	ok.
 
 
-%% gm进程启动的回调初始化函数
+%% gm进程启动的回调初始化函数(gm_group数据库表是非持久化表，则RabbitMQ系统每次重启gm_group表中都没有数据)
 init([GroupName, Module, Args, TxnFun]) ->
 	%% 存储进程名字
 	put(process_name, {?MODULE, GroupName}),
+	%% 设置随机种子
 	{MegaSecs, Secs, MicroSecs} = now(),
 	random:seed(MegaSecs, Secs, MicroSecs),
 	%% 组装单个成员信息(组装自己的成员ID)
@@ -611,10 +614,12 @@ init([GroupName, Module, Args, TxnFun]) ->
 	 {backoff, ?HIBERNATE_AFTER_MIN, ?HIBERNATE_AFTER_MIN, ?DESIRED_HIBERNATE}}.
 
 
+%% 此消息无人调用，暂时废弃
 handle_call({confirmed_broadcast, _Msg}, _From,
 			State = #state { members_state = undefined }) ->
 	reply(not_joined, State);
 
+%% 此消息无人调用，暂时废弃
 handle_call({confirmed_broadcast, Msg}, _From,
 			State = #state { self          = Self,
 							 right         = {Self, undefined},
@@ -623,6 +628,7 @@ handle_call({confirmed_broadcast, Msg}, _From,
 	handle_callback_result({Module:handle_msg(Args, get_pid(Self), Msg),
 							ok, State});
 
+%% 此消息无人调用，暂时废弃
 handle_call({confirmed_broadcast, Msg}, From, State) ->
 	{Result, State1 = #state { pub_count = PubCount, confirms = Confirms }} =
 		internal_broadcast(Msg, 0, State),
@@ -655,7 +661,7 @@ handle_call({add_on_right, NewMember}, _From,
 							 group_name    = GroupName,
 							 members_state = MembersState,
 							 txn_executor  = TxnFun }) ->
-	%% 记录将新的镜像队列成员加入到镜像队列组中，将新加入的镜像队列写入gm_group结构中的members字段中
+	%% 记录将新的镜像队列成员加入到镜像队列组中，将新加入的镜像队列写入gm_group结构中的members字段中(有新成员加入群组的时候，则将版本号增加一)
 	Group = record_new_member_in_group(NewMember, Self, GroupName, TxnFun),
 	%% 根据组成员信息生成新的镜像队列视图数据结构
 	View1 = group_to_view(Group),
@@ -721,7 +727,7 @@ handle_cast({broadcast, Msg, SizeHint}, State) ->
 	{Result, State1} = internal_broadcast(Msg, SizeHint, State),
 	handle_callback_result({Result, maybe_flush_broadcast_buffer(State1)});
 
-%% 处理将自己加入到镜像队列的群组中的消息
+%% 同步处理将自己加入到镜像队列的群组中的消息
 handle_cast(join, State = #state { self          = Self,
 								   group_name    = GroupName,
 								   members_state = undefined,
@@ -729,12 +735,15 @@ handle_cast(join, State = #state { self          = Self,
 								   callback_args = Args,
 								   txn_executor  = TxnFun }) ->
 	%% 将当前镜像队列加入到镜像队列的循环队列视图中，返回最新的镜像队列循环队列视图
+	%% 如果当前GM进程不是群组的第一个GM进程，则会call到自己要加入的位置左侧的GM进程，直到左侧成功的将当前GM加入群组，然后返回给
+	%% 当前GM进程最新的gm_group数据结构信息
 	View = join_group(Self, GroupName, TxnFun),
 	MembersState =
 		%% 获取镜像队列视图的所有key列表
 		case alive_view_members(View) of
-			%% 空白的成员数据结构，返回的是字典数据结构
+			%% 如果是第一个GM进程的启动则初始化成员状态数据结构
 			[Self] -> blank_member_state();
+			%% 如果是第一个以后的GM进程加入到Group中，则成员状态先不做初始化，让自己左侧的GM进程发送过来的信息进行初始化
 			_      -> undefined
 		end,
 	%% 检查当前镜像队列的邻居信息(根据消息镜像队列的群组循环视图更新自己最新的左右两边的镜像队列)
@@ -773,7 +782,7 @@ handle_info(timeout, State) ->
 	%% 则立刻将广播缓存中的数据广播给右侧的镜像队列
 	noreply(flush_broadcast_buffer(State));
 
-%% 自己左右两边的镜像队列GM进程有挂掉的情况
+%% 接收到自己左右两边的镜像队列GM进程挂掉的消息
 handle_info({'DOWN', MRef, process, _Pid, Reason},
 			State = #state { self          = Self,
 							 left          = Left,
@@ -781,6 +790,7 @@ handle_info({'DOWN', MRef, process, _Pid, Reason},
 							 group_name    = GroupName,
 							 confirms      = Confirms,
 							 txn_executor  = TxnFun }) ->
+	%% 得到挂掉的GM进程
 	Member = case {Left, Right} of
 				 %% 左侧的镜像队列GM进程挂掉的情况
 				 {{Member1, MRef}, _} -> Member1;
@@ -803,6 +813,7 @@ handle_info({'DOWN', MRef, process, _Pid, Reason},
 			%% partition and will not be assassinating another member.
 			timer:sleep(100),
 			%% 先记录有镜像队列成员死亡的信息，然后将所有存活的镜像队列组装镜像队列群组循环队列视图
+			%% 有成员死亡的时候会将版本号增加一，record_dead_member_in_group函数是更新gm_group数据库表中的数据，将死亡信息写入数据库表
 			View1 = group_to_view(record_dead_member_in_group(
 									Member, GroupName, TxnFun)),
 			handle_callback_result(
@@ -814,6 +825,7 @@ handle_info({'DOWN', MRef, process, _Pid, Reason},
 											confirms      = purge_confirms(Confirms) },
 										   View1);
 				  %% 当存活的镜像队列GM进程不止自己(根据新的镜像队列循环队列视图和老的视图修改视图，同时根据镜像队列循环视图更新自己左右邻居信息)
+				  %% 同时将当前自己节点的消息信息发布到自己右侧的GM进程
 				  _      -> change_view(View1, State)
 			  end)
 	end.
@@ -851,35 +863,41 @@ prioritise_info(_, _Len, _State) ->
 	0.
 
 
-%% 处理检查邻居的消息
+%% 处理检查邻居的消息(已经在handle_cast接口处处理过)
 handle_msg(check_neighbours, State) ->
 	%% no-op - it's already been done by the calling handle_cast
 	{ok, State};
 
+%% 新增节点的情况
+%% 左侧的GM进程通知右侧的GM进程最新的成员状态(此情况是本GM进程是新加入Group的，等待左侧GM进程发送过来的消息进行初始化成员状态)
 handle_msg({catchup, Left, MembersStateLeft},
 		   State = #state { self          = Self,
 							left          = {Left, _MRefL},
 							right         = {Right, _MRefR},
 							view          = View,
+							%% 新加入的GM进程在加入后是没有初始化成员状态，是等待左侧玩家发送消息来进行初始化
 							members_state = undefined }) ->
-	%% 异步向自己右侧的镜像队列发送最新的所有成员信息
+	%% 异步向自己右侧的镜像队列发送最新的所有成员信息，让Group中的所有成员更新成员信息
 	ok = send_right(Right, View, {catchup, Self, MembersStateLeft}),
 	%% 将成员信息转化成字典数据结构
 	MembersStateLeft1 = build_members_state(MembersStateLeft),
-	%% 更新最新的成员信息
+	%% 新增加的GM进程更新最新的成员信息
 	{ok, State #state { members_state = MembersStateLeft1 }};
 
+%% 节点挂掉的情况或者新增节点发送给自己右侧GM进程的信息
+%% 左侧的GM进程通知右侧的GM进程最新的成员状态(此情况是有新GM进程加入Group，但是自己不是最新加入的GM进程，但是自己仍然需要更新成员信息)
 handle_msg({catchup, Left, MembersStateLeft},
 		   State = #state { self = Self,
 							left = {Left, _MRefL},
 							view = View,
 							members_state = MembersState })
   when MembersState =/= undefined ->
-	%% 将成员信息转化成字典数据结构
+	%% 将最新的成员信息转化成字典数据结构
 	MembersStateLeft1 = build_members_state(MembersStateLeft),
 	%% 拿到左侧镜像队列传入过来的成员信息和自己进程存储的成员信息的ID的去重
 	AllMembers = lists:usort(?DICT:fetch_keys(MembersState) ++
 								 ?DICT:fetch_keys(MembersStateLeft1)),
+	%% 根据左侧GM进程发送过来的成员状态和自己GM进程里的成员状态得到需要广播给后续GM进程的信息
 	{MembersState1, Activity} =
 		lists:foldl(
 		  fun (Id, MembersStateActivity) ->
@@ -889,17 +907,25 @@ handle_msg({catchup, Left, MembersStateLeft},
 				   with_member_acc(
 					 %% 函数的第一个参数是Id对应的自己进程存储的镜像队列成员信息
 					 fun (#member { pending_ack = PA } = Member, Activity1) ->
+							  %% 发送者和自己是一个人则表示消息已经发送回来，或者判断发送者是否在死亡列表中
 							  case is_member_alias(Id, Self, View) of
+								  %% 此情况是发送者和自己是同一个人或者发送者已经死亡
 								  true ->
+									  %% 根据左侧GM进程发送过来的ID最新的成员信息和本GM进程ID对应的成员信息得到已经发布的信息
 									  {_AcksInFlight, Pubs, _PA1} =
 										  find_prefix_common_suffix(PALeft, PA),
+									  %% 重新将自己的消息发布
 									  {Member #member { last_ack = LA },
+													  %% 组装发送的发布和ack消息结构
 													  activity_cons(Id, pubs_from_queue(Pubs),
 																	[], Activity1)};
 								  false ->
+									  %% 根据左侧GM进程发送过来的ID最新的成员信息和本GM进程ID对应的成员信息得到Ack和Pub列表
+									  %% 上一个节点少的消息就是已经得到确认的消息，多出来的是新发布的消息
 									  {Acks, _Common, Pubs} =
 										  find_prefix_common_suffix(PA, PALeft),
 									  {Member,
+									   %% 组装发送的发布和ack消息结构
 									   activity_cons(Id, pubs_from_queue(Pubs),
 													 acks_from_queue(Acks),
 													 Activity1)}
@@ -949,7 +975,7 @@ handle_msg({activity, Left, Activity},
 													   %% 向右侧的镜像队列GM进程发送需要进行ack操作的AckNums列表
 													   activity_cons(
 														 Id, [], AckNums, Activity2)}};
-								  %% Id对应的镜像队列成员没有死亡的情况
+								  %% Id对应的镜像队列成员没有死亡的情况或者消息发送者不是自己
 								  false ->
 									  %% 获得最新的消息缓存
 									  PA1 = apply_acks(Acks, join_pubs(PA, Pubs)),
@@ -972,7 +998,7 @@ handle_msg({activity, Left, Activity},
 	Activity3 = activity_finalise(Activity1),
 	%% 将广播数据发送给自己右侧的镜像队列的GM进程
 	ok = maybe_send_activity(Activity3, State1),
-	%% 删除能够删除的死亡的镜像队列进程信息
+	%% 如果死亡的镜像队列pub和ack相同后，则将死亡的镜像队列从群组中删除掉
 	{Result, State2} = maybe_erase_aliases(State1, View),
 	if_callback_success(
 	  %% GM进程获得左侧的镜像队列GM进程发送过来的数据，然后回调自己的队列模块处理数据
@@ -1065,6 +1091,7 @@ flush_broadcast_buffer(State = #state { self             = Self,
 										pub_count        = PubCount }) ->
 	%% 确保缓存中的发布次数和自己状态中记录的发布次数一致
 	[{PubCount, _Msg} | _] = Buffer, %% ASSERTION match on PubCount
+	%% 将缓存中的所有消息发布给自己右侧的GM群组成员
 	Pubs = lists:reverse(Buffer),
 	%% 组装要广播的数据结构
 	Activity = activity_cons(Self, Pubs, [], activity_nil()),
@@ -1081,7 +1108,6 @@ flush_broadcast_buffer(State = #state { self             = Self,
 	State #state { members_state       = MembersState1,
 				   broadcast_buffer    = [],
 				   broadcast_buffer_sz = 0}.
-
 
 %% ---------------------------------------------------------------------------
 %% View construction and inspection
@@ -1151,6 +1177,7 @@ group_to_view(#gm_group { members = Members, version = Ver }) ->
 	Alive = lists:filter(fun is_member_alive/1, Members),
 	[_ | _] = Alive, %% ASSERTION - can't have all dead members
 	%% 此处Alive ++ Alive ++ Alive是为了只有一个镜像队列的情况(这样能处理任何数量的镜像队列)
+	%% add_aliases函数是将死亡的成员放入到自己右侧成员的aliases字段中
 	add_aliases(link_view(Alive ++ Alive ++ Alive, blank_view(Ver)), Members).
 
 
@@ -1175,12 +1202,14 @@ link_view(_, View) ->
 %% suffix：后缀
 %% 将死亡的成员放入到自己右侧成员的aliases字段中
 add_aliases(View, Members) ->
+	%% 确保镜像队列成员列表中的最后一个成员是存活状态
 	Members1 = ensure_alive_suffix(Members),
 	{EmptyDeadSet, View1} =
 		lists:foldl(
 		  fun (Member, {DeadAcc, ViewAcc}) ->
 				   case is_member_alive(Member) of
 					   true ->
+						   %% 如果当前成员是存活，
 						   {?SETS:new(),
 							with_view_member(
 							  fun (VMember =
@@ -1213,11 +1242,10 @@ ensure_alive_suffix1(MembersQ) ->
 		false -> ensure_alive_suffix1(queue:in_r(Member, MembersQ1))
 	end.
 
-
 %% ---------------------------------------------------------------------------
 %% View modification
 %% ---------------------------------------------------------------------------
-
+%% 当前GM进程加入到镜像队列群组中的接口
 join_group(Self, GroupName, TxnFun) ->
 	join_group(Self, GroupName, dirty_read_group(GroupName), TxnFun).
 
@@ -1241,11 +1269,12 @@ join_group(Self, GroupName, #gm_group { members = Members } = Group, TxnFun) ->
 		false ->
 			case lists:filter(fun is_member_alive/1, Members) of
 				[] ->
+					%% 当前GM群组中没有一个处于存活状态，则重新创建gm_group数据库数据
 					join_group(Self, GroupName,
 							   prune_or_create_group(Self, GroupName, TxnFun),
 							   TxnFun);
 				Alive ->
-					%% 从存活的镜像队列中随机一个镜像队列
+					%% 从存活的镜像队列中随机一个镜像队列(准备将自己加入到这个随机的gm进程的右侧)
 					Left = lists:nth(random:uniform(length(Alive)), Alive),
 					Handler =
 						fun () ->
@@ -1316,7 +1345,7 @@ prune_or_create_group(Self, GroupName, TxnFun) ->
 	  end).
 
 
-%% 记录有镜像队列成员死亡的信息
+%% 记录有镜像队列成员死亡的信息(有成员死亡的时候会将版本号增加一)
 record_dead_member_in_group(Member, GroupName, TxnFun) ->
 	TxnFun(
 	  fun () ->
@@ -1329,12 +1358,13 @@ record_dead_member_in_group(Member, GroupName, TxnFun) ->
 				   {Members1, [Member | Members2]} ->
 					   Members3 = Members1 ++ [{dead, Member} | Members2],
 					   write_group(Group #gm_group { members = Members3,
+													 %% 有成员死亡的时候会将版本号增加一
 													 version = Ver + 1 })
 			   end
 	  end).
 
 
-%% 记录将新的镜像队列成员加入到镜像队列组中，将新加入的镜像队列写入gm_group结构中的members字段中
+%% 记录将新的镜像队列成员加入到镜像队列组中，将新加入的镜像队列写入gm_group结构中的members字段中(有新成员加入群组的时候，则将版本号增加一)
 record_new_member_in_group(NewMember, Left, GroupName, TxnFun) ->
 	TxnFun(
 	  fun () ->
@@ -1345,11 +1375,12 @@ record_new_member_in_group(NewMember, Left, GroupName, TxnFun) ->
 				   lists:splitwith(fun (M) -> M =/= Left end, Members),
 			   write_group(Group #gm_group {
 											members = Prefix ++ [Left, NewMember | Suffix],
+											%% 有新成员加入群组的时候，则将版本号增加一
 											version = Ver + 1 })
 	  end).
 
 
-%% 从gm_group结构中删除Members列表中所有死亡的镜像队列成员
+%% 将GM成员列表从GM群组中删除掉(将GM成员从Group群组中删除后，则将版本号增加一)
 erase_members_in_group(Members, GroupName, TxnFun) ->
 	DeadMembers = [{dead, Id} || Id <- Members],
 	TxnFun(
@@ -1360,6 +1391,7 @@ erase_members_in_group(Members, GroupName, TxnFun) ->
 				   Members1 -> Group;
 				   Members2 -> write_group(
 								 Group #gm_group { members = Members2,
+												   %% 将GM成员从Group群组中删除后，则将版本号增加一
 												   version = Ver + 1 })
 			   end
 	  end).
@@ -1392,7 +1424,7 @@ maybe_erase_aliases(State = #state { self          = Self,
 	change_view(View1, State #state { members_state = MembersState1 }).
 
 
-%% 判断能否删除镜像队列成员
+%% 判断能否删除镜像队列成员(只有pub和ack列表相同，则才能将GM进程从群组中删除掉)
 can_erase_view_member(Self, Self, _LA, _LP) -> false;
 can_erase_view_member(_Self, _Id,   N,   N) -> true;
 can_erase_view_member(_Self, _Id, _LA, _LP) -> false.
@@ -1448,7 +1480,9 @@ check_neighbours(State = #state { self             = Self,
 					 = fetch_view_member(Self, View),
 	%% 从视图中获取版本号
 	Ver = view_version(View),
+	%% 更新自己左侧最新的GM进程信息
 	Left1 = ensure_neighbour(Ver, Self, Left, VLeft),
+	%% 更新自己右侧最新的GM进程信息
 	Right1 = ensure_neighbour(Ver, Self, Right, VRight),
 	Buffer1 = case Right1 of
 				  {Self, undefined} -> [];
@@ -1461,13 +1495,18 @@ check_neighbours(State = #state { self             = Self,
 	State1.
 
 
+%% 自己右侧成员没有变化的情况
 maybe_send_catchup(Right, #state { right = Right }) ->
 	ok;
+%% 自己右侧还没有GM群组成员的情况
 maybe_send_catchup(_Right, #state { self  = Self,
 									right = {Self, undefined} }) ->
 	ok;
+%% 当前GM群组成员的存储数据的数据结构还未初始化的情况
 maybe_send_catchup(_Right, #state { members_state = undefined }) ->
 	ok;
+%% 自己右侧GM群组成员有变化同时已经成功的监视到它，则通知它最新的GM群组成员的数据信息
+%% 此处是有GM进程挂掉后，通知挂掉的GM进程右侧的GM进程
 maybe_send_catchup(_Right, #state { self          = Self,
 									right         = {Right, _MRef},
 									view          = View,
@@ -1479,9 +1518,11 @@ maybe_send_catchup(_Right, #state { self          = Self,
 %% ---------------------------------------------------------------------------
 %% Catch_up delta detection
 %% ---------------------------------------------------------------------------
-
+%% 得到用B队列作为分割线来分割A队列的三段数据，相同前面的元素列表，相同的元素列表，相同之后的元素列表
 find_prefix_common_suffix(A, B) ->
+	%% 得到A队列跟B队列中元素相同之前的元素列表
 	{Prefix, A1} = find_prefix(A, B, queue:new()),
+	%% 得到A队列和B队列相同的元素和剩下不同的元素
 	{Common, Suffix} = find_common(A1, B, queue:new()),
 	{Prefix, Common, Suffix}.
 
@@ -1592,6 +1633,7 @@ get_pids(Ids) -> [Pid || {_Version, Pid} <- Ids].
 activity_nil() -> queue:new().
 
 
+%% 组装发送的发布和ack消息结构
 activity_cons(   _Id,   [],   [], Tail) -> Tail;
 activity_cons(Sender, Pubs, Acks, Tail) -> queue:in({Sender, Pubs, Acks}, Tail).
 

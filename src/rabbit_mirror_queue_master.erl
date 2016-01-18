@@ -129,7 +129,7 @@ init_with_existing_bq(Q = #amqqueue{name = QName}, BQ, BQS) ->
 						   Q1#amqqueue{gm_pids = [{GM, Self} | GMPids],
 									   state   = live})
 		   end),
-	%% 获取该队列需要做镜像的节点列表
+	%% 获取该队列需要做副镜像的节点列表
 	{_MNode, SNodes} = rabbit_mirror_queue_misc:suggested_queue_nodes(Q),
 	%% We need synchronous add here (i.e. do not return until the
 	%% slave is running) so that when queue declaration is finished

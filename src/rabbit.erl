@@ -563,11 +563,11 @@ status() ->
 
 %% 得到当前节点上自己节点发出的报警信息
 alarms() ->
-    Alarms = rabbit_misc:with_exit_handler(rabbit_misc:const([]),
-                                           fun rabbit_alarm:get_alarms/0),
-    N = node(),
-    %% [{{resource_limit,memory,rabbit@mercurio},[]}]
-    [Limit || {{resource_limit, Limit, Node}, _} <- Alarms, Node =:= N].
+	Alarms = rabbit_misc:with_exit_handler(rabbit_misc:const([]),
+										   fun rabbit_alarm:get_alarms/0),
+	N = node(),
+	%% [{{resource_limit,memory,rabbit@mercurio},[]}]
+	[Limit || {{resource_limit, Limit, Node}, _} <- Alarms, Node =:= N].
 
 
 %% 拿到当前节点上所有的客户端监听信息

@@ -22,7 +22,7 @@
 -export([init/1, handle_call/3, handle_cast/2, handle_info/2, terminate/2,
          code_change/3]).
 
--export([list_registry_plugins/1]).
+-export([list_registry_plugins/1,cluster_links/0]).
 
 -import(rabbit_misc, [pget/2]).
 

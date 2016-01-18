@@ -227,6 +227,7 @@ drop_mirror(QName, MirrorNode) ->
 
 %% 在Nodes的所有节点上增加QName队列的副镜像队列
 add_mirrors(QName, Nodes, SyncMode) ->
+	io:format("QQQQQQQQQQQQQQQQQQQQ:~p~n", [{QName, Nodes, SyncMode}]),
 	[add_mirror(QName, Node, SyncMode)  || Node <- Nodes],
 	ok.
 
@@ -319,6 +320,7 @@ promote_slave([SPid | SPids]) ->
 	{SPid, SPids}.
 
 
+%% 获得消息队列的主镜像队列启动的节点
 initial_queue_node(Q, DefNode) ->
 	{MNode, _SNodes} = suggested_queue_nodes(Q, DefNode, all_nodes()),
 	MNode.
@@ -335,14 +337,18 @@ suggested_queue_nodes(Q = #amqqueue{exclusive_owner = Owner}, DefNode, All) ->
 	%% 拿到同步副镜像队列进程所在的节点和异步副镜像队列进程所在的节点
 	{MNode0, SNodes, SSNodes} = actual_queue_nodes(Q),
 	MNode = case MNode0 of
+				%% 如果队列是创建第一次创建的情况，则使用DefNode
 				none -> DefNode;
+				%% 消息队列已经存在，则获得该消息队列主队列所在的节点名字
 				_    -> MNode0
 			end,
 	case Owner of
+		%% 表示该队列不是独有的消息队列(即没有拥有者)
 		none -> %% 获得队列Q在rabbit_policy模块中ha-params参数对应的值(该参数是用来表示队列的镜像队列存在于哪些节点)
 				Params = policy(<<"ha-params">>, Q),
 				%% 根据镜像队列类型从rabbit_policy模块中拿到镜像队列的backing_queue处理模块名字
 				case module(Q) of
+					%% 根据镜像队列类型获得主镜像队列节点和服镜像队列节点列表
 					{ok, M} -> M:suggested_queue_nodes(
 								 Params, MNode, SNodes, SSNodes, All);
 					_       -> {MNode, []}

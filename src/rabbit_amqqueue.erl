@@ -245,7 +245,7 @@ start(Qs) ->
 	ok.
 
 
-%% 查找当前节点所有的持久化队列
+%% 查找当前节点所有的持久化队列(找到需要在本节点启动的持久化队列)
 find_durable_queues() ->
 	Node = node(),
 	mnesia:async_dirty(
@@ -253,7 +253,9 @@ find_durable_queues() ->
 			   qlc:e(qlc:q([Q || Q = #amqqueue{name = Name,
 											   pid  = Pid}
 												  <- mnesia:table(rabbit_durable_queue),
+								 %% 上次消息队列启动的节点和当前节点相同
 								 node(Pid) == Node,
+								 %% 从rabbit_queue非持久化消息队列数据库表里读出来的数据为空
 								 mnesia:read(rabbit_queue, Name, read) =:= []]))
 	  end).
 
@@ -298,6 +300,7 @@ declare(QueueName, Durable, AutoDelete, Args, Owner, Node) ->
 									  recoverable_slaves = [],
 									  gm_pids            = [],
 									  state              = live})),
+	%% 获得消息队列的主镜像队列启动的节点，新启动的消息队列获得主镜像队列和创建时的节点是一样的
 	Node = rabbit_mirror_queue_misc:initial_queue_node(Q, Node),
 	%% 在rabbit_amqqueue_sup_sup监督进程下启动rabbit_amqqueue_sup监督进程,同时在rabbit_amqqueue_sup监督进程启动rabbit_amqqueue进程(同时向新启动的队列进程发送init的消息)
 	gen_server2:call(
@@ -1135,8 +1138,10 @@ deliver(Qs, Delivery = #delivery{flow = Flow}) ->
 %% 根据amqqueue数据结构列表得到所有队列的进程Pid列表
 qpids([]) -> {[], []}; %% optimisation
 
+%% 路由到一个消息队列的情况
 qpids([#amqqueue{pid = QPid, slave_pids = SPids}]) -> {[QPid], SPids}; %% opt
 
+%% 路由到多个队列的情况
 qpids(Qs) ->
 	{MPids, SPids} = lists:foldl(fun (#amqqueue{pid = QPid, slave_pids = SPids},
 									  {MPidAcc, SPidAcc}) ->

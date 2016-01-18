@@ -525,8 +525,10 @@ next_state(State = #q{backing_queue       = BQ,
 %% 拿到rabbit应用中backing_queue_module对应的配置参数(现在是rabbit_priority_queue)，如果队列是镜像队列，则为rabbit_mirror_queue_master
 backing_queue_module(Q) ->
 	case rabbit_mirror_queue_misc:is_mirrored(Q) of
+		%% 该队列没有设置镜像队列，则拿到backing_queue的模块为rabbit_priority_queue
 		false -> {ok, BQM} = application:get_env(backing_queue_module),
 				 BQM;
+		%% 当期队列是镜像队列，且该队列为主镜像队列
 		true  -> rabbit_mirror_queue_master
 	end.
 
